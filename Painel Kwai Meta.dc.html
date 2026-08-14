@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+<style>
+  :root, [data-theme="dark"] {
+    --bg:#070E24; --panel:#0D1836; --panel2:#0A1330; --rail:#0A1226;
+    --panelAccent:linear-gradient(140deg,#14357C 0%,#0D1836 78%);
+    --line:rgba(255,255,255,.08); --accentLine:rgba(53,208,255,.22);
+    --text:#EAF0FF; --text2:#C6D6F5; --muted:#8496BC; --muted2:#94A5C9; --dim:#63739A;
+    --soft:rgba(255,255,255,.045); --track:rgba(255,255,255,.09);
+    --posBg:rgba(33,196,106,.15); --posFg:#4BE08C; --negBg:rgba(228,34,43,.16); --negFg:#FF8189;
+    --shadow:0 24px 48px -20px rgba(0,0,0,.75), 0 6px 16px -10px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+    --railShadow:0 30px 60px -18px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.06);
+    --line1:#35D0FF; --fill1:rgba(53,208,255,.16);
+    --slot12:repeating-linear-gradient(135deg,#132349 0 12px,#182B5E 12px 24px);
+    --slot10:repeating-linear-gradient(135deg,#132349 0 10px,#182B5E 10px 20px);
+    --slot9:repeating-linear-gradient(135deg,#132349 0 9px,#182B5E 9px 18px);
+    --slot8:repeating-linear-gradient(135deg,#132349 0 8px,#182B5E 8px 16px);
+  }
+  [data-theme="light"] {
+    --bg:#EDF1F9; --panel:#FFFFFF; --panel2:#FFFFFF; --rail:#0A1226;
+    --panelAccent:linear-gradient(140deg,#DCE8FF 0%,#F8FAFF 80%);
+    --line:rgba(20,45,100,.10); --accentLine:rgba(46,143,255,.30);
+    --text:#0C1B38; --text2:#26406E; --muted:#63779F; --muted2:#5A6E96; --dim:#93A2BF;
+    --soft:rgba(20,45,100,.045); --track:rgba(20,45,100,.09);
+    --posBg:rgba(20,150,80,.13); --posFg:#0E8A4C; --negBg:rgba(214,26,36,.11); --negFg:#C41821;
+    --shadow:0 22px 44px -22px rgba(24,45,96,.40), 0 10px 22px -14px rgba(24,45,96,.20), inset 0 1px 0 rgba(255,255,255,.95);
+    --railShadow:0 30px 60px -20px rgba(24,45,96,.45), inset 0 1px 0 rgba(255,255,255,.08);
+    --line1:#35D0FF; --fill1:rgba(53,208,255,.16);
+    --line1:#1B6FE0; --fill1:rgba(46,143,255,.16);
+    --slot12:repeating-linear-gradient(135deg,#E4EBF8 0 12px,#EFF3FB 12px 24px);
+    --slot10:repeating-linear-gradient(135deg,#E4EBF8 0 10px,#EFF3FB 10px 20px);
+    --slot9:repeating-linear-gradient(135deg,#E4EBF8 0 9px,#EFF3FB 9px 18px);
+    --slot8:repeating-linear-gradient(135deg,#E4EBF8 0 8px,#EFF3FB 8px 16px);
+  }
+  html, body { margin:0; padding:0; background:var(--bg); height:100%; overflow:hidden; }
+  .ms { font-family:'Material Symbols Rounded'; font-weight:400; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; display:inline-block; white-space:nowrap; direction:ltr; -webkit-font-feature-settings:'liga'; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  nav::-webkit-scrollbar { width:0; }
+  * { box-sizing:border-box; min-width:0; }
+  a { color:#35D0FF; text-decoration:none; }
+  a:hover { color:#8FE3FF; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.14); border-radius:8px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  input[type=range]{ -webkit-appearance:none; appearance:none; background:transparent; }
+  input[type=range]::-webkit-slider-runnable-track{ height:6px; border-radius:99px; background:var(--track); }
+  input[type=range]::-moz-range-track{ height:6px; border-radius:99px; background:var(--track); }
+  input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:99px; background:#35D0FF; border:2px solid var(--panel); cursor:pointer; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; margin-top:-5px; border-radius:99px; background:#2E8FFF; border:2px solid var(--panel); box-shadow:0 4px 10px -3px rgba(46,143,255,.7); cursor:pointer; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  @keyframes rise { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="height:100vh;width:100%;display:flex;gap:2px;padding:8px 8px 8px 0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;overflow:hidden">
+
+  <aside style="{{ railStyle }}">
+    <div style="flex:1;min-height:0;background:var(--rail);border-radius:32px;box-shadow:var(--railShadow);display:flex;flex-direction:column;align-items:center;padding:10px 8px;gap:6px">
+
+      <div style="width:38px;height:38px;flex:0 0 38px;border-radius:99px;background:var(--slot8);border:2px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;overflow:hidden">
+        <span style="font-size:7px;color:rgba(255,255,255,.55);text-align:center;line-height:1.1">foto</span>
+      </div>
+
+      <div style="height:1px;width:26px;background:rgba(255,255,255,.12);flex:0 0 1px"></div>
+
+      <nav style="flex:1 1 auto;overflow:visible;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;gap:0">
+        <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="13">
+          <div onClick="{{ item.go }}" onMouseEnter="{{ item.over }}" onMouseLeave="{{ item.out }}" style="{{ item.style }}">
+            <span style="{{ item.iconStyle }}" class="ms">{{ item.icon }}</span>
+            <span style="{{ item.labelStyle }}">{{ item.label }}</span>
+          </div>
+        </sc-for>
+      </nav>
+
+      <div style="height:1px;width:26px;background:rgba(255,255,255,.12);flex:0 0 1px"></div>
+
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div onClick="{{ toggleTheme }}" onMouseEnter="{{ themeOver }}" onMouseLeave="{{ themeOut }}" style="{{ themeBtnStyle }}">
+          <span style="{{ themeIconStyle }}" class="ms">{{ themeIcon }}</span>
+          <span style="{{ themeLabelStyle }}">{{ themeLabel }}</span>
+        </div>
+        <div onMouseEnter="{{ exitOver }}" onMouseLeave="{{ exitOut }}" style="{{ userBtnStyle }}">
+          <span style="{{ userIconStyle }}" class="ms">logout</span>
+          <span style="{{ exitLabelStyle }}">Sair</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;background:var(--bg)">
+
+    <header style="height:60px;flex:0 0 60px;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--panel2);z-index:2">
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+        <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:16px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ screenTitle }}</div>
+        <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10px;color:var(--dim)">{{ screenRoute }}</div>
+      </div>
+
+      <div style="display:flex;gap:4px;background:var(--soft);padding:3px;border-radius:10px">
+        <sc-for list="{{ platformChips }}" as="c" hint-placeholder-count="3">
+          <div onClick="{{ c.go }}" style="{{ c.style }}">{{ c.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;gap:4px;background:var(--soft);padding:3px;border-radius:10px">
+        <sc-for list="{{ periodChips }}" as="c" hint-placeholder-count="4">
+          <div onClick="{{ c.go }}" style="{{ c.style }}">{{ c.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--line)">
+        <div style="width:30px;height:30px;border-radius:99px;background:linear-gradient(135deg,#E4222B,#8E0F16);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">RC</div>
+        <div style="font-size:11.5px;line-height:1.2">
+          <div style="font-weight:600">Sala de mídia</div>
+          <div style="font-size:9.5px;color:var(--dim)">gestor@campanha</div>
+        </div>
+      </div>
+    </header>
+
+    <section style="flex:1;min-height:0;padding:16px 20px 18px;overflow:hidden;animation:rise .35s ease">
+
+      <sc-if value="{{ isInicio }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="01 Início" style="height:100%;display:grid;grid-template-rows:1fr auto;gap:14px;min-height:0">
+          <div style="min-height:0;border-radius:20px;overflow:hidden;position:relative;background:linear-gradient(115deg,#0B2A6B 0%,#0E3E9E 45%,#1157C9 100%);display:grid;grid-template-columns:1.15fr .85fr">
+            <div style="position:absolute;inset:auto -12% -60% 40%;width:70%;height:160%;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(53,208,255,.28),transparent 62%)"></div>
+            <div style="position:relative;padding:clamp(14px,2.4vh,28px) 30px;display:flex;flex-direction:column;justify-content:center;gap:clamp(7px,1.4vh,14px);min-width:0;min-height:0;overflow:hidden">
+              <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(9px,1.1vw,11px);letter-spacing:.28em;color:#9CC8FF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">PAINEL DE CAMPANHA · KWAI + META ADS</div>
+              <h1 style="margin:0;font-family:'Poppins',sans-serif;font-weight:900;font-size:clamp(22px,min(3.2vw,6.4vh),50px);line-height:.94;letter-spacing:-.02em;text-transform:uppercase;text-wrap:balance">Central de<br />inteligência<br /><span style="color:#35D0FF">de mídia</span></h1>
+              <p style="margin:0;max-width:44ch;font-size:clamp(11.5px,1.3vw,14.5px);line-height:1.5;color:#D3E3FF;text-wrap:pretty">Investimento, alcance, público, território e criativos da campanha de <strong style="color:#fff">ACM Neto</strong> — Kwai Ads e Meta Ads em um só painel.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:4px">
+                <div onClick="{{ goCampanhas }}" style="cursor:pointer;background:#fff;color:#0B2A6B;font-weight:700;font-size:clamp(12px,1.2vw,14px);padding:clamp(9px,1.4vh,13px) 22px;border-radius:99px;display:flex;align-items:center;gap:10px">Abrir painel de campanhas <span style="font-size:15px">→</span></div>
+                <div onClick="{{ goSimulador }}" style="cursor:pointer;border:1px solid rgba(255,255,255,.4);color:#fff;font-weight:600;font-size:clamp(12px,1.2vw,14px);padding:clamp(9px,1.4vh,13px) 20px;border-radius:99px">Simulador de verba</div>
+              </div>
+            </div>
+            <div style="position:relative;padding:26px 30px 26px 0;display:flex;align-items:center;justify-content:center;min-width:0">
+              <div style="width:100%;height:100%;max-height:100%;border-radius:22px;background:#fff;padding:9px;display:flex">
+                <div style="flex:1;border-radius:15px;background:var(--slot12);position:relative;display:flex;align-items:flex-end;padding:18px">
+                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;color:#8FA7DA;position:absolute;top:50%;left:0;right:0;text-align:center;transform:translateY(-50%);letter-spacing:.1em">[ foto do candidato ]</div>
+                  <div style="position:relative">
+                    <div style="font-family:'Poppins',sans-serif;font-weight:900;font-size:17px;letter-spacing:.04em">ACM NETO</div>
+                    <div style="font-size:11px;color:#B9CCF2">Governo · Bahia · 2026</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:5px;display:flex"><div style="flex:1;background:#E4222B"></div><div style="flex:2;background:#35D0FF"></div></div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+            <sc-for list="{{ heroKpis }}" as="k" hint-placeholder-count="5">
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:13px 15px;display:flex;flex-direction:column;gap:5px">
+                <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(17px,1.7vw,26px);font-weight:600;letter-spacing:-.02em">{{ k.value }}</div>
+                <div style="font-size:9.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">{{ k.label }}</div>
+                <div style="display:flex;align-items:center;gap:7px">
+                  <span style="{{ k.pillStyle }}">{{ k.delta }}</span>
+                  <span style="font-size:10.5px;color:var(--dim)">{{ k.note }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCampanhas }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="02 Campanhas" style="height:100%;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:minmax(196px,1.45fr) minmax(0,.42fr) minmax(0,1.05fr);gap:12px;min-height:0">
+
+          <div style="grid-column:span 5;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:15px 17px;display:flex;flex-direction:column;gap:11px;min-height:0">
+            <div style="display:flex;align-items:baseline;justify-content:space-between">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Investimento total</div>
+              <div style="font-size:10.5px;color:var(--dim)">{{ periodLabel }}</div>
+            </div>
+            <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(22px,2.4vw,32px);font-weight:600;letter-spacing:-.02em">{{ totalInvest }}</div>
+            <div style="display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--track)">
+              <div style="{{ splitKwaiBar }}"></div>
+              <div style="{{ splitMetaBar }}"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0;min-height:0">
+              <sc-for list="{{ splitCards }}" as="s" hint-placeholder-count="2">
+                <div style="{{ s.box }}">
+                  <div style="display:flex;align-items:center;gap:7px"><span style="{{ s.dot }}"></span><span style="font-weight:700;font-size:12.5px">{{ s.name }}</span><span style="margin-left:auto;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:12px;color:var(--text2)">{{ s.pct }}</span></div>
+                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:15.5px;margin-top:5px">{{ s.value }}</div>
+                  <div style="font-size:10.5px;color:#6E7EA6;margin-top:3px">{{ s.note }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="grid-column:span 7;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:15px 17px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Linha do tempo de indicadores</div>
+              <div style="display:flex;gap:12px;font-size:10.5px;color:var(--muted2)">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:2px;background:#35D0FF;display:block"></span>Investimento</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:2px;background:#F5B301;display:block"></span>Cadastros</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:2px;background:#E4222B;display:block"></span>CPA</span>
+              </div>
+            </div>
+            <div style="flex:1;min-height:0;position:relative">
+              <svg viewBox="0 0 100 34" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+                <path d="{{ chartInvestArea }}" fill="var(--fill1)"></path>
+                <path d="{{ chartInvest }}" fill="none" stroke="var(--line1)" stroke-width=".8" vector-effect="non-scaling-stroke"></path>
+                <path d="{{ chartCadastros }}" fill="none" stroke="#F5B301" stroke-width=".6" vector-effect="non-scaling-stroke"></path>
+                <path d="{{ chartCpa }}" fill="none" stroke="#E4222B" stroke-width=".6" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"></path>
+              </svg>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--dim);padding-top:6px">
+              <sc-for list="{{ dayLabels }}" as="d" hint-placeholder-count="7"><span>{{ d }}</span></sc-for>
+            </div>
+          </div>
+
+          <div style="grid-column:span 12;min-width:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;min-height:0">
+            <sc-for list="{{ resultCards }}" as="r" hint-placeholder-count="6">
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:13px 14px;display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:0">
+                <div style="font-size:9.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase">{{ r.label }}</div>
+                <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(15px,1.5vw,22px)">{{ r.value }}</div>
+                <div style="{{ r.pillStyle }}">{{ r.delta }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="grid-column:span 6;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px"><span style="width:8px;height:8px;border-radius:3px;background:#FF7A00"></span><span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:13px">Campanhas · Kwai Ads</span><span style="margin-left:auto;font-size:10.5px;color:var(--dim)">4 ativas</span></div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:7px">
+              <sc-for list="{{ kwaiCampaigns }}" as="c" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:9px 11px">
+                  <div style="min-width:0">
+                    <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div>
+                    <div style="font-size:10px;color:#6E7EA6">{{ c.obj }}</div>
+                  </div>
+                  <div style="text-align:right"><div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:12px">{{ c.spend }}</div><div style="font-size:9.5px;color:#6E7EA6">CPA {{ c.cpa }}</div></div>
+                  <div style="{{ c.statusStyle }}">{{ c.status }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="grid-column:span 6;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px"><span style="width:8px;height:8px;border-radius:3px;background:#2E8FFF"></span><span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:13px">Campanhas · Meta Ads</span><span style="margin-left:auto;font-size:10.5px;color:var(--dim)">5 ativas</span></div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:7px">
+              <sc-for list="{{ metaCampaigns }}" as="c" hint-placeholder-count="5">
+                <div style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:9px 11px">
+                  <div style="min-width:0">
+                    <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div>
+                    <div style="font-size:10px;color:#6E7EA6">{{ c.obj }}</div>
+                  </div>
+                  <div style="text-align:right"><div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:12px">{{ c.spend }}</div><div style="font-size:9.5px;color:#6E7EA6">CPA {{ c.cpa }}</div></div>
+                  <div style="{{ c.statusStyle }}">{{ c.status }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCriativos }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="03 Criativos" style="height:100%;display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <sc-for list="{{ criativoFilters }}" as="f" hint-placeholder-count="5">
+              <div style="{{ f.style }}">{{ f.label }}</div>
+            </sc-for>
+            <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+              <div style="font-size:10.5px;color:var(--dim)">Importação de criativos via API — layout padrão</div>
+              <div style="cursor:pointer;background:rgba(53,208,255,.14);border:1px solid rgba(53,208,255,.35);color:#8FE3FF;font-size:11.5px;font-weight:600;padding:8px 14px;border-radius:9px">Importar criativos</div>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:1fr 1fr;gap:12px">
+            <sc-for list="{{ criativos }}" as="c" hint-placeholder-count="10">
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-height:0">
+                <div style="flex:1;min-height:0;background:var(--slot10);position:relative;display:flex;align-items:center;justify-content:center">
+                  <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:#8FA7DA;letter-spacing:.08em">{{ c.slot }}</span>
+                  <span style="{{ c.badge }}">{{ c.plat }}</span>
+                </div>
+                <div style="padding:9px 11px;display:flex;flex-direction:column;gap:5px">
+                  <div style="font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div>
+                  <div style="display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10px;color:var(--muted2)"><span>{{ c.spend }}</span><span>CPA {{ c.cpa }}</span></div>
+                  <div style="height:4px;border-radius:99px;background:var(--track);overflow:hidden"><div style="{{ c.bar }}"></div></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAnalises }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="04 Análises" style="height:100%;display:grid;grid-template-columns:1.45fr 1fr;gap:12px;min-height:0">
+          <div style="display:grid;grid-template-rows:auto 1fr;gap:12px;min-height:0">
+            <div style="background:var(--panelAccent);border:1px solid var(--accentLine);border-radius:18px;box-shadow:var(--shadow);padding:17px 19px;display:flex;flex-direction:column;gap:9px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#8FC4FF;text-transform:uppercase">Leitura geral do período</div>
+              <div style="font-size:14.5px;line-height:1.6;color:var(--text2);text-wrap:pretty">{{ analiseHeadline }}</div>
+            </div>
+            <div style="min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">
+              <sc-for list="{{ analises }}" as="a" hint-placeholder-count="6">
+                <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:13px 15px;display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="{{ a.tagStyle }}">{{ a.tag }}</span><span style="font-size:9.5px;color:var(--dim);margin-left:auto">{{ a.src }}</span></div>
+                  <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:13.5px">{{ a.title }}</div>
+                  <div style="font-size:12px;line-height:1.55;color:#9FB0D2;text-wrap:pretty">{{ a.text }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-rows:1fr auto;gap:12px;min-height:0">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Sinais monitorados</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ sinais }}" as="s" hint-placeholder-count="6">
+                  <div style="display:flex;flex-direction:column;gap:5px">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px"><span>{{ s.label }}</span><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;color:var(--text2)">{{ s.value }}</span></div>
+                    <div style="height:5px;border-radius:99px;background:var(--track);overflow:hidden"><div style="{{ s.bar }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:rgba(228,34,43,.1);border:1px solid rgba(228,34,43,.3);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:7px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#FF9AA0;text-transform:uppercase">Pontos de atenção</div>
+              <sc-for list="{{ atencao }}" as="t" hint-placeholder-count="3">
+                <div style="font-size:12px;line-height:1.5;color:#F3D6D8">— {{ t }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPeriodo }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="05 Período" style="height:100%;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1.25fr) minmax(0,1fr);gap:12px;min-height:0;min-width:0">
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;min-width:0">
+            <sc-for list="{{ periodoKpis }}" as="k" hint-placeholder-count="4">
+              <div style="min-width:0;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:6px">
+                <div style="font-size:9.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">{{ k.label }}</div>
+                <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(18px,2vw,28px)">{{ k.value }}</div>
+                <div style="display:flex;align-items:center;gap:8px"><span style="{{ k.pillStyle }}">{{ k.delta }}</span><span style="font-size:10.5px;color:var(--dim)">{{ k.note }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px;min-height:0">
+            <div style="background:var(--panelAccent);border:1px solid var(--accentLine);border-radius:18px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:14px;margin-bottom:9px">Leitura das campanhas</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ leitura }}" as="p" hint-placeholder-count="4">
+                  <div style="font-size:13px;line-height:1.65;color:var(--text2);text-wrap:pretty">{{ p }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Últimas alterações</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ alteracoes }}" as="a" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:auto 1fr;gap:9px">
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10px;color:var(--dim);padding-top:2px">{{ a.time }}</div>
+                    <div>
+                      <div style="font-size:11.5px;font-weight:600">{{ a.title }}</div>
+                      <div style="font-size:10.5px;color:var(--muted)">{{ a.detail }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:13px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;margin-bottom:9px"><div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Criativos no ar</div><div onClick="{{ goCriativos }}" style="margin-left:auto;font-size:10.5px;color:#35D0FF;cursor:pointer">ver todos →</div></div>
+            <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px">
+              <sc-for list="{{ criativosMini }}" as="c" hint-placeholder-count="6">
+                <div style="display:flex;gap:9px;background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:8px;min-height:0">
+                  <div style="width:34px;flex:0 0 34px;border-radius:7px;background:var(--slot8)"></div>
+                  <div style="min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px">
+                    <div style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div>
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--muted)">{{ c.metric }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDesempenho }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="06 Desempenho" style="height:100%;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1.3fr) minmax(0,1fr);gap:12px;min-height:0;min-width:0">
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;min-width:0">
+            <sc-for list="{{ bigNumbers }}" as="b" hint-placeholder-count="7">
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);padding:11px 13px;display:flex;flex-direction:column;gap:4px">
+                <div style="font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.label }}</div>
+                <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(13px,1.35vw,19px)">{{ b.value }}</div>
+                <div style="{{ b.pillStyle }}">{{ b.delta }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;min-width:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Linha do tempo comparativa</div>
+              <div style="margin-left:auto;min-width:0;overflow:auto;display:flex;align-items:center;gap:7px">
+                <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:#35D0FF">A</span>
+                <div style="display:flex;gap:4px">
+                  <sc-for list="{{ metricChipsA }}" as="m" hint-placeholder-count="5"><div onClick="{{ m.go }}" style="{{ m.style }}">{{ m.label }}</div></sc-for>
+                </div>
+                <span style="font-size:10px;color:var(--dim)">vs</span>
+                <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:#F5B301">B</span>
+                <div style="display:flex;gap:4px">
+                  <sc-for list="{{ metricChipsB }}" as="m" hint-placeholder-count="5"><div onClick="{{ m.go }}" style="{{ m.style }}">{{ m.label }}</div></sc-for>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;min-height:0">
+              <svg viewBox="0 0 100 34" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+                <path d="{{ cmpAreaA }}" fill="var(--fill1)"></path>
+                <path d="{{ cmpA }}" fill="none" stroke="var(--line1)" stroke-width=".9" vector-effect="non-scaling-stroke"></path>
+                <path d="{{ cmpB }}" fill="none" stroke="#F5B301" stroke-width=".7" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"></path>
+              </svg>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--dim);padding-top:6px">
+              <sc-for list="{{ dayLabels }}" as="d" hint-placeholder-count="7"><span>{{ d }}</span></sc-for>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr);gap:12px;min-height:0;min-width:0">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:13px 15px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Interações</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:space-around;gap:6px">
+                <sc-for list="{{ interacoes }}" as="i" hint-placeholder-count="5">
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px"><span>{{ i.label }}</span><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;color:var(--text2)">{{ i.value }}</span></div>
+                    <div style="height:5px;border-radius:99px;background:var(--track);overflow:hidden"><div style="{{ i.bar }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:13px 15px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Interações por criativo</div>
+              <div style="flex:1;min-height:0;display:flex;align-items:flex-end;gap:8px;padding-bottom:18px;position:relative">
+                <sc-for list="{{ interCriativo }}" as="b" hint-placeholder-count="8">
+                  <div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;position:relative">
+                    <div style="{{ b.bar }}"></div>
+                    <div style="position:absolute;bottom:-16px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9px;color:var(--dim)">{{ b.label }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:13px 15px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Retenção de vídeo</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:space-around;gap:6px">
+                <sc-for list="{{ retencao }}" as="r" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10px;color:var(--muted);width:34px">{{ r.label }}</div>
+                    <div style="flex:1;height:14px;border-radius:5px;background:var(--track);overflow:hidden"><div style="{{ r.bar }}"></div></div>
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--text2);width:34px;text-align:right">{{ r.value }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isEficiencia }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="07 Eficiência" style="height:100%;display:grid;grid-template-columns:1.35fr 1fr;grid-template-rows:auto 1fr;gap:12px;min-height:0">
+          <div style="grid-column:span 2;display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+            <sc-for list="{{ eficKpis }}" as="k" hint-placeholder-count="5">
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:13px 15px;display:flex;flex-direction:column;gap:5px">
+                <div style="font-size:9.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase">{{ k.label }}</div>
+                <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(15px,1.6vw,23px)">{{ k.value }}</div>
+                <div style="{{ k.pillStyle }}">{{ k.delta }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Custo por cadastro × volume — por campanha</div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:7px">
+              <sc-for list="{{ eficRows }}" as="r" hint-placeholder-count="9">
+                <div style="display:grid;grid-template-columns:1.5fr 1fr 62px 62px;gap:10px;align-items:center;background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:8px 11px">
+                  <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="{{ r.dot }}"></span><span style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span></div>
+                  <div style="height:6px;border-radius:99px;background:var(--track);overflow:hidden"><div style="{{ r.bar }}"></div></div>
+                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:11px;text-align:right">{{ r.cpa }}</div>
+                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:11px;text-align:right;color:var(--muted2)">{{ r.vol }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-rows:1fr 1fr;gap:12px;min-height:0">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Eficiência por objetivo</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:space-around;gap:6px">
+                <sc-for list="{{ eficObjetivo }}" as="o" hint-placeholder-count="4">
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px"><span>{{ o.label }}</span><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;color:var(--text2)">{{ o.value }}</span></div>
+                    <div style="height:5px;border-radius:99px;background:var(--track);overflow:hidden"><div style="{{ o.bar }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:var(--panelAccent);border:1px solid var(--accentLine);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto">
+              <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:13px">Onde está o desperdício</div>
+              <sc-for list="{{ desperdicio }}" as="d" hint-placeholder-count="3">
+                <div style="font-size:12px;line-height:1.55;color:var(--text2)">— {{ d }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTerritorio }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="08 Território" style="height:100%;display:grid;grid-template-columns:1.4fr 1fr;gap:12px;min-height:0">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;margin-bottom:10px"><div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Distribuição no estado</div><div style="margin-left:auto;font-size:10.5px;color:var(--dim)">cadastros por 10 mil habitantes</div></div>
+            <div style="flex:1;min-height:0;border-radius:12px;background:var(--slot12);display:flex;align-items:center;justify-content:center;position:relative">
+              <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:11px;color:#8FA7DA;letter-spacing:.1em">[ mapa da Bahia · choropleth ]</span>
+              <div style="position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--text2)">
+                <span>menos</span>
+                <span style="width:90px;height:7px;border-radius:99px;background:linear-gradient(90deg,rgba(46,143,255,.2),#35D0FF);display:block"></span>
+                <span>mais</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-rows:1.15fr 1fr;gap:12px;min-height:0">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Top municípios</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:7px">
+                <sc-for list="{{ municipios }}" as="m" hint-placeholder-count="8">
+                  <div style="display:grid;grid-template-columns:16px 1fr 1fr 58px;gap:9px;align-items:center">
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10px;color:var(--dim)">{{ m.rank }}</div>
+                    <div style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div>
+                    <div style="height:5px;border-radius:99px;background:var(--track);overflow:hidden"><div style="{{ m.bar }}"></div></div>
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;text-align:right;color:var(--text2)">{{ m.value }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Regiões</div>
+              <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px">
+                <sc-for list="{{ regioes }}" as="r" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:1fr 66px 60px 52px;gap:8px;align-items:center;padding:7px 9px;background:var(--soft);border-radius:9px">
+                    <div style="font-size:11.5px">{{ r.name }}</div>
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;text-align:right">{{ r.invest }}</div>
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;text-align:right;color:var(--muted2)">{{ r.cad }}</div>
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;text-align:right;color:#4BE08C">{{ r.cpa }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPublico }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="09 Público" style="height:100%;display:grid;grid-template-columns:1.3fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;min-height:0">
+          <div style="grid-row:span 2;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:12px">Faixa etária e gênero</div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:space-around;gap:6px">
+              <sc-for list="{{ faixas }}" as="f" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;align-items:center">
+                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--muted2)">{{ f.label }}</div>
+                  <div style="display:flex;justify-content:flex-end;height:13px"><div style="{{ f.barM }}"></div></div>
+                  <div style="display:flex;height:13px"><div style="{{ f.barF }}"></div></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:16px;justify-content:center;padding-top:10px;font-size:10.5px;color:var(--muted2)">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#2E8FFF;display:block"></span>Homens 47%</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#F5B301;display:block"></span>Mulheres 53%</span>
+            </div>
+          </div>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Dispositivos</div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:space-around;gap:6px">
+              <sc-for list="{{ dispositivos }}" as="d" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;justify-content:space-between;font-size:11.5px"><span>{{ d.label }}</span><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;color:var(--text2)">{{ d.value }}</span></div>
+                  <div style="height:5px;border-radius:99px;background:var(--track);overflow:hidden"><div style="{{ d.bar }}"></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Horários de pico</div>
+            <div style="flex:1;min-height:0;display:flex;align-items:flex-end;gap:4px;padding-bottom:16px;position:relative">
+              <sc-for list="{{ horarios }}" as="h" hint-placeholder-count="12">
+                <div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative">
+                  <div style="{{ h.bar }}"></div>
+                  <div style="position:absolute;bottom:-15px;left:0;right:0;text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:8px;color:var(--dim)">{{ h.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="grid-column:span 2;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+            <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Segmentos com melhor desempenho</div>
+            <div style="flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-content:start">
+              <sc-for list="{{ segmentos }}" as="g" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 60px 84px;gap:12px;align-items:center;background:var(--soft);border-radius:10px;padding:9px 12px">
+                  <div style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.name }}</div>
+                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--muted2)">{{ g.cad }}</div>
+                  <div style="{{ g.pillStyle }}">{{ g.cpa }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isBiblioteca }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="10 Biblioteca" style="height:100%;display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="font-size:12px;color:var(--muted2)">Biblioteca de Anúncios · Meta — <span style="color:#fff;font-weight:600">42 anúncios ativos</span></div>
+            <div style="display:flex;gap:6px;margin-left:auto">
+              <sc-for list="{{ bibFilters }}" as="f" hint-placeholder-count="4"><div style="{{ f.style }}">{{ f.label }}</div></sc-for>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:12px">
+            <sc-for list="{{ biblioteca }}" as="b" hint-placeholder-count="8">
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:11px 12px;display:grid;grid-template-columns:64px minmax(0,1fr);gap:11px;min-height:0">
+                <div style="border-radius:9px;background:var(--slot9)"></div>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:5px">
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="{{ b.statusStyle }}">{{ b.status }}</span><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--dim)">ID {{ b.id }}</span></div>
+                  <div style="font-size:11.5px;font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ b.copy }}</div>
+                  <div style="margin-top:auto;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--muted)"><span>{{ b.start }}</span><span>{{ b.plats }}</span></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="11 Linha do tempo" style="height:100%;display:grid;grid-template-columns:1.5fr 1fr;gap:12px;min-height:0">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 18px;display:flex;flex-direction:column;min-height:0">
+            <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:12px">Diário de alterações</div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;padding-left:4px">
+              <sc-for list="{{ diario }}" as="d" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:78px 1fr;gap:14px;position:relative">
+                  <div style="display:flex;flex-direction:column;gap:3px;padding-top:1px">
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:12px;color:#fff">{{ d.date }}</div>
+                    <div style="font-size:9.5px;color:var(--dim)">{{ d.weekday }}</div>
+                  </div>
+                  <div style="border-left:1px solid var(--line);padding-left:14px;display:flex;flex-direction:column;gap:7px;position:relative">
+                    <span style="{{ d.node }}"></span>
+                    <sc-for list="{{ d.items }}" as="it" hint-placeholder-count="2">
+                      <div style="display:flex;gap:9px;align-items:flex-start">
+                        <span style="{{ it.tagStyle }}">{{ it.tag }}</span>
+                        <div style="min-width:0">
+                          <div style="font-size:11.5px;font-weight:600">{{ it.title }}</div>
+                          <div style="font-size:10.5px;color:var(--muted2);line-height:1.45">{{ it.detail }}</div>
+                        </div>
+                        <div style="{{ it.impactStyle }}">{{ it.impact }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-rows:1fr auto;gap:12px;min-height:0">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Evolução do CPA após cada mudança</div>
+              <div style="flex:1;min-height:0">
+                <svg viewBox="0 0 100 34" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+                  <path d="{{ chartCpaArea }}" fill="rgba(228,34,43,.12)"></path>
+                  <path d="{{ chartCpa }}" fill="none" stroke="#E4222B" stroke-width=".7" vector-effect="non-scaling-stroke"></path>
+                </svg>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--dim);padding-top:6px">
+                <sc-for list="{{ dayLabels }}" as="d" hint-placeholder-count="7"><span>{{ d }}</span></sc-for>
+              </div>
+            </div>
+            <div style="background:var(--panelAccent);border:1px solid var(--accentLine);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:7px">
+              <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:13px">O que as mudanças produziram</div>
+              <sc-for list="{{ efeitos }}" as="e" hint-placeholder-count="3">
+                <div style="font-size:12px;line-height:1.55;color:var(--text2)">— {{ e }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isComparativo }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="12 Comparativo" style="height:100%;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:12px;min-height:0;min-width:0">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <sc-for list="{{ platCards }}" as="p" hint-placeholder-count="2">
+              <div style="{{ p.box }}">
+                <div style="display:flex;align-items:center;gap:9px"><span style="{{ p.dot }}"></span><span style="font-family:'Poppins',sans-serif;font-weight:900;font-size:15px">{{ p.name }}</span><span style="{{ p.badge }}">{{ p.verdict }}</span></div>
+                <div style="display:flex;gap:20px;margin-top:9px">
+                  <sc-for list="{{ p.stats }}" as="st" hint-placeholder-count="3">
+                    <div><div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:16px">{{ st.value }}</div><div style="font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase">{{ st.label }}</div></div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 18px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;margin-bottom:10px"><div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Força por indicador</div><div style="margin-left:auto;display:flex;gap:14px;font-size:10.5px;color:var(--muted2)"><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#FF7A00;display:block"></span>Kwai</span><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#2E8FFF;display:block"></span>Meta</span></div></div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:space-around;gap:6px">
+              <sc-for list="{{ comparativo }}" as="c" hint-placeholder-count="8">
+                <div style="display:grid;grid-template-columns:minmax(88px,124px) minmax(0,1fr) minmax(0,1fr) 90px;gap:12px;align-items:center">
+                  <div style="font-size:11.5px;color:var(--text2)">{{ c.label }}</div>
+                  <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px"><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;white-space:nowrap;color:#FFB877">{{ c.kwaiV }}</span><div style="{{ c.kwaiBar }}"></div></div>
+                  <div style="display:flex;align-items:center;gap:8px"><div style="{{ c.metaBar }}"></div><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;white-space:nowrap;color:#93C3FF">{{ c.metaV }}</span></div>
+                  <div style="{{ c.winStyle }}">{{ c.winner }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSimulador }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="13 Simulador" style="height:100%;display:grid;grid-template-columns:1fr 1.35fr;gap:12px;min-height:0">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px 20px;display:flex;flex-direction:column;gap:20px;min-height:0;overflow:auto">
+            <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:15px">Alocação de verba</div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11.5px;color:var(--muted2)">Verba do período</span><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:19px">{{ verbaLabel }}</span></div>
+              <input type="range" min="50000" max="800000" step="10000" value="{{ verba }}" onChange="{{ onVerba }}" style="width:100%" />
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11.5px;color:var(--muted2)">Divisão Kwai × Meta</span><span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:13px"><span style="color:#FF9E4D">{{ kwaiPctLabel }}</span> · <span style="color:#93C3FF">{{ metaPctLabel }}</span></span></div>
+              <input type="range" min="0" max="100" step="1" value="{{ kwaiPct }}" onChange="{{ onKwai }}" style="width:100%" />
+              <div style="display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--track)"><div style="{{ simKwaiBar }}"></div><div style="{{ simMetaBar }}"></div></div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <span style="font-size:11.5px;color:var(--muted2)">Estratégia principal</span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <sc-for list="{{ focoChips }}" as="f" hint-placeholder-count="3"><div onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</div></sc-for>
+              </div>
+            </div>
+
+            <div style="margin-top:auto;background:rgba(53,208,255,.08);border:1px solid rgba(53,208,255,.22);border-radius:12px;padding:13px 15px;font-size:12px;line-height:1.6;color:var(--text2)">{{ simRecomendacao }}</div>
+          </div>
+
+          <div style="display:grid;grid-template-rows:auto 1fr auto;gap:12px;min-height:0">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+              <sc-for list="{{ simKpis }}" as="k" hint-placeholder-count="4">
+                <div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px 15px;display:flex;flex-direction:column;gap:5px">
+                  <div style="font-size:9.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase">{{ k.label }}</div>
+                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(16px,1.8vw,25px);color:#35D0FF">{{ k.value }}</div>
+                  <div style="font-size:10.5px;color:var(--dim)">{{ k.note }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:12px">Projeção por cenário</div>
+              <div style="flex:1;min-height:0;display:flex;align-items:flex-end;gap:14px;padding-bottom:22px;position:relative">
+                <sc-for list="{{ cenarios }}" as="c" hint-placeholder-count="5">
+                  <div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;position:relative">
+                    <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;color:var(--text2)">{{ c.value }}</div>
+                    <div style="{{ c.bar }}"></div>
+                    <div style="position:absolute;bottom:-19px;font-size:9.5px;color:var(--muted);white-space:nowrap">{{ c.label }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Distribuição sugerida</div>
+              <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap">
+                <sc-for list="{{ distribuicao }}" as="d" hint-placeholder-count="4">
+                  <div style="background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:7px 11px;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:12px">{{ d.value }}</span>
+                    <span style="font-size:9.5px;color:var(--muted)">{{ d.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </section>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { screen:'inicio', period:'7d', platform:'todas', metricA:'cadastros', metricB:'investimento', kwaiPct:38, verba:320000, foco:'cadastros', theme:'dark', hoverNav:null };
+
+  // ---------- helpers ----------
+  brl(v, d){ return 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d===undefined?2:d,maximumFractionDigits:d===undefined?2:d}); }
+  num(v){ return Number(v).toLocaleString('pt-BR'); }
+  path(vals, w, h, close){
+    const min = Math.min(...vals), max = Math.max(...vals), r = (max-min)||1;
+    const pts = vals.map((v,i)=>[ (i/(vals.length-1))*w, h - ((v-min)/r)*(h-3) - 1.5 ]);
+    let d = 'M' + pts.map(p=>p[0].toFixed(2)+' '+p[1].toFixed(2)).join(' L');
+    if(close) d += ' L'+w+' '+h+' L0 '+h+' Z';
+    return d;
+  }
+  pill(delta, good){
+    const up = String(delta).trim().startsWith('+');
+    const positive = good === undefined ? up : good;
+    const c = positive ? ['var(--posBg)','var(--posFg)'] : ['var(--negBg)','var(--negFg)'];
+    return { display:'inline-flex', alignItems:'center', gap:'4px', alignSelf:'flex-start', background:c[0], color:c[1],
+      fontFamily:"'Inter',sans-serif", fontVariantNumeric:"tabular-nums", fontSize:'10px', padding:'2px 7px', borderRadius:'6px' };
+  }
+  chip(active, accent){
+    return { cursor:'pointer', fontSize:'11px', fontWeight:600, padding:'6px 11px', borderRadius:'8px', whiteSpace:'nowrap',
+      background: active ? (accent||'#2E8FFF') : 'transparent', color: active ? '#fff' : 'var(--muted)',
+      border: active ? '1px solid rgba(255,255,255,.18)' : '1px solid transparent',
+      boxShadow: active ? '0 8px 16px -8px rgba(46,143,255,.7)' : 'none', transition:'all .15s' };
+  }
+  bar(pct, color, h){
+    return { width: Math.max(2,Math.min(100,pct))+'%', height:(h||'100%'), background:color, borderRadius:'99px' };
+  }
+  set(k,v){ return () => this.setState({ [k]: v }); }
+
+  // ---------- data ----------
+  series(){
+    return {
+      investimento:[18400,21200,19800,24500,28900,26400,31200,29800,34100,32600,37400,35900,41200,38700],
+      cadastros:[980,1120,1040,1310,1580,1420,1690,1610,1880,1740,2020,1950,2210,2090],
+      alcance:[41000,46500,44200,52800,61200,57400,68300,64900,74100,70200,81600,77300,88400,83900],
+      cpa:[18.8,18.9,19.0,18.7,18.3,18.6,18.5,18.5,18.1,18.7,18.5,18.4,18.6,18.5],
+      interacoes:[6200,7100,6800,8400,9600,9100,10800,10200,11900,11100,12800,12200,13900,13100]
+    };
+  }
+  metricLabels(){ return { investimento:'Investimento', cadastros:'Cadastros', alcance:'Alcance', cpa:'CPA', interacoes:'Interações' }; }
+
+  navDef(){ return [
+    ['inicio','/inicio','Início','#35D0FF','home'],
+    ['campanhas','/campanhas','Campanhas','#2E8FFF','campaign'],
+    ['criativos','/criativos','Criativos','#F5B301','collections'],
+    ['analises','/analises','Análises','#9B7BFF','lightbulb'],
+    ['periodo','/periodo','Período','#21C46A','calendar_month'],
+    ['desempenho','/desempenho','Desempenho','#35D0FF','monitoring'],
+    ['eficiencia','/eficiencia','Eficiência','#21C46A','bolt'],
+    ['territorio','/territorio','Território','#F5B301','map'],
+    ['publico','/publico','Público','#9B7BFF','groups'],
+    ['biblioteca','/biblioteca','Biblioteca de anúncios','#2E8FFF','inventory_2'],
+    ['timeline','/linha-do-tempo','Linha do tempo','#E4222B','timeline'],
+    ['comparativo','/comparativo','Comparativo','#35D0FF','compare_arrows'],
+    ['simulador','/simulador','Simulador','#F5B301','tune']
+  ]; }
+
+  renderVals(){
+    const s = this.state, S = this.series(), ML = this.metricLabels();
+    const cur = this.navDef().find(n=>n[0]===s.screen) || this.navDef()[0];
+
+    const tip = shown => ({ position:'absolute', left:'40px', top:'50%', transform:'translateY(-50%)',
+      background:'#0A1226', color:'#FFFFFF', fontSize:'11.5px', fontWeight:600, whiteSpace:'nowrap',
+      padding:'6px 11px', borderRadius:'9px', border:'1px solid rgba(255,255,255,.12)',
+      boxShadow:'0 14px 28px -12px rgba(0,0,0,.8)', pointerEvents:'none', zIndex:40,
+      display: shown?'block':'none' });
+    const railRow = { cursor:'pointer', position:'relative', display:'flex', alignItems:'center', borderRadius:'99px' };
+    const railIcon = { width:'28px', height:'28px', flex:'0 0 28px', borderRadius:'99px', display:'flex', alignItems:'center',
+      justifyContent:'center', fontSize:'16px', background:'transparent', color:'rgba(255,255,255,.62)' };
+    const hover = id => ({ over:()=>this.setState({ hoverNav:id }), out:()=>this.setState({ hoverNav:null }) });
+
+    const navItems = this.navDef().map(([id,route,label,color,icon])=>{
+      const active = id===s.screen;
+      return { label, route, icon, go:this.set('screen',id), ...hover(id),
+        style: railRow,
+        iconStyle:{ ...railIcon,
+          background: active?'#FFFFFF':'transparent',
+          color: active?'#0A1226':'rgba(255,255,255,.62)',
+          boxShadow: active?'0 8px 18px -6px '+color+'99':'none', transition:'all .18s ease' },
+        labelStyle: tip(s.hoverNav===id) };
+    });
+
+    const platforms = [['todas','Todas'],['kwai','Kwai'],['meta','Meta']];
+    const periods = [['7d','7 dias'],['14d','14 dias'],['30d','30 dias'],['tudo','Tudo']];
+
+    const dayLabels = ['02/08','03/08','04/08','05/08','06/08','07/08','08/08'];
+
+    const heroKpis = [
+      { value:this.brl(487213.44), label:'Investido', delta:'+5,5%', note:'acima do pacing' },
+      { value:'2,41 mi', label:'Pessoas alcançadas', delta:'+7,1%', note:'alcance único' },
+      { value:'6,08 mi', label:'Impressões', delta:'-3,5%', note:'exibições' },
+      { value:'26.312', label:'Cadastros', delta:'+9,4%', note:'no período' },
+      { value:this.brl(18.52), label:'Custo por cadastro', delta:'-2,8%', note:'média da janela', good:true }
+    ].map(k=>({ ...k, pillStyle:this.pill(k.delta, k.good) }));
+
+    const splitCards = [
+      { name:'Kwai Ads', pct:'38%', value:this.brl(185141.10), note:'4 campanhas · CPA R$ 16,20', color:'#FF7A00' },
+      { name:'Meta Ads', pct:'62%', value:this.brl(302072.34), note:'5 campanhas · CPA R$ 20,10', color:'#2E8FFF' }
+    ].map(c=>({ ...c,
+      box:{ background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)', borderRadius:'12px', padding:'9px 11px' },
+      dot:{ width:'8px', height:'8px', borderRadius:'3px', background:c.color, display:'block' } }));
+
+    const resultCards = [
+      { label:'Impressões', value:'6,08 mi', delta:'-3,5%' },
+      { label:'Alcance único', value:'2,41 mi', delta:'+7,1%' },
+      { label:'Frequência', value:'2,52', delta:'+1,2%' },
+      { label:'Cliques no link', value:'184.902', delta:'+6,3%' },
+      { label:'CTR', value:'3,04%', delta:'+0,4%' },
+      { label:'CPM', value:this.brl(80.13), delta:'-1,9%', good:true }
+    ].map(r=>({ ...r, pillStyle:this.pill(r.delta, r.good) }));
+
+    const statusStyle = st => ({ fontSize:'9.5px', fontWeight:700, letterSpacing:'.08em', padding:'3px 8px', borderRadius:'6px',
+      textTransform:'uppercase',
+      background: st==='ATIVA' ? 'rgba(33,196,106,.14)' : st==='TESTE' ? 'rgba(245,179,1,.14)' : 'rgba(255,255,255,.07)',
+      color: st==='ATIVA' ? '#4BE08C' : st==='TESTE' ? '#FFCF54' : '#8FA0C4' });
+
+    const kwaiCampaigns = [
+      { name:'KW · Cadastro Salvador', obj:'Conversão · lead', spend:this.brl(64210), cpa:'R$ 15,40', status:'ATIVA' },
+      { name:'KW · Vídeo Interior BA', obj:'Visualizações', spend:this.brl(48930), cpa:'R$ 17,10', status:'ATIVA' },
+      { name:'KW · Retargeting 30d', obj:'Conversão · lead', spend:this.brl(41200), cpa:'R$ 14,80', status:'ATIVA' },
+      { name:'KW · Teste criativo agosto', obj:'Alcance', spend:this.brl(30801), cpa:'R$ 19,60', status:'TESTE' }
+    ].map(c=>({ ...c, statusStyle:statusStyle(c.status) }));
+
+    const metaCampaigns = [
+      { name:'MT · Cadastro RMS', obj:'Geração de cadastros', spend:this.brl(98420), cpa:'R$ 18,90', status:'ATIVA' },
+      { name:'MT · Vídeo institucional', obj:'ThruPlay', spend:this.brl(72310), cpa:'R$ 21,40', status:'ATIVA' },
+      { name:'MT · Interior — Feira/Vitória', obj:'Geração de cadastros', spend:this.brl(58900), cpa:'R$ 20,10', status:'ATIVA' },
+      { name:'MT · Retargeting engajados', obj:'Conversão', spend:this.brl(44120), cpa:'R$ 16,70', status:'ATIVA' },
+      { name:'MT · Público frio 25-44', obj:'Alcance', spend:this.brl(28322), cpa:'R$ 24,30', status:'PAUSADA' }
+    ].map(c=>({ ...c, statusStyle:statusStyle(c.status) }));
+
+    const criativoFilters = [['Todos','todos'],['Kwai','kwai'],['Meta','meta'],['Vídeo','video'],['Estático','estatico']]
+      .map(([label],i)=>({ label, style:this.chip(i===0) }));
+
+    const criativos = [
+      ['Vídeo 30s · Saúde','Kwai',48210,16.1,86],['Carrossel · Obras','Meta',39100,19.4,72],
+      ['Reels · Depoimento','Meta',35400,17.8,79],['Vídeo 15s · Emprego','Kwai',31200,15.2,91],
+      ['Estático · Cadastro','Meta',28700,21.9,58],['Vídeo 45s · Interior','Kwai',26400,18.6,66],
+      ['Reels · Educação','Meta',24100,20.3,61],['Vídeo 20s · Segurança','Kwai',21800,16.9,74],
+      ['Estático · Agenda','Meta',18300,23.1,49],['Vídeo 30s · Mobilidade','Kwai',15900,17.4,68]
+    ].map(([name,plat,spend,cpa,score])=>({
+      name, plat, slot:'[ criativo ]', spend:this.brl(spend,0), cpa:this.brl(cpa),
+      badge:{ position:'absolute', top:'8px', left:'8px', fontSize:'9px', fontWeight:700, letterSpacing:'.08em',
+        padding:'3px 7px', borderRadius:'6px', background: plat==='Kwai'?'rgba(255,122,0,.9)':'rgba(46,143,255,.9)', color:'#fff' },
+      bar:this.bar(score, plat==='Kwai'?'#FF7A00':'#2E8FFF','100%')
+    }));
+
+    const analiseHeadline = 'Nos últimos 7 dias o investimento cresceu 5,5% e os cadastros 9,4%, com CPA caindo para R$ 18,52. O Kwai entrega cadastro 19% mais barato, mas o Meta responde por 62% do volume total e concentra o alcance no interior.';
+
+    const analises = [
+      ['EFICIÊNCIA','Kwai puxa o CPA médio para baixo','Com 38% da verba o Kwai gera 44% dos cadastros. Cada R$ 10 mil deslocados para lá projetam ~180 cadastros adicionais.','Kwai Ads'],
+      ['ALCANCE','Frequência subindo em Salvador','A frequência na RMS chegou a 3,1 contra 2,1 no interior. Sinal de saturação — vale ampliar público ou trocar criativo.','Meta Ads'],
+      ['CRIATIVO','Vídeo curto domina a conversão','Peças de até 20s respondem por 61% dos cadastros e retêm 48% até o fim, contra 27% dos vídeos longos.','Ambas'],
+      ['PÚBLICO','25-44 concentra o cadastro','A faixa 25-44 é 57% dos cadastros com CPA 12% abaixo da média. 55+ tem o maior custo.','Meta Ads'],
+      ['TERRITÓRIO','Interior com espaço para escala','Feira de Santana e Vitória da Conquista têm CPA abaixo da média e cobertura de apenas 41% do público estimado.','Ambas'],
+      ['RITMO','Pacing 5,5% acima do planejado','Mantido o ritmo atual, a verba do mês se esgota 3 dias antes do fim da janela.','Planejamento']
+    ].map(([tag,title,text,src])=>({ tag, title, text, src,
+      tagStyle:{ fontSize:'9px', fontWeight:700, letterSpacing:'.12em', padding:'3px 7px', borderRadius:'5px',
+        background:'rgba(53,208,255,.12)', color:'#8FE3FF' } }));
+
+    const sinais = [
+      ['Saturação de frequência',78,'#E4222B'],['Qualidade do criativo',86,'#21C46A'],
+      ['Cobertura territorial',54,'#F5B301'],['Eficiência de custo',72,'#35D0FF'],
+      ['Diversidade de público',63,'#9B7BFF'],['Ritmo de entrega',91,'#2E8FFF']
+    ].map(([label,v,c])=>({ label, value:v+'/100', bar:this.bar(v,c,'100%') }));
+
+    const atencao = [
+      'Frequência acima de 3,0 na RMS há 4 dias seguidos.',
+      'Campanha MT · Público frio 25-44 com CPA 31% acima da média — pausada em 07/08.',
+      'Pacing projeta esgotamento da verba 3 dias antes do fim do mês.'
+    ];
+
+    const periodoKpis = [
+      { label:'Investido no período', value:this.brl(487213.44), delta:'+5,5%', note:'vs janela anterior' },
+      { label:'Alcance único', value:'2,41 mi', delta:'+7,1%', note:'pessoas distintas' },
+      { label:'Cadastros', value:'26.312', delta:'+9,4%', note:'formulários completos' },
+      { label:'CPA', value:this.brl(18.52), delta:'-2,8%', note:'custo por cadastro', good:true }
+    ].map(k=>({ ...k, pillStyle:this.pill(k.delta,k.good) }));
+
+    const leitura = [
+      'A janela de 7 dias fechou com R$ 487.213,44 investidos e 26.312 cadastros. O custo por cadastro caiu de R$ 19,05 para R$ 18,52, movimento puxado principalmente pelo Kwai, que operou a R$ 16,20.',
+      'O alcance único cresceu 7,1% enquanto as impressões recuaram 3,5% — a campanha ficou menos repetitiva e mais ampla, efeito da troca de criativos feita em 05/08.',
+      'O Meta segue como base de volume: 62% da verba e 56% dos cadastros, com forte presença na Região Metropolitana. O Kwai concentra performance no interior e em públicos mais jovens.',
+      'Recomendação para a próxima janela: deslocar de 8% a 12% da verba do Meta para o Kwai no interior, e renovar as peças da RMS antes que a frequência ultrapasse 3,5.'
+    ];
+
+    const alteracoes = [
+      { time:'08/08 09:12', title:'Orçamento ajustado', detail:'KW · Retargeting 30d: R$ 6k → R$ 8,5k/dia' },
+      { time:'07/08 18:40', title:'Campanha pausada', detail:'MT · Público frio 25-44 — CPA 31% acima da média' },
+      { time:'07/08 11:05', title:'Novo criativo', detail:'3 peças de vídeo 15s subidas no Kwai' },
+      { time:'06/08 16:22', title:'Público ampliado', detail:'MT · Interior: raio 40km → 65km' },
+      { time:'05/08 08:50', title:'Troca de criativos', detail:'RMS: 4 peças substituídas por saturação' }
+    ];
+
+    const criativosMini = [
+      ['Vídeo 30s · Saúde','CPA R$ 16,10'],['Carrossel · Obras','CPA R$ 19,40'],['Reels · Depoimento','CPA R$ 17,80'],
+      ['Vídeo 15s · Emprego','CPA R$ 15,20'],['Estático · Cadastro','CPA R$ 21,90'],['Vídeo 45s · Interior','CPA R$ 18,60']
+    ].map(([name,metric])=>({ name, metric }));
+
+    const bigNumbers = [
+      { label:'Investido', value:this.brl(487213,0), delta:'+5,5%' },
+      { label:'Impressões', value:'6,08 mi', delta:'-3,5%' },
+      { label:'Alcance', value:'2,41 mi', delta:'+7,1%' },
+      { label:'Cadastros', value:'26.312', delta:'+9,4%' },
+      { label:'CPA', value:this.brl(18.52), delta:'-2,8%', good:true },
+      { label:'CTR', value:'3,04%', delta:'+0,4%' },
+      { label:'ThruPlay', value:'1,42 mi', delta:'+11,2%' }
+    ].map(b=>({ ...b, pillStyle:this.pill(b.delta,b.good) }));
+
+    const mkChips = (key, active, accent) => Object.keys(ML).map(k=>({
+      label:ML[k], go:this.set(key,k), style:this.chip(active===k, accent) }));
+
+    const interacoes = [
+      ['Curtidas',48210,'#35D0FF',100],['Comentários',12840,'#2E8FFF',34],['Compartilhamentos',9310,'#9B7BFF',26],
+      ['Salvamentos',6120,'#F5B301',18],['Cliques no perfil',21400,'#21C46A',52]
+    ].map(([label,v,c,p])=>({ label, value:this.num(v), bar:this.bar(p,c,'100%') }));
+
+    const interCriativo = [92,78,71,64,58,49,41,33].map((v,i)=>({
+      label:'C'+(i+1),
+      bar:{ width:'100%', height:v+'%', borderRadius:'6px 6px 3px 3px',
+        background: i<3 ? 'linear-gradient(180deg,#35D0FF,#2E8FFF)' : 'linear-gradient(180deg,rgba(53,208,255,.45),rgba(46,143,255,.25))' } }));
+
+    const retencao = [['0s',100],['25%',74],['50%',58],['75%',44],['100%',31]]
+      .map(([label,v])=>({ label, value:v+'%', bar:this.bar(v,'linear-gradient(90deg,#2E8FFF,#35D0FF)','100%') }));
+
+    // ---- 07 Eficiência ----
+    const eficKpis = [
+      { label:'CPA médio', value:this.brl(18.52), delta:'-2,8%', good:true },
+      { label:'CPM', value:this.brl(80.13), delta:'-1,9%', good:true },
+      { label:'Custo por clique', value:this.brl(2.64), delta:'+0,8%', good:false },
+      { label:'Taxa de conversão', value:'14,2%', delta:'+1,6%' },
+      { label:'Verba em campanhas eficientes', value:'71%', delta:'+4,0%' }
+    ].map(k=>({ ...k, pillStyle:this.pill(k.delta,k.good) }));
+
+    const eficRows = [
+      ['KW · Retargeting 30d',14.80,2784,'#FF7A00'],['KW · Cadastro Salvador',15.40,4169,'#FF7A00'],
+      ['MT · Retargeting engajados',16.70,2642,'#2E8FFF'],['KW · Vídeo Interior BA',17.10,2861,'#FF7A00'],
+      ['MT · Cadastro RMS',18.90,5207,'#2E8FFF'],['KW · Teste criativo agosto',19.60,1572,'#FF7A00'],
+      ['MT · Interior — Feira/Vitória',20.10,2930,'#2E8FFF'],['MT · Vídeo institucional',21.40,3379,'#2E8FFF'],
+      ['MT · Público frio 25-44',24.30,1166,'#2E8FFF']
+    ].map(([name,cpa,vol,color])=>({ name, cpa:this.brl(cpa), vol:this.num(vol),
+      dot:{ width:'7px', height:'7px', borderRadius:'2px', flex:'0 0 7px', background:color },
+      bar:this.bar(100 - ((cpa-14)/11)*80, color, '100%') }));
+
+    const eficObjetivo = [
+      ['Conversão · cadastro','R$ 16,90',88,'#21C46A'],['Retargeting','R$ 15,70',94,'#35D0FF'],
+      ['Vídeo / ThruPlay','R$ 21,40',62,'#F5B301'],['Alcance / topo','R$ 24,30',41,'#E4222B']
+    ].map(([label,value,p,c])=>({ label, value, bar:this.bar(p,c,'100%') }));
+
+    const desperdicio = [
+      'R$ 28,3 mil aplicados em público frio 25-44 com CPA 31% acima da média — realocação libera ~1,5 mil cadastros.',
+      'Vídeos acima de 40s consomem 18% da verba e entregam 9% dos cadastros.',
+      'Overlap de 22% entre os públicos de RMS e Interior no Meta: parte das impressões é paga duas vezes.'
+    ];
+
+    // ---- 08 Território ----
+    const municipios = [
+      ['Salvador',6420,100],['Feira de Santana',3180,49],['Vitória da Conquista',2410,38],
+      ['Camaçari',1870,29],['Juazeiro',1520,24],['Itabuna',1340,21],['Ilhéus',1180,18],['Barreiras',960,15]
+    ].map(([name,v,p],i)=>({ rank:String(i+1).padStart(2,'0'), name, value:this.num(v),
+      bar:this.bar(p,'linear-gradient(90deg,#2E8FFF,#35D0FF)','100%') }));
+
+    const regioes = [
+      ['Região Metropolitana',148900,8420,17.68],['Interior Norte',92400,4980,18.55],
+      ['Interior Sul',86100,4610,18.68],['Oeste',74300,3910,19.00],['Extremo Sul',85513,4392,19.47]
+    ].map(([name,inv,cad,cpa])=>({ name, invest:this.brl(inv/1000,0).replace('R$ ','R$ ')+'k', cad:this.num(cad), cpa:this.brl(cpa) }));
+
+    // ---- 09 Público ----
+    const faixas = [['18-24',34,41],['25-34',72,79],['35-44',86,92],['45-54',61,68],['55-64',38,44],['65+',21,26]]
+      .map(([label,m,f])=>({ label,
+        barM:{ width:m+'%', background:'#2E8FFF', borderRadius:'4px 0 0 4px' },
+        barF:{ width:f+'%', background:'#F5B301', borderRadius:'0 4px 4px 0' } }));
+
+    const dispositivos = [['Android',68,'#21C46A'],['iOS',26,'#35D0FF'],['Desktop',5,'#9B7BFF'],['Outros',1,'#7C8CB3']]
+      .map(([label,p,c])=>({ label, value:p+'%', bar:this.bar(p,c,'100%') }));
+
+    const horarios = ['6h','8h','10h','12h','14h','16h','18h','19h','20h','21h','22h','0h']
+      .map((label,i)=>({ label, bar:{ width:'100%', height:[22,38,46,58,52,64,82,94,100,88,66,34][i]+'%',
+        borderRadius:'4px 4px 2px 2px', background:i>=6&&i<=9?'linear-gradient(180deg,#35D0FF,#2E8FFF)':'rgba(46,143,255,.35)' } }));
+
+    const segmentos = [
+      ['Mulheres 35-44 · RMS','4.812','R$ 15,90',true],['Homens 25-34 · Interior','3.940','R$ 16,40',true],
+      ['Mulheres 45-54 · RMS','3.104','R$ 17,80',true],['Homens 35-44 · Oeste','2.760','R$ 18,90',true],
+      ['Mulheres 18-24 · Interior','2.190','R$ 21,30',false],['Homens 55+ · RMS','1.480','R$ 26,70',false]
+    ].map(([name,cad,cpa,good])=>({ name, cad, cpa,
+      pillStyle:{ fontFamily:"'Inter',sans-serif", fontVariantNumeric:"tabular-nums", fontSize:'10px', padding:'3px 8px', borderRadius:'6px',
+        background: good?'rgba(33,196,106,.14)':'rgba(228,34,43,.14)', color: good?'#4BE08C':'#FF8189' } }));
+
+    // ---- 10 Biblioteca ----
+    const bibFilters = [['Ativos',true],['Inativos',false],['Vídeo',false],['Imagem',false]]
+      .map(([label,a])=>({ label, style:this.chip(a) }));
+    const biblioteca = [
+      ['ATIVO','2398410','Mais saúde para a Bahia: mutirão de consultas em 40 municípios','12/07/2026','FB · IG'],
+      ['ATIVO','2398455','Emprego e renda: o que já foi entregue e o que vem pela frente','15/07/2026','FB · IG · AN'],
+      ['ATIVO','2398512','Cadastre-se para receber a agenda da campanha','18/07/2026','IG'],
+      ['ATIVO','2398577','Obras de mobilidade em Salvador — depoimento de moradores','21/07/2026','FB · IG'],
+      ['ATIVO','2398634','Educação em tempo integral: a meta para 2027','25/07/2026','FB'],
+      ['ATIVO','2398690','ACM Neto na CBN Bahia — íntegra da entrevista','29/07/2026','FB · IG'],
+      ['PAUSADO','2398701','Segurança pública: plano para o interior','30/07/2026','FB · IG'],
+      ['ATIVO','2398744','Participe: envie sua proposta para o programa de governo','02/08/2026','IG · AN']
+    ].map(([status,id,copy,start,plats])=>({ status, id, copy, start, plats,
+      statusStyle:{ fontSize:'9px', fontWeight:700, letterSpacing:'.1em', padding:'2px 7px', borderRadius:'5px',
+        background: status==='ATIVO'?'rgba(33,196,106,.14)':'rgba(255,255,255,.07)', color: status==='ATIVO'?'#4BE08C':'#8FA0C4' } }));
+
+    // ---- 11 Linha do tempo ----
+    const tagStyle = t => ({ fontSize:'8.5px', fontWeight:700, letterSpacing:'.1em', padding:'3px 7px', borderRadius:'5px',
+      flex:'0 0 auto', textTransform:'uppercase',
+      background: t==='VERBA'?'rgba(245,179,1,.14)':t==='CRIATIVO'?'rgba(53,208,255,.14)':t==='PÚBLICO'?'rgba(155,123,255,.14)':'rgba(228,34,43,.14)',
+      color: t==='VERBA'?'#FFCF54':t==='CRIATIVO'?'#8FE3FF':t==='PÚBLICO'?'#C4B0FF':'#FF8189' });
+    const impactStyle = up => ({ marginLeft:'auto', fontFamily:"'Inter',sans-serif", fontVariantNumeric:"tabular-nums", fontSize:'10px',
+      padding:'2px 7px', borderRadius:'6px', whiteSpace:'nowrap',
+      background: up?'rgba(33,196,106,.14)':'rgba(228,34,43,.14)', color: up?'#4BE08C':'#FF8189' });
+    const node = { position:'absolute', left:'-4.5px', top:'4px', width:'8px', height:'8px', borderRadius:'99px',
+      background:'#35D0FF', boxShadow:'0 0 0 3px rgba(53,208,255,.18)' };
+    const diario = [
+      ['08/08','sexta',[['VERBA','Orçamento diário elevado no Kwai','Retargeting 30d: R$ 6k → R$ 8,5k','CPA -4,1%',true]]],
+      ['07/08','quinta',[['STATUS','Campanha pausada no Meta','Público frio 25-44, CPA 31% acima da média','CPA -2,3%',true],['CRIATIVO','3 vídeos de 15s subidos no Kwai','Temas: emprego, saúde, mobilidade','CTR +0,6%',true]]],
+      ['06/08','quarta',[['PÚBLICO','Raio ampliado no interior','40km → 65km em Feira e Vitória','Alcance +12%',true]]],
+      ['05/08','terça',[['CRIATIVO','Troca de peças na RMS','4 criativos substituídos por saturação','Freq. -0,4',true]]],
+      ['04/08','segunda',[['VERBA','Realocação entre plataformas','R$ 22k migrados do Meta para o Kwai','CPA -1,8%',true]]],
+      ['03/08','domingo',[['STATUS','Aumento de lance no leilão','Lance manual em 2 conjuntos do Meta','CPM +3,2%',false]]]
+    ].map(([date,weekday,items])=>({ date, weekday, node,
+      items: items.map(([tag,title,detail,impact,up])=>({ tag, title, detail, impact, tagStyle:tagStyle(tag), impactStyle:impactStyle(up) })) }));
+    const efeitos = [
+      'As trocas de criativo de 05/08 derrubaram a frequência de 3,1 para 2,7 sem perda de cadastros.',
+      'A realocação de R$ 22 mil para o Kwai em 04/08 reduziu o CPA consolidado em R$ 0,34.',
+      'A pausa do público frio em 07/08 é a mudança de maior efeito isolado na janela.'
+    ];
+
+    // ---- 12 Comparativo ----
+    const platCards = [
+      { name:'KWAI ADS', verdict:'Melhor custo', color:'#FF7A00', stats:[['38%','da verba'],['R$ 16,20','CPA'],['11.573','cadastros']] },
+      { name:'META ADS', verdict:'Maior volume', color:'#2E8FFF', stats:[['62%','da verba'],['R$ 20,10','CPA'],['14.739','cadastros']] }
+    ].map(p=>({ ...p,
+      box:{ background:'#0C1734', border:'1px solid '+p.color+'44', borderRadius:'16px', padding:'15px 18px',
+        display:'flex', flexDirection:'column' },
+      dot:{ width:'12px', height:'12px', borderRadius:'4px', background:p.color, display:'block' },
+      badge:{ marginLeft:'auto', fontSize:'10px', fontWeight:700, padding:'4px 10px', borderRadius:'7px',
+        background:p.color+'22', color:p.color },
+      stats:p.stats.map(([value,label])=>({ value, label })) }));
+
+    const comparativo = [
+      ['Custo por cadastro','R$ 16,20','R$ 20,10',86,66,'Kwai'],
+      ['Volume de cadastros','11.573','14.739',68,88,'Meta'],
+      ['Alcance único','0,92 mi','1,49 mi',58,92,'Meta'],
+      ['CTR','3,61%','2,74%',90,68,'Kwai'],
+      ['Retenção de vídeo','52%','38%',88,62,'Kwai'],
+      ['Frequência','1,9','2,9',82,54,'Kwai'],
+      ['CPM','R$ 68,40','R$ 88,90',88,62,'Kwai'],
+      ['Penetração no interior','64%','41%',84,55,'Kwai']
+    ].map(([label,kwaiV,metaV,kp,mp,winner])=>({ label, kwaiV, metaV, winner,
+      kwaiBar:{ width:kp+'%', height:'11px', borderRadius:'5px 0 0 5px', background:'linear-gradient(90deg,rgba(255,122,0,.35),#FF7A00)' },
+      metaBar:{ width:mp+'%', height:'11px', borderRadius:'0 5px 5px 0', background:'linear-gradient(90deg,#2E8FFF,rgba(46,143,255,.35))' },
+      winStyle:{ fontSize:'10px', fontWeight:700, textAlign:'center', padding:'3px 8px', borderRadius:'6px',
+        background: winner==='Kwai'?'rgba(255,122,0,.16)':'rgba(46,143,255,.16)', color: winner==='Kwai'?'#FFB877':'#93C3FF' } }));
+
+    // ---- 13 Simulador ----
+    const foco = s.foco, verba = s.verba, kp = s.kwaiPct;
+    const cpaBase = { cadastros:[15.60,19.10], alcance:[18.90,22.40], video:[17.40,20.80] }[foco];
+    const cpmBase = { cadastros:[70.2,90.1], alcance:[58.4,72.6], video:[64.0,81.3] }[foco];
+    const kSpend = verba*kp/100, mSpend = verba-kSpend;
+    const simCad = Math.round(kSpend/cpaBase[0] + mSpend/cpaBase[1]);
+    const simCpa = simCad ? verba/simCad : 0;
+    const simImp = Math.round((kSpend/cpmBase[0] + mSpend/cpmBase[1]) * 1000);
+    const simAlc = Math.round(simImp/2.4);
+    const scenarioCad = pct => Math.round((verba*pct/100)/cpaBase[0] + (verba*(100-pct)/100)/cpaBase[1]);
+    const scen = [0,25,38,50,75,100].map(p=>({ p, v:scenarioCad(p) }));
+    const scenMax = Math.max(...scen.map(x=>x.v));
+    const cenarios = scen.map(x=>({ label:x.p+'% Kwai', value:this.num(x.v),
+      bar:{ width:'100%', height:Math.round((x.v/scenMax)*100)+'%', borderRadius:'7px 7px 3px 3px',
+        background: x.p===kp ? 'linear-gradient(180deg,#35D0FF,#2E8FFF)' : 'rgba(46,143,255,.28)',
+        border: x.p===kp ? '1px solid rgba(53,208,255,.6)' : '1px solid transparent' } }));
+
+    return {
+      eficKpis, eficRows, eficObjetivo, desperdicio, municipios, regioes,
+      faixas, dispositivos, horarios, segmentos, bibFilters, biblioteca, diario, efeitos,
+      platCards, comparativo, cenarios,
+      chartCpaArea:this.path(S.cpa,100,34,true),
+      isEficiencia:s.screen==='eficiencia', isTerritorio:s.screen==='territorio', isPublico:s.screen==='publico',
+      isBiblioteca:s.screen==='biblioteca', isTimeline:s.screen==='timeline', isComparativo:s.screen==='comparativo',
+      isSimulador:s.screen==='simulador',
+      verba, kwaiPct:kp, verbaLabel:this.brl(verba,0), kwaiPctLabel:kp+'% Kwai', metaPctLabel:(100-kp)+'% Meta',
+      onVerba:e=>this.setState({ verba:Number(e.target.value) }),
+      onKwai:e=>this.setState({ kwaiPct:Number(e.target.value) }),
+      simKwaiBar:{ width:kp+'%', background:'#FF7A00' }, simMetaBar:{ width:(100-kp)+'%', background:'#2E8FFF' },
+      focoChips:[['cadastros','Cadastros'],['alcance','Alcance'],['video','Vídeo']].map(([id,label])=>({
+        label, go:this.set('foco',id), style:this.chip(s.foco===id, '#F5B301') })),
+      simKpis:[
+        { label:'Cadastros projetados', value:this.num(simCad), note:'com a divisão atual' },
+        { label:'CPA projetado', value:this.brl(simCpa), note:'média ponderada' },
+        { label:'Impressões', value:(simImp/1e6).toFixed(2).replace('.',',')+' mi', note:'estimativa de entrega' },
+        { label:'Alcance único', value:(simAlc/1e6).toFixed(2).replace('.',',')+' mi', note:'frequência 2,4' }
+      ],
+      simRecomendacao:'Com foco em '+({cadastros:'cadastros',alcance:'alcance',video:'vídeo'}[foco])+', a melhor divisão simulada é '+
+        scen.reduce((a,b)=>b.v>a.v?b:a).p+'% no Kwai. A divisão atual entrega '+this.num(simCad)+' cadastros a '+this.brl(simCpa)+' cada.',
+      distribuicao:[
+        { label:'Kwai Ads', value:this.brl(kSpend,0) }, { label:'Meta Ads', value:this.brl(mSpend,0) },
+        { label:'RMS', value:this.brl(verba*0.42,0) }, { label:'Interior', value:this.brl(verba*0.58,0) }
+      ],
+      navItems, dayLabels,
+      theme:s.theme,
+      toggleTheme:()=>this.setState({ theme: s.theme==='dark'?'light':'dark' }),
+      themeIcon: s.theme==='dark'?'light_mode':'dark_mode',
+      themeLabel: s.theme==='dark'?'Tema claro':'Tema escuro',
+      themeBtnStyle: railRow, userBtnStyle: railRow, themeIconStyle: railIcon, userIconStyle: railIcon,
+      themeLabelStyle: tip(s.hoverNav==='__theme'), exitLabelStyle: tip(s.hoverNav==='__exit'),
+      themeOver:hover('__theme').over, themeOut:hover('__theme').out,
+      exitOver:hover('__exit').over, exitOut:hover('__exit').out,
+      railStyle: { width:'74px', flex:'0 0 74px', padding:'8px 8px 8px 10px',
+        display:'flex', flexDirection:'column', minHeight:0, zIndex:5 },
+      screenTitle: cur[2], screenRoute: cur[1],
+      periodLabel: periods.find(p=>p[0]===s.period)[1],
+      platformChips: platforms.map(([id,label])=>({ label, go:this.set('platform',id), style:this.chip(s.platform===id, id==='kwai'?'#FF7A00':'#2E8FFF') })),
+      periodChips: periods.map(([id,label])=>({ label, go:this.set('period',id), style:this.chip(s.period===id) })),
+      isInicio:s.screen==='inicio', isCampanhas:s.screen==='campanhas', isCriativos:s.screen==='criativos',
+      isAnalises:s.screen==='analises', isPeriodo:s.screen==='periodo', isDesempenho:s.screen==='desempenho',
+      goCampanhas:this.set('screen','campanhas'), goSimulador:this.set('screen','simulador'), goCriativos:this.set('screen','criativos'),
+      heroKpis, totalInvest:this.brl(487213.44), splitCards, resultCards, kwaiCampaigns, metaCampaigns,
+      splitKwaiBar:{ width:'38%', background:'#FF7A00' }, splitMetaBar:{ width:'62%', background:'#2E8FFF' },
+      chartInvest:this.path(S.investimento,100,34), chartInvestArea:this.path(S.investimento,100,34,true),
+      chartCadastros:this.path(S.cadastros,100,34), chartCpa:this.path(S.cpa,100,34),
+      criativoFilters, criativos, analiseHeadline, analises, sinais, atencao,
+      periodoKpis, leitura, alteracoes, criativosMini,
+      bigNumbers, interacoes, interCriativo, retencao,
+      metricChipsA: mkChips('metricA', s.metricA, '#0E7FA8'), metricChipsB: mkChips('metricB', s.metricB, '#8A6A00'),
+      cmpA:this.path(S[s.metricA],100,34), cmpAreaA:this.path(S[s.metricA],100,34,true), cmpB:this.path(S[s.metricB],100,34)
+    };
+  }
+}
+</script>
+</body>
+</html>
