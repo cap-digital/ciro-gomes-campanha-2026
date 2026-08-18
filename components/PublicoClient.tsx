@@ -50,6 +50,14 @@ export function PublicoClient({
 
   const CORES = ["#21C46A", "#35D0FF", "#9B7BFF", "#7C8CB3"];
 
+  const rotuloBarra: React.CSSProperties = {
+    fontFamily: "'Inter',sans-serif",
+    fontVariantNumeric: "tabular-nums",
+    fontSize: 9.5,
+    color: "var(--muted2)",
+    whiteSpace: "nowrap",
+  };
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", gap: 12, minHeight: 0, minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -92,14 +100,27 @@ export function PublicoClient({
           </div>
           <div style={{ flex: 1, minHeight: 0, overflow: "auto", display: "flex", flexDirection: "column", justifyContent: "space-around", gap: 8 }}>
             {faixas.map((f) => (
-              <div key={f.label} style={{ display: "grid", gridTemplateColumns: "44px 1fr 1fr", gap: 8, alignItems: "center" }}>
+              <div
+                key={f.label}
+                style={{
+                  display: "grid",
+                  // Coluna própria para cada rótulo: com o valor dentro da célula
+                  // da barra, a faixa mais longa (100% da largura) empurrava o
+                  // número para cima do rótulo da idade.
+                  gridTemplateColumns: "38px 58px minmax(0,1fr) minmax(0,1fr) 58px",
+                  gap: 6,
+                  alignItems: "center",
+                }}
+              >
                 <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 10.5, color: "var(--muted)" }}>{f.label}</div>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <div style={{ width: `${pctDe(f.homens[metricaId], maxFaixa)}%`, height: 13, borderRadius: "4px 0 0 4px", background: "#35D0FF", minWidth: 2 }} title={metrica.formatar(f.homens[metricaId])} />
+                <div style={{ ...rotuloBarra, textAlign: "right" }}>{metrica.compacto(f.homens[metricaId])}</div>
+                <div style={{ display: "flex", justifyContent: "flex-end", minWidth: 0 }}>
+                  <div style={{ width: `${pctDe(f.homens[metricaId], maxFaixa)}%`, height: 13, borderRadius: "4px 0 0 4px", background: "#35D0FF", minWidth: 2 }} />
                 </div>
-                <div>
-                  <div style={{ width: `${pctDe(f.mulheres[metricaId], maxFaixa)}%`, height: 13, borderRadius: "0 4px 4px 0", background: "#FF7BC8", minWidth: 2 }} title={metrica.formatar(f.mulheres[metricaId])} />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ width: `${pctDe(f.mulheres[metricaId], maxFaixa)}%`, height: 13, borderRadius: "0 4px 4px 0", background: "#FF7BC8", minWidth: 2 }} />
                 </div>
+                <div style={rotuloBarra}>{metrica.compacto(f.mulheres[metricaId])}</div>
               </div>
             ))}
           </div>
@@ -133,22 +154,46 @@ export function PublicoClient({
           <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>
             Horário do dia · {metrica.label.toLowerCase()}
           </div>
-          <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "flex-end", gap: 4, paddingBottom: 16, position: "relative" }}>
-            {horarios.map((h) => (
-              <div key={h.label} style={{ flex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center", position: "relative" }} title={`${h.label} · ${metrica.formatar(h[metricaId])}`}>
-                <div
-                  style={{
-                    width: "100%",
-                    height: `${Math.max(2, pctDe(h[metricaId], maxHora))}%`,
-                    borderRadius: "4px 4px 0 0",
-                    background: h[metricaId] >= maxHora * 0.8 ? "#35D0FF" : "rgba(46,143,255,.4)",
-                  }}
-                />
-                <div style={{ position: "absolute", bottom: -15, fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 8.5, color: "var(--dim)" }}>
-                  {h.label.replace("h", "")}
+          <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "flex-end", gap: 4, paddingBottom: 16, paddingTop: 4, position: "relative" }}>
+            {horarios.map((h) => {
+              const alt = Math.max(2, pctDe(h[metricaId], maxHora));
+              const pico = h[metricaId] >= maxHora * 0.8;
+              return (
+                <div key={h.label} style={{ flex: 1, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center", position: "relative", minWidth: 0 }} title={`${h.label} · ${metrica.formatar(h[metricaId])}`}>
+                  {/* Rótulo girado: com 24 colunas não cabe na horizontal, e girar
+                      mantém o número legível em vez de truncá-lo. */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: `calc(${alt}% + 4px)`,
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                      fontFamily: "'Inter',sans-serif",
+                      fontVariantNumeric: "tabular-nums",
+                      fontSize: 8.5,
+                      lineHeight: 1,
+                      color: pico ? "var(--text2)" : "var(--dim)",
+                      fontWeight: pico ? 700 : 400,
+                      whiteSpace: "nowrap",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {metrica.compacto(h[metricaId])}
+                  </div>
+                  <div
+                    style={{
+                      width: "100%",
+                      height: `${alt}%`,
+                      borderRadius: "4px 4px 0 0",
+                      background: pico ? "#35D0FF" : "rgba(46,143,255,.4)",
+                    }}
+                  />
+                  <div style={{ position: "absolute", bottom: -15, fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 8.5, color: "var(--dim)" }}>
+                    {h.label.replace("h", "")}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Panel>
 
