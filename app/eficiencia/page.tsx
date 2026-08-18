@@ -21,7 +21,7 @@ export default async function EficienciaPage({ searchParams }: { searchParams: P
 
       <Panel>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-          <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>Custo por cadastro × volume — por campanha</div>
+          <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>{data.costLabel} × volume — por campanha</div>
           <DataSourceBadge source={data.source} />
         </div>
         <div style={{ flex: 1, minHeight: 0, overflow: "auto", display: "flex", flexDirection: "column", gap: 7 }}>

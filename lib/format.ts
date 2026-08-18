@@ -26,8 +26,13 @@ export function compact(v: number): string {
   return num(value);
 }
 
+/**
+ * Variação percentual. Sem base de comparação (janela anterior vazia) devolve
+ * string vazia em vez de "+0,0%": afirmar estabilidade onde não há histórico
+ * é inventar informação — a conta só começou a veicular em 16/08/2026.
+ */
 export function delta(curr: number, prev: number): string {
-  if (!Number.isFinite(prev) || prev === 0) return "+0,0%";
+  if (!Number.isFinite(prev) || prev === 0) return "";
   const d = ((curr - prev) / Math.abs(prev)) * 100;
   const sign = d >= 0 ? "+" : "";
   return sign + d.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";

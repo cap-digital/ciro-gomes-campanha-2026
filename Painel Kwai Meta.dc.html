@@ -136,7 +136,7 @@
             <div style="position:relative;padding:clamp(14px,2.4vh,28px) 30px;display:flex;flex-direction:column;justify-content:center;gap:clamp(7px,1.4vh,14px);min-width:0;min-height:0;overflow:hidden">
               <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:clamp(9px,1.1vw,11px);letter-spacing:.28em;color:#9CC8FF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">PAINEL DE CAMPANHA · KWAI + META ADS</div>
               <h1 style="margin:0;font-family:'Poppins',sans-serif;font-weight:900;font-size:clamp(22px,min(3.2vw,6.4vh),50px);line-height:.94;letter-spacing:-.02em;text-transform:uppercase;text-wrap:balance">Central de<br />inteligência<br /><span style="color:#35D0FF">de mídia</span></h1>
-              <p style="margin:0;max-width:44ch;font-size:clamp(11.5px,1.3vw,14.5px);line-height:1.5;color:#D3E3FF;text-wrap:pretty">Investimento, alcance, público, território e criativos da campanha de <strong style="color:#fff">ACM Neto</strong> — Kwai Ads e Meta Ads em um só painel.</p>
+              <p style="margin:0;max-width:44ch;font-size:clamp(11.5px,1.3vw,14.5px);line-height:1.5;color:#D3E3FF;text-wrap:pretty">Investimento, alcance, público, território e criativos da campanha de <strong style="color:#fff">Ciro Gomes</strong> — Kwai Ads e Meta Ads em um só painel.</p>
               <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:4px">
                 <div onClick="{{ goCampanhas }}" style="cursor:pointer;background:#fff;color:#0B2A6B;font-weight:700;font-size:clamp(12px,1.2vw,14px);padding:clamp(9px,1.4vh,13px) 22px;border-radius:99px;display:flex;align-items:center;gap:10px">Abrir painel de campanhas <span style="font-size:15px">→</span></div>
                 <div onClick="{{ goSimulador }}" style="cursor:pointer;border:1px solid rgba(255,255,255,.4);color:#fff;font-weight:600;font-size:clamp(12px,1.2vw,14px);padding:clamp(9px,1.4vh,13px) 20px;border-radius:99px">Simulador de verba</div>
@@ -144,11 +144,12 @@
             </div>
             <div style="position:relative;padding:26px 30px 26px 0;display:flex;align-items:center;justify-content:center;min-width:0">
               <div style="width:100%;height:100%;max-height:100%;border-radius:22px;background:#fff;padding:9px;display:flex">
-                <div style="flex:1;border-radius:15px;background:var(--slot12);position:relative;display:flex;align-items:flex-end;padding:18px">
-                  <div style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:10.5px;color:#8FA7DA;position:absolute;top:50%;left:0;right:0;text-align:center;transform:translateY(-50%);letter-spacing:.1em">[ foto do candidato ]</div>
+                <div style="flex:1;border-radius:15px;background:var(--slot12);position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:18px">
+                  <img src="public/ciro-gomes.png" alt="Ciro Gomes" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%" />
+                  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,42,107,0) 42%,rgba(8,26,68,.72) 78%,rgba(6,18,50,.94) 100%)"></div>
                   <div style="position:relative">
-                    <div style="font-family:'Poppins',sans-serif;font-weight:900;font-size:17px;letter-spacing:.04em">ACM NETO</div>
-                    <div style="font-size:11px;color:#B9CCF2">Governo · Bahia · 2026</div>
+                    <div style="font-family:'Poppins',sans-serif;font-weight:900;font-size:17px;letter-spacing:.04em;color:#fff">CIRO GOMES</div>
+                    <div style="font-size:11px;color:#B9CCF2">Governo · Ceará · 2026</div>
                   </div>
                 </div>
               </div>
@@ -510,7 +511,7 @@
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;min-height:0">
             <div style="display:flex;align-items:center;margin-bottom:10px"><div style="font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase">Distribuição no estado</div><div style="margin-left:auto;font-size:10.5px;color:var(--dim)">cadastros por 10 mil habitantes</div></div>
             <div style="flex:1;min-height:0;border-radius:12px;background:var(--slot12);display:flex;align-items:center;justify-content:center;position:relative">
-              <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:11px;color:#8FA7DA;letter-spacing:.1em">[ mapa da Bahia · choropleth ]</span>
+              <span style="font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:11px;color:#8FA7DA;letter-spacing:.1em">[ mapa do Ceará · choropleth ]</span>
               <div style="position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-size:9.5px;color:var(--text2)">
                 <span>menos</span>
                 <span style="width:90px;height:7px;border-radius:99px;background:linear-gradient(90deg,rgba(46,143,255,.2),#35D0FF);display:block"></span>
@@ -896,16 +897,16 @@ class Component extends DCLogic {
       color: st==='ATIVA' ? '#4BE08C' : st==='TESTE' ? '#FFCF54' : '#8FA0C4' });
 
     const kwaiCampaigns = [
-      { name:'KW · Cadastro Salvador', obj:'Conversão · lead', spend:this.brl(64210), cpa:'R$ 15,40', status:'ATIVA' },
-      { name:'KW · Vídeo Interior BA', obj:'Visualizações', spend:this.brl(48930), cpa:'R$ 17,10', status:'ATIVA' },
+      { name:'KW · Cadastro Fortaleza', obj:'Conversão · lead', spend:this.brl(64210), cpa:'R$ 15,40', status:'ATIVA' },
+      { name:'KW · Vídeo Interior CE', obj:'Visualizações', spend:this.brl(48930), cpa:'R$ 17,10', status:'ATIVA' },
       { name:'KW · Retargeting 30d', obj:'Conversão · lead', spend:this.brl(41200), cpa:'R$ 14,80', status:'ATIVA' },
       { name:'KW · Teste criativo agosto', obj:'Alcance', spend:this.brl(30801), cpa:'R$ 19,60', status:'TESTE' }
     ].map(c=>({ ...c, statusStyle:statusStyle(c.status) }));
 
     const metaCampaigns = [
-      { name:'MT · Cadastro RMS', obj:'Geração de cadastros', spend:this.brl(98420), cpa:'R$ 18,90', status:'ATIVA' },
+      { name:'MT · Cadastro RMF', obj:'Geração de cadastros', spend:this.brl(98420), cpa:'R$ 18,90', status:'ATIVA' },
       { name:'MT · Vídeo institucional', obj:'ThruPlay', spend:this.brl(72310), cpa:'R$ 21,40', status:'ATIVA' },
-      { name:'MT · Interior — Feira/Vitória', obj:'Geração de cadastros', spend:this.brl(58900), cpa:'R$ 20,10', status:'ATIVA' },
+      { name:'MT · Interior — Sobral/Cariri', obj:'Geração de cadastros', spend:this.brl(58900), cpa:'R$ 20,10', status:'ATIVA' },
       { name:'MT · Retargeting engajados', obj:'Conversão', spend:this.brl(44120), cpa:'R$ 16,70', status:'ATIVA' },
       { name:'MT · Público frio 25-44', obj:'Alcance', spend:this.brl(28322), cpa:'R$ 24,30', status:'PAUSADA' }
     ].map(c=>({ ...c, statusStyle:statusStyle(c.status) }));
@@ -930,10 +931,10 @@ class Component extends DCLogic {
 
     const analises = [
       ['EFICIÊNCIA','Kwai puxa o CPA médio para baixo','Com 38% da verba o Kwai gera 44% dos cadastros. Cada R$ 10 mil deslocados para lá projetam ~180 cadastros adicionais.','Kwai Ads'],
-      ['ALCANCE','Frequência subindo em Salvador','A frequência na RMS chegou a 3,1 contra 2,1 no interior. Sinal de saturação — vale ampliar público ou trocar criativo.','Meta Ads'],
+      ['ALCANCE','Frequência subindo em Fortaleza','A frequência na RMF chegou a 3,1 contra 2,1 no interior. Sinal de saturação — vale ampliar público ou trocar criativo.','Meta Ads'],
       ['CRIATIVO','Vídeo curto domina a conversão','Peças de até 20s respondem por 61% dos cadastros e retêm 48% até o fim, contra 27% dos vídeos longos.','Ambas'],
       ['PÚBLICO','25-44 concentra o cadastro','A faixa 25-44 é 57% dos cadastros com CPA 12% abaixo da média. 55+ tem o maior custo.','Meta Ads'],
-      ['TERRITÓRIO','Interior com espaço para escala','Feira de Santana e Vitória da Conquista têm CPA abaixo da média e cobertura de apenas 41% do público estimado.','Ambas'],
+      ['TERRITÓRIO','Interior com espaço para escala','Sobral e Juazeiro do Norte têm CPA abaixo da média e cobertura de apenas 41% do público estimado.','Ambas'],
       ['RITMO','Pacing 5,5% acima do planejado','Mantido o ritmo atual, a verba do mês se esgota 3 dias antes do fim da janela.','Planejamento']
     ].map(([tag,title,text,src])=>({ tag, title, text, src,
       tagStyle:{ fontSize:'9px', fontWeight:700, letterSpacing:'.12em', padding:'3px 7px', borderRadius:'5px',
@@ -946,7 +947,7 @@ class Component extends DCLogic {
     ].map(([label,v,c])=>({ label, value:v+'/100', bar:this.bar(v,c,'100%') }));
 
     const atencao = [
-      'Frequência acima de 3,0 na RMS há 4 dias seguidos.',
+      'Frequência acima de 3,0 na RMF há 4 dias seguidos.',
       'Campanha MT · Público frio 25-44 com CPA 31% acima da média — pausada em 07/08.',
       'Pacing projeta esgotamento da verba 3 dias antes do fim do mês.'
     ];
@@ -962,7 +963,7 @@ class Component extends DCLogic {
       'A janela de 7 dias fechou com R$ 487.213,44 investidos e 26.312 cadastros. O custo por cadastro caiu de R$ 19,05 para R$ 18,52, movimento puxado principalmente pelo Kwai, que operou a R$ 16,20.',
       'O alcance único cresceu 7,1% enquanto as impressões recuaram 3,5% — a campanha ficou menos repetitiva e mais ampla, efeito da troca de criativos feita em 05/08.',
       'O Meta segue como base de volume: 62% da verba e 56% dos cadastros, com forte presença na Região Metropolitana. O Kwai concentra performance no interior e em públicos mais jovens.',
-      'Recomendação para a próxima janela: deslocar de 8% a 12% da verba do Meta para o Kwai no interior, e renovar as peças da RMS antes que a frequência ultrapasse 3,5.'
+      'Recomendação para a próxima janela: deslocar de 8% a 12% da verba do Meta para o Kwai no interior, e renovar as peças da RMF antes que a frequência ultrapasse 3,5.'
     ];
 
     const alteracoes = [
@@ -970,7 +971,7 @@ class Component extends DCLogic {
       { time:'07/08 18:40', title:'Campanha pausada', detail:'MT · Público frio 25-44 — CPA 31% acima da média' },
       { time:'07/08 11:05', title:'Novo criativo', detail:'3 peças de vídeo 15s subidas no Kwai' },
       { time:'06/08 16:22', title:'Público ampliado', detail:'MT · Interior: raio 40km → 65km' },
-      { time:'05/08 08:50', title:'Troca de criativos', detail:'RMS: 4 peças substituídas por saturação' }
+      { time:'05/08 08:50', title:'Troca de criativos', detail:'RMF: 4 peças substituídas por saturação' }
     ];
 
     const criativosMini = [
@@ -1014,10 +1015,10 @@ class Component extends DCLogic {
     ].map(k=>({ ...k, pillStyle:this.pill(k.delta,k.good) }));
 
     const eficRows = [
-      ['KW · Retargeting 30d',14.80,2784,'#FF7A00'],['KW · Cadastro Salvador',15.40,4169,'#FF7A00'],
-      ['MT · Retargeting engajados',16.70,2642,'#2E8FFF'],['KW · Vídeo Interior BA',17.10,2861,'#FF7A00'],
-      ['MT · Cadastro RMS',18.90,5207,'#2E8FFF'],['KW · Teste criativo agosto',19.60,1572,'#FF7A00'],
-      ['MT · Interior — Feira/Vitória',20.10,2930,'#2E8FFF'],['MT · Vídeo institucional',21.40,3379,'#2E8FFF'],
+      ['KW · Retargeting 30d',14.80,2784,'#FF7A00'],['KW · Cadastro Fortaleza',15.40,4169,'#FF7A00'],
+      ['MT · Retargeting engajados',16.70,2642,'#2E8FFF'],['KW · Vídeo Interior CE',17.10,2861,'#FF7A00'],
+      ['MT · Cadastro RMF',18.90,5207,'#2E8FFF'],['KW · Teste criativo agosto',19.60,1572,'#FF7A00'],
+      ['MT · Interior — Sobral/Cariri',20.10,2930,'#2E8FFF'],['MT · Vídeo institucional',21.40,3379,'#2E8FFF'],
       ['MT · Público frio 25-44',24.30,1166,'#2E8FFF']
     ].map(([name,cpa,vol,color])=>({ name, cpa:this.brl(cpa), vol:this.num(vol),
       dot:{ width:'7px', height:'7px', borderRadius:'2px', flex:'0 0 7px', background:color },
@@ -1031,19 +1032,19 @@ class Component extends DCLogic {
     const desperdicio = [
       'R$ 28,3 mil aplicados em público frio 25-44 com CPA 31% acima da média — realocação libera ~1,5 mil cadastros.',
       'Vídeos acima de 40s consomem 18% da verba e entregam 9% dos cadastros.',
-      'Overlap de 22% entre os públicos de RMS e Interior no Meta: parte das impressões é paga duas vezes.'
+      'Overlap de 22% entre os públicos de RMF e Interior no Meta: parte das impressões é paga duas vezes.'
     ];
 
     // ---- 08 Território ----
     const municipios = [
-      ['Salvador',6420,100],['Feira de Santana',3180,49],['Vitória da Conquista',2410,38],
-      ['Camaçari',1870,29],['Juazeiro',1520,24],['Itabuna',1340,21],['Ilhéus',1180,18],['Barreiras',960,15]
+      ['Fortaleza',6420,100],['Caucaia',3180,49],['Juazeiro do Norte',2410,38],
+      ['Maracanaú',1870,29],['Sobral',1520,24],['Crato',1340,21],['Itapipoca',1180,18],['Maranguape',960,15]
     ].map(([name,v,p],i)=>({ rank:String(i+1).padStart(2,'0'), name, value:this.num(v),
       bar:this.bar(p,'linear-gradient(90deg,#2E8FFF,#35D0FF)','100%') }));
 
     const regioes = [
-      ['Região Metropolitana',148900,8420,17.68],['Interior Norte',92400,4980,18.55],
-      ['Interior Sul',86100,4610,18.68],['Oeste',74300,3910,19.00],['Extremo Sul',85513,4392,19.47]
+      ['Região Metropolitana',148900,8420,17.68],['Norte · Sobral',92400,4980,18.55],
+      ['Cariri',86100,4610,18.68],['Sertão Central',74300,3910,19.00],['Litoral Leste · Jaguaribe',85513,4392,19.47]
     ].map(([name,inv,cad,cpa])=>({ name, invest:this.brl(inv/1000,0).replace('R$ ','R$ ')+'k', cad:this.num(cad), cpa:this.brl(cpa) }));
 
     // ---- 09 Público ----
@@ -1060,9 +1061,9 @@ class Component extends DCLogic {
         borderRadius:'4px 4px 2px 2px', background:i>=6&&i<=9?'linear-gradient(180deg,#35D0FF,#2E8FFF)':'rgba(46,143,255,.35)' } }));
 
     const segmentos = [
-      ['Mulheres 35-44 · RMS','4.812','R$ 15,90',true],['Homens 25-34 · Interior','3.940','R$ 16,40',true],
-      ['Mulheres 45-54 · RMS','3.104','R$ 17,80',true],['Homens 35-44 · Oeste','2.760','R$ 18,90',true],
-      ['Mulheres 18-24 · Interior','2.190','R$ 21,30',false],['Homens 55+ · RMS','1.480','R$ 26,70',false]
+      ['Mulheres 35-44 · RMF','4.812','R$ 15,90',true],['Homens 25-34 · Interior','3.940','R$ 16,40',true],
+      ['Mulheres 45-54 · RMF','3.104','R$ 17,80',true],['Homens 35-44 · Oeste','2.760','R$ 18,90',true],
+      ['Mulheres 18-24 · Interior','2.190','R$ 21,30',false],['Homens 55+ · RMF','1.480','R$ 26,70',false]
     ].map(([name,cad,cpa,good])=>({ name, cad, cpa,
       pillStyle:{ fontFamily:"'Inter',sans-serif", fontVariantNumeric:"tabular-nums", fontSize:'10px', padding:'3px 8px', borderRadius:'6px',
         background: good?'rgba(33,196,106,.14)':'rgba(228,34,43,.14)', color: good?'#4BE08C':'#FF8189' } }));
@@ -1071,12 +1072,12 @@ class Component extends DCLogic {
     const bibFilters = [['Ativos',true],['Inativos',false],['Vídeo',false],['Imagem',false]]
       .map(([label,a])=>({ label, style:this.chip(a) }));
     const biblioteca = [
-      ['ATIVO','2398410','Mais saúde para a Bahia: mutirão de consultas em 40 municípios','12/07/2026','FB · IG'],
+      ['ATIVO','2398410','Mais saúde para o Ceará: mutirão de consultas em 40 municípios','12/07/2026','FB · IG'],
       ['ATIVO','2398455','Emprego e renda: o que já foi entregue e o que vem pela frente','15/07/2026','FB · IG · AN'],
       ['ATIVO','2398512','Cadastre-se para receber a agenda da campanha','18/07/2026','IG'],
-      ['ATIVO','2398577','Obras de mobilidade em Salvador — depoimento de moradores','21/07/2026','FB · IG'],
+      ['ATIVO','2398577','Obras de mobilidade em Fortaleza — depoimento de moradores','21/07/2026','FB · IG'],
       ['ATIVO','2398634','Educação em tempo integral: a meta para 2027','25/07/2026','FB'],
-      ['ATIVO','2398690','ACM Neto na CBN Bahia — íntegra da entrevista','29/07/2026','FB · IG'],
+      ['ATIVO','2398690','Ciro Gomes na CBN Fortaleza — íntegra da entrevista','29/07/2026','FB · IG'],
       ['PAUSADO','2398701','Segurança pública: plano para o interior','30/07/2026','FB · IG'],
       ['ATIVO','2398744','Participe: envie sua proposta para o programa de governo','02/08/2026','IG · AN']
     ].map(([status,id,copy,start,plats])=>({ status, id, copy, start, plats,
@@ -1096,8 +1097,8 @@ class Component extends DCLogic {
     const diario = [
       ['08/08','sexta',[['VERBA','Orçamento diário elevado no Kwai','Retargeting 30d: R$ 6k → R$ 8,5k','CPA -4,1%',true]]],
       ['07/08','quinta',[['STATUS','Campanha pausada no Meta','Público frio 25-44, CPA 31% acima da média','CPA -2,3%',true],['CRIATIVO','3 vídeos de 15s subidos no Kwai','Temas: emprego, saúde, mobilidade','CTR +0,6%',true]]],
-      ['06/08','quarta',[['PÚBLICO','Raio ampliado no interior','40km → 65km em Feira e Vitória','Alcance +12%',true]]],
-      ['05/08','terça',[['CRIATIVO','Troca de peças na RMS','4 criativos substituídos por saturação','Freq. -0,4',true]]],
+      ['06/08','quarta',[['PÚBLICO','Raio ampliado no interior','40km → 65km em Sobral e no Cariri','Alcance +12%',true]]],
+      ['05/08','terça',[['CRIATIVO','Troca de peças na RMF','4 criativos substituídos por saturação','Freq. -0,4',true]]],
       ['04/08','segunda',[['VERBA','Realocação entre plataformas','R$ 22k migrados do Meta para o Kwai','CPA -1,8%',true]]],
       ['03/08','domingo',[['STATUS','Aumento de lance no leilão','Lance manual em 2 conjuntos do Meta','CPM +3,2%',false]]]
     ].map(([date,weekday,items])=>({ date, weekday, node,
@@ -1176,7 +1177,7 @@ class Component extends DCLogic {
         scen.reduce((a,b)=>b.v>a.v?b:a).p+'% no Kwai. A divisão atual entrega '+this.num(simCad)+' cadastros a '+this.brl(simCpa)+' cada.',
       distribuicao:[
         { label:'Kwai Ads', value:this.brl(kSpend,0) }, { label:'Meta Ads', value:this.brl(mSpend,0) },
-        { label:'RMS', value:this.brl(verba*0.42,0) }, { label:'Interior', value:this.brl(verba*0.58,0) }
+        { label:'RMF', value:this.brl(verba*0.42,0) }, { label:'Interior', value:this.brl(verba*0.58,0) }
       ],
       navItems, dayLabels,
       theme:s.theme,

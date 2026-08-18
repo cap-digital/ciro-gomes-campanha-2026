@@ -9,10 +9,34 @@ export const PERIOD_PRESETS = [
 
 export type PeriodPresetId = (typeof PERIOD_PRESETS)[number]["id"];
 
-const CAMPAIGN_START = "2026-06-01";
+/** Criação da conta de anúncios — limite inferior real para o preset "Tudo". */
+export const CAMPAIGN_START = "2026-08-10";
+
+/**
+ * Fuso da conta de anúncios. A Meta interpreta `time_range` no fuso da conta,
+ * então calcular as datas em UTC fazia a janela pular um dia entre 21h e 24h
+ * no horário local.
+ */
+const TZ_CONTA = process.env.META_ACCOUNT_TIMEZONE || "America/Fortaleza";
 
 function toISODate(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  // en-CA formata como YYYY-MM-DD, que é exatamente o formato aceito pela Meta.
+  return d.toLocaleDateString("en-CA", { timeZone: TZ_CONTA });
+}
+
+/** "Hoje" no fuso da conta. */
+function hojeNaConta(): Date {
+  return new Date(`${toISODate(new Date())}T12:00:00Z`);
+}
+
+/** Data de hoje (YYYY-MM-DD) no fuso da conta de anúncios. */
+export function hojeISO(): string {
+  return toISODate(new Date());
+}
+
+/** Janela da campanha inteira: do início da conta até hoje, INCLUSIVE. */
+export function rangeAcumulado(): DateRange {
+  return { since: CAMPAIGN_START, until: hojeISO() };
 }
 
 /** Resolve a data range a partir de query params (?since&until ou ?period). */
@@ -29,7 +53,7 @@ export function resolveRange(searchParams: Record<string, string | string[] | un
 
 export function rangeFromPreset(period: PeriodPresetId): DateRange {
   const preset = PERIOD_PRESETS.find((p) => p.id === period) ?? PERIOD_PRESETS[0];
-  const today = new Date();
+  const today = hojeNaConta();
   const until = toISODate(today);
   if (preset.days === null) {
     return { since: CAMPAIGN_START, until };

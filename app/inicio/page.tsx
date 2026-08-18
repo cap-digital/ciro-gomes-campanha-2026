@@ -1,13 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getInicioData } from "@/lib/dashboard";
 import { resolveRange } from "@/lib/period";
 import { buildHref, type SearchParams } from "@/lib/url";
+import { CANDIDATO, CARGO, ANO, FOTO_CANDIDATO } from "@/lib/candidato";
 import { KpiGrid } from "@/components/ui/Kpi";
 import { DataSourceBadge } from "@/components/ui/Pill";
-
-const CANDIDATO = process.env.NEXT_PUBLIC_CANDIDATO || "ACM Neto";
-const CARGO = process.env.NEXT_PUBLIC_CARGO || "Governador · Bahia";
-const ANO = (process.env.NEXT_PUBLIC_DATA_ELEICAO || "2026").slice(0, 4);
 
 export default async function InicioPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
@@ -125,26 +123,35 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
         </div>
         <div style={{ position: "relative", padding: "26px 30px 26px 0", display: "flex", alignItems: "center", justifyContent: "center", minWidth: 0 }}>
           <div style={{ width: "100%", height: "100%", maxHeight: "100%", borderRadius: 22, background: "#fff", padding: 9, display: "flex" }}>
-            <div style={{ flex: 1, borderRadius: 15, background: "var(--slot12)", position: "relative", display: "flex", alignItems: "flex-end", padding: 18 }}>
+            <div
+              style={{
+                flex: 1,
+                borderRadius: 15,
+                background: "var(--slot12)",
+                position: "relative",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "flex-end",
+                padding: 18,
+              }}
+            >
+              <Image
+                src={FOTO_CANDIDATO}
+                alt={`${CANDIDATO} — ${CARGO}`}
+                fill
+                priority
+                sizes="(max-width: 1200px) 40vw, 480px"
+                style={{ objectFit: "cover", objectPosition: "center 18%" }}
+              />
               <div
                 style={{
-                  fontFamily: "'Inter',sans-serif",
-                  fontVariantNumeric: "tabular-nums",
-                  fontSize: 10.5,
-                  color: "#8FA7DA",
                   position: "absolute",
-                  top: "50%",
-                  left: 0,
-                  right: 0,
-                  textAlign: "center",
-                  transform: "translateY(-50%)",
-                  letterSpacing: ".1em",
+                  inset: 0,
+                  background: "linear-gradient(180deg,rgba(11,42,107,0) 42%,rgba(8,26,68,.72) 78%,rgba(6,18,50,.94) 100%)",
                 }}
-              >
-                [ foto do candidato ]
-              </div>
+              />
               <div style={{ position: "relative" }}>
-                <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 900, fontSize: 17, letterSpacing: ".04em" }}>{CANDIDATO.toUpperCase()}</div>
+                <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 900, fontSize: 17, letterSpacing: ".04em", color: "#fff" }}>{CANDIDATO.toUpperCase()}</div>
                 <div style={{ fontSize: 11, color: "#B9CCF2" }}>
                   {CARGO} · {ANO}
                 </div>

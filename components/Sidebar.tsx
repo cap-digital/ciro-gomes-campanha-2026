@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav";
+import { CANDIDATO, FOTO_CANDIDATO } from "@/lib/candidato";
 import { useTheme } from "./ThemeProvider";
 
 const railIcon = {
@@ -15,6 +17,11 @@ const railIcon = {
   alignItems: "center",
   justifyContent: "center",
   fontSize: 16,
+  /**
+   * Cor explícita e clara: a barra lateral é escura NOS DOIS TEMAS. Sem isto os
+   * ícones herdam --text, que no tema claro é azul-marinho — e some no fundo.
+   */
+  color: "rgba(255,255,255,.72)",
 } as const;
 
 function Tooltip({ show, children }: { show: boolean; children: React.ReactNode }) {
@@ -81,7 +88,13 @@ export function Sidebar() {
             overflow: "hidden",
           }}
         >
-          <span style={{ fontSize: 7, color: "rgba(255,255,255,.55)", textAlign: "center", lineHeight: 1.1 }}>foto</span>
+          <Image
+            src={FOTO_CANDIDATO}
+            alt={CANDIDATO}
+            width={38}
+            height={38}
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 14%" }}
+          />
         </div>
 
         <div style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
@@ -125,7 +138,15 @@ export function Sidebar() {
             onMouseLeave={() => setHover(null)}
             style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center", borderRadius: 99 }}
           >
-            <span className="ms" style={railIcon}>
+            <span
+              className="ms"
+              style={{
+                ...railIcon,
+                background: hover === "__theme" ? "rgba(255,255,255,.12)" : "transparent",
+                color: hover === "__theme" ? "#fff" : railIcon.color,
+                transition: "all .18s ease",
+              }}
+            >
               {theme === "dark" ? "light_mode" : "dark_mode"}
             </span>
             <Tooltip show={hover === "__theme"}>{theme === "dark" ? "Tema claro" : "Tema escuro"}</Tooltip>
@@ -135,7 +156,15 @@ export function Sidebar() {
             onMouseLeave={() => setHover(null)}
             style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center", borderRadius: 99 }}
           >
-            <span className="ms" style={railIcon}>
+            <span
+              className="ms"
+              style={{
+                ...railIcon,
+                background: hover === "__exit" ? "rgba(255,255,255,.12)" : "transparent",
+                color: hover === "__exit" ? "#fff" : railIcon.color,
+                transition: "all .18s ease",
+              }}
+            >
               logout
             </span>
             <Tooltip show={hover === "__exit"}>Sair</Tooltip>

@@ -34,6 +34,10 @@
   --warnBorder: rgba(228, 34, 43, 0.32);
   --warnLabel: #ff9aa0;
   --warnText: #f3d6d8;
+  /* Mapa: tokens próprios porque --soft/--line são fracos demais para desenhar
+     184 contornos de município e ainda deixar as bolhas legíveis por cima. */
+  --mapaFill: rgba(255, 255, 255, 0.05);
+  --mapaStroke: rgba(255, 255, 255, 0.16);
 }
 
 [data-theme="light"] {
@@ -71,6 +75,10 @@
   --warnBorder: rgba(214, 26, 36, 0.28);
   --warnLabel: #b4121c;
   --warnText: #7a2530;
+  /* No claro o cinza precisa de bem mais peso: sobre fundo branco, 4,5% de
+     opacidade some. */
+  --mapaFill: rgba(20, 45, 100, 0.1);
+  --mapaStroke: rgba(20, 45, 100, 0.34);
 }
 
 * {
@@ -233,4 +241,10 @@ button {
 }
 .rdp-nav button {
   color: var(--text2);
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
 }

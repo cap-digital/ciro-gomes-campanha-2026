@@ -1,4 +1,5 @@
 import { getCampanhasData } from "@/lib/dashboard";
+import { brl, pct } from "@/lib/format";
 import { resolveRange } from "@/lib/period";
 import type { SearchParams } from "@/lib/url";
 import { Panel } from "@/components/ui/Panel";
@@ -6,17 +7,16 @@ import { SplitBar } from "@/components/ui/Bar";
 import { SvgLines, DayAxis } from "@/components/ui/Chart";
 import { DataSourceBadge } from "@/components/ui/Pill";
 import { CampaignListPanel } from "@/components/CampaignListPanel";
-import { dayLabels as mockDayLabels, series as mockSeries } from "@/lib/mock/data";
 
 export default async function CampanhasPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
   const range = resolveRange(sp);
   const data = await getCampanhasData(range);
 
-  const dLabels = data.daily?.length ? data.daily.map((d) => d.date.slice(8, 10) + "/" + d.date.slice(5, 7)) : mockDayLabels;
-  const investLine = data.daily?.length ? data.daily.map((d) => d.spend) : undefined;
-  const cadastroLine = data.daily?.length ? data.daily.map((d) => d.leads) : undefined;
-  const cpaLine = data.daily?.length ? data.daily.map((d) => d.cpa) : undefined;
+  const dLabels = data.daily.map((d) => d.date.slice(8, 10) + "/" + d.date.slice(5, 7));
+  const investLine = data.daily.map((d) => d.spend);
+  const cadastroLine = data.daily.map((d) => d.leads);
+  const cpaLine = data.daily.map((d) => d.cpa);
 
   return (
     <div
@@ -29,16 +29,18 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
         minHeight: 0,
       }}
     >
-      <Panel gridColumn="span 5" style={{ padding: "15px 17px", gap: 11 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+      <Panel gridColumn="span 5" style={{ padding: "15px 17px", gap: 11, overflow: "auto" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
           <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>Investimento total</div>
           <DataSourceBadge source={data.source} />
         </div>
         <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: "clamp(22px,2.4vw,32px)", fontWeight: 600, letterSpacing: "-.02em" }}>
           {data.totalInvest}
         </div>
-        <SplitBar leftPct={data.kwaiPct} leftColor="#FF7A00" rightColor="#2E8FFF" />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, minWidth: 0, minHeight: 0 }}>
+        <div style={{ flexShrink: 0 }}>
+          <SplitBar leftPct={data.kwaiPct} leftColor="#FF7A00" rightColor="#2E8FFF" />
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, minWidth: 0, flexShrink: 0 }}>
           {data.splitCards.map((s, i) => (
             <div key={i} style={{ background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.06)", borderRadius: 12, padding: "9px 11px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -50,6 +52,75 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
               <div style={{ fontSize: 10.5, color: "#6E7EA6", marginTop: 3 }}>{s.note}</div>
             </div>
           ))}
+        </div>
+
+        {/* Pacing do budget: quanto do plano já saiu e quanto precisa sair por
+            dia até o 1º turno. Sem isso o "investimento total" não diz se a
+            campanha está adiantada ou atrasada. */}
+        <div
+          style={{
+            marginTop: 12,
+            display: "grid",
+            // auto-fit: em painel estreito os cards quebram linha em vez de
+            // espremer e sobrepor os rótulos.
+            gridTemplateColumns: "repeat(auto-fit,minmax(158px,1fr))",
+            gap: 10,
+            flexShrink: 0,
+          }}
+        >
+          {[
+            {
+              label: "Já investido",
+              valor: pct(data.pacing.pctGasto, 1),
+              // O saldo entra como nota do próprio card: o número grande segue
+              // sendo o percentual, e o card de verba vira redundante com a
+              // barra de progresso logo abaixo.
+              nota: `Ainda disponível ${brl(data.pacing.restante, 0)}`,
+              cor: "#35D0FF",
+            },
+            {
+              label: "Dias até o 1º turno",
+              valor: String(data.pacing.diasRestantes),
+              nota: data.pacing.dataEleicao.split("-").reverse().join("/"),
+              cor: "#F5B301",
+            },
+            {
+              label: "Média diária necessária",
+              valor: brl(data.pacing.mediaDiariaNecessaria, 0),
+              nota:
+                data.pacing.mediaDiariaAtual > 0
+                  ? `ritmo atual ${brl(data.pacing.mediaDiariaAtual, 0)}/dia`
+                  : "para usar toda a verba",
+              cor:
+                data.pacing.mediaDiariaAtual > 0 && data.pacing.mediaDiariaAtual >= data.pacing.mediaDiariaNecessaria
+                  ? "#4BE08C"
+                  : "#FF8189",
+            },
+          ].map((k, i) => (
+            <div key={i} style={{ background: "var(--soft)", border: "1px solid var(--line)", borderRadius: 12, padding: "10px 11px", display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+              <div style={{ fontSize: 9.5, letterSpacing: ".12em", color: "var(--muted)", textTransform: "uppercase", lineHeight: 1.3 }}>{k.label}</div>
+              <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: "clamp(14px,1.25vw,18px)", fontWeight: 600, color: k.cor, whiteSpace: "nowrap" }}>{k.valor}</div>
+              <div style={{ fontSize: 10, color: "var(--dim)", lineHeight: 1.35 }}>{k.nota}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Barra de progresso da verba prevista no plano de mídia. */}
+        <div style={{ marginTop: 10, flexShrink: 0 }}>
+          <div style={{ position: "relative", height: 8, borderRadius: 99, background: "var(--track)", overflow: "hidden" }}>
+            <div
+              style={{
+                width: `${Math.max(0.5, Math.min(100, data.pacing.pctGasto))}%`,
+                height: "100%",
+                borderRadius: 99,
+                background: "linear-gradient(90deg,#2E8FFF,#35D0FF)",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 9.5, color: "var(--dim)" }}>
+            <span>{brl(data.pacing.gasto, 0)} investidos</span>
+            <span>{brl(data.pacing.budget, 0)} de verba prevista</span>
+          </div>
         </div>
       </Panel>
 
@@ -74,9 +145,9 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
         <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
           <SvgLines
             lines={[
-              { values: investLine ?? mockSeries.investimento, color: "var(--line1)", width: 0.8, areaFill: "var(--fill1)" },
-              { values: cadastroLine ?? mockSeries.cadastros, color: "#F5B301", width: 0.6 },
-              { values: cpaLine ?? mockSeries.cpa, color: "#E4222B", width: 0.6, dashed: true },
+              { values: investLine, color: "var(--line1)", width: 0.8, areaFill: "var(--fill1)" },
+              { values: cadastroLine, color: "#F5B301", width: 0.6 },
+              { values: cpaLine, color: "#E4222B", width: 0.6, dashed: true },
             ]}
           />
         </div>
@@ -97,8 +168,8 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
         ))}
       </div>
 
-      <CampaignListPanel title="Campanhas · Kwai Ads" dotColor="#FF7A00" campaigns={data.kwaiCampaigns} />
-      <CampaignListPanel title="Campanhas · Meta Ads" dotColor="#2E8FFF" campaigns={data.metaCampaigns} />
+      <CampaignListPanel title="Campanhas · Kwai Ads" dotColor="#FF7A00" campaigns={data.kwaiCampaigns} resultLabel={data.resultLabel} costLabel={data.costLabel} />
+      <CampaignListPanel title="Campanhas · Meta Ads" dotColor="#2E8FFF" campaigns={data.metaCampaigns} resultLabel={data.resultLabel} costLabel={data.costLabel} />
     </div>
   );
 }

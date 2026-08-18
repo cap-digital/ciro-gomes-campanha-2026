@@ -57,20 +57,57 @@ export default async function PeriodoPage({ searchParams }: { searchParams: Prom
             ver todos →
           </Link>
         </div>
-        <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gap: 10 }}>
+        {/* Cards verticais preenchendo a altura do painel: o criativo é a
+            informação principal aqui, então a imagem fica com o espaço. */}
+        <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gridTemplateRows: "minmax(0,1fr)", gap: 10 }}>
           {mini.map((c, i) => (
-            <div key={i} style={{ display: "flex", gap: 9, background: "var(--soft)", border: "1px solid var(--line)", borderRadius: 11, padding: 8, minHeight: 0 }}>
-              <div style={{ width: 34, flex: "0 0 34px", borderRadius: 7, background: "var(--slot8)", overflow: "hidden" }}>
+            <a
+              key={i}
+              href={c.permalink || undefined}
+              target={c.permalink ? "_blank" : undefined}
+              rel={c.permalink ? "noreferrer" : undefined}
+              title={c.permalink ? `${c.name} — abrir publicação` : c.name}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                background: "var(--soft)",
+                border: "1px solid var(--line)",
+                borderRadius: 11,
+                overflow: "hidden",
+                minHeight: 0,
+                color: "inherit",
+                cursor: c.permalink ? "pointer" : "default",
+              }}
+            >
+              <div style={{ flex: 1, minHeight: 0, background: "var(--slot8)", position: "relative" }}>
                 {c.thumbnailUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.thumbnailUrl} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={c.thumbnailUrl} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 )}
+                <span
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    left: 6,
+                    fontSize: 8.5,
+                    fontWeight: 700,
+                    letterSpacing: ".08em",
+                    padding: "2px 6px",
+                    borderRadius: 5,
+                    background: c.status === "ATIVO" ? "rgba(33,196,106,.92)" : "rgba(10,18,38,.85)",
+                    color: "#fff",
+                  }}
+                >
+                  {c.status}
+                </span>
               </div>
-              <div style={{ minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
-                <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 9.5, color: "var(--muted)" }}>CPA {c.cpa}</div>
+              <div style={{ padding: "7px 9px", display: "flex", flexDirection: "column", gap: 2, flex: "0 0 auto" }}>
+                <div style={{ fontSize: 10.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+                <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 9.5, color: "var(--muted)" }}>
+                  {c.spend} · CPA {c.cpa}
+                </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </Panel>

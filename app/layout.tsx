@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/components/ThemeProvider";
 import { AppShell } from "@/components/AppShell";
+import { CANDIDATO } from "@/lib/candidato";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: `Painel de Campanha · ${process.env.NEXT_PUBLIC_CANDIDATO || "ACM Neto"}`,
+  title: `Painel de Campanha · ${CANDIDATO}`,
   description: "Central de inteligência de mídia — Kwai Ads + Meta Ads",
+  // app/icon.svg é servido automaticamente pelo App Router; declarar aqui
+  // garante o apple-touch-icon e evita a requisição a /favicon.ico.
+  icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/icon.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

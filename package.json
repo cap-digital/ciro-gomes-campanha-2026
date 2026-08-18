@@ -2,7 +2,7 @@
   "name": "painel-kwai-meta",
   "version": "1.0.0",
   "private": true,
-  "description": "Painel de campanha ACM Neto — Kwai Ads + Meta Ads",
+  "description": "Painel de campanha Ciro Gomes — Kwai Ads + Meta Ads",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

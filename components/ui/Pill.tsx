@@ -9,8 +9,18 @@ export function StatusBadge({ status }: { status: string }) {
   return <span style={statusStyle(status)}>{status}</span>;
 }
 
-export function DataSourceBadge({ source }: { source: "live" | "mock" }) {
-  const live = source === "live";
+/**
+ * Origem dos dados. Não existe mais dataset ilustrativo: ou o dado veio da Meta,
+ * ou a consulta falhou — e nesse caso o painel precisa dizer isso, e não exibir
+ * zeros como se fossem "sem entrega no período".
+ */
+export function DataSourceBadge({ source }: { source: "live" | "mock" | "erro" }) {
+  const estado =
+    source === "live"
+      ? { texto: "Dados ao vivo · Meta", bg: "rgba(33,196,106,.14)", fg: "#4BE08C" }
+      : source === "erro"
+        ? { texto: "Falha ao consultar a Meta", bg: "rgba(228,34,43,.16)", fg: "#FF8189" }
+        : { texto: "Sem dados", bg: "rgba(245,179,1,.14)", fg: "#FFCF54" };
   return (
     <span
       style={{
@@ -20,12 +30,12 @@ export function DataSourceBadge({ source }: { source: "live" | "mock" }) {
         padding: "3px 8px",
         borderRadius: 6,
         textTransform: "uppercase",
-        background: live ? "rgba(33,196,106,.14)" : "rgba(245,179,1,.14)",
-        color: live ? "#4BE08C" : "#FFCF54",
+        background: estado.bg,
+        color: estado.fg,
         whiteSpace: "nowrap",
       }}
     >
-      {live ? "Dados ao vivo · Meta" : "Dados ilustrativos"}
+      {estado.texto}
     </span>
   );
 }
