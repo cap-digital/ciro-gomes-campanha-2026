@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DayPicker, type DateRange as PickerRange } from "react-day-picker";
 import { ptBR } from "react-day-picker/locale";
 import "react-day-picker/style.css";
-import { PERIOD_PRESETS, resolveRange, rangeFromPreset, type PeriodPresetId } from "@/lib/period";
+import { PERIOD_PRESETS, resolveRange, rangeFromPreset, hojeISO, type PeriodPresetId } from "@/lib/period";
 import { dateBrFull } from "@/lib/format";
 
 function toDate(iso: string): Date {
@@ -90,6 +90,7 @@ export function DateRangePicker() {
 
       {open && (
         <div
+          className="calendario"
           style={{
             position: "absolute",
             top: "calc(100% + 8px)",
@@ -104,7 +105,7 @@ export function DateRangePicker() {
             gap: 14,
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 96 }}>
+          <div className="calendario-presets" style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 96 }}>
             {PERIOD_PRESETS.map((p) => (
               <button
                 key={p.id}
@@ -126,12 +127,14 @@ export function DateRangePicker() {
                 {p.label}
               </button>
             ))}
-            <div style={{ height: 1, background: "var(--line)", margin: "4px 0" }} />
+            <div className="calendario-risco" style={{ height: 1, background: "var(--line)", margin: "4px 0" }} />
             <button
-              disabled={!draft?.from || !draft?.to}
-              onClick={() => draft?.from && draft?.to && applyRange(toISO(draft.from), toISO(draft.to))}
+              className="calendario-aplicar"
+              disabled={!draft?.from}
+              // Um dia só é um período válido: sem `to`, o início vale pelos dois.
+              onClick={() => draft?.from && applyRange(toISO(draft.from), toISO(draft.to ?? draft.from))}
               style={{
-                cursor: draft?.from && draft?.to ? "pointer" : "not-allowed",
+                cursor: draft?.from ? "pointer" : "not-allowed",
                 background: "#2E8FFF",
                 border: "none",
                 color: "#fff",
@@ -139,7 +142,7 @@ export function DateRangePicker() {
                 fontWeight: 700,
                 padding: "9px 10px",
                 borderRadius: 8,
-                opacity: draft?.from && draft?.to ? 1 : 0.5,
+                opacity: draft?.from ? 1 : 0.5,
               }}
             >
               Aplicar período
@@ -149,10 +152,24 @@ export function DateRangePicker() {
             mode="range"
             locale={ptBR}
             selected={draft}
-            onSelect={setDraft}
+            /**
+             * O calendário abre com o período atual já marcado. Nesse estado o
+             * react-day-picker trata o clique como "arrastar uma ponta do
+             * intervalo que já existe", e não como "começar um intervalo novo":
+             * quem clicava em 14 e depois em 17 saía com 13→17, porque o 13
+             * continuava sendo o início. A data escolhida era simplesmente
+             * ignorada. Aqui, havendo intervalo completo, o próximo clique
+             * recomeça — que é o que se espera de um seletor de período.
+             */
+            onSelect={(novo, diaClicado) => {
+              if (draft?.from && draft?.to) setDraft({ from: diaClicado, to: undefined });
+              else setDraft(novo);
+            }}
             numberOfMonths={2}
             defaultMonth={toDate(range.until)}
-            disabled={{ after: new Date() }}
+            // Limite pelo "hoje" da CONTA, não do navegador: em viagem, o
+            // aparelho pode estar num dia que a conta ainda não começou.
+            disabled={{ after: toDate(hojeISO()) }}
           />
         </div>
       )}

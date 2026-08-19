@@ -232,6 +232,17 @@ function GraficoDiario({ sel, linha }: { sel: AnuncioComparavel[]; linha: Linha 
   const x = (i: number) => (i / (dias.length - 1)) * W;
   const y = (v: number) => H - (max > 0 ? (v / max) * (H - 12) : 0) - 6;
 
+  // Rotular todos os dias de uma janela longa vira borrão: acima de dez, o
+  // rótulo aparece de N em N, sempre com o primeiro e o último.
+  const marcados = new Set<number>();
+  if (dias.length <= 10) {
+    dias.forEach((_, i) => marcados.add(i));
+  } else {
+    const passo = Math.ceil((dias.length - 1) / 7);
+    for (let i = 0; i < dias.length; i += passo) marcados.add(i);
+    marcados.add(dias.length - 1);
+  }
+
   // Um trecho por sequência de dias em que a peça esteve no ar.
   const trechos = (vals: (number | null)[]) => {
     const out: string[] = [];
@@ -313,6 +324,39 @@ function GraficoDiario({ sel, linha }: { sel: AnuncioComparavel[]; linha: Linha 
             )),
           )}
         </svg>
+
+        {/* Rótulos em HTML por cima do SVG: o desenho usa preserveAspectRatio="none"
+            e esticaria a tipografia junto. O lado (acima/abaixo) é decidido ponto
+            a ponto pela ordem das linhas, senão no cruzamento os números de duas
+            peças cairiam no mesmo vão. */}
+        {[...marcados].flatMap((i) => {
+          const naOrdem = series
+            .map((vals, k) => ({ k, v: vals[i] }))
+            .filter((e): e is { k: number; v: number } => e.v !== null)
+            .sort((a, b) => y(a.v) - y(b.v));
+          return naOrdem.map((e, rank) => (
+            <span
+              key={`${e.k}-${i}`}
+              style={{
+                position: "absolute",
+                left: `${(i / (dias.length - 1)) * 100}%`,
+                top: `${(y(e.v) / H) * 100}%`,
+                transform: `translate(${i === 0 ? "0" : i === dias.length - 1 ? "-100%" : "-50%"}, ${rank === 0 ? "-140%" : `${40 + (rank - 1) * 125}%`})`,
+                fontFamily: "'Inter',sans-serif",
+                fontVariantNumeric: "tabular-nums",
+                fontSize: 9,
+                fontWeight: 600,
+                lineHeight: 1,
+                color: CORES[e.k],
+                whiteSpace: "nowrap",
+                pointerEvents: "none",
+              }}
+            >
+              {linha.fmt(e.v)}
+            </span>
+          ));
+        })}
+
         {hover !== null && (
           <div
             style={{

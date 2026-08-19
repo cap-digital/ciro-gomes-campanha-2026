@@ -15,6 +15,9 @@ export function FiltroCampanha({ campanhas, atual }: { campanhas: string[]; atua
     const p = new URLSearchParams(searchParams.toString());
     if (valor === "todas") p.delete("campanha");
     else p.set("campanha", valor);
+    // Volta para a primeira página: o resultado novo pode ter menos páginas que
+    // a que está aberta agora.
+    p.delete("pagina");
     const qs = p.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }

@@ -15,6 +15,10 @@ import { KWAI_AVISO, KWAI_DETALHE, getKwaiTotals, kwaiCampaignRows, type KwaiTot
 import { brl, num, compact, pct as pctFmt, delta as deltaFmt, dateBr } from "@/lib/format";
 import { previousRange, type DateRange } from "@/lib/period";
 import { DATA_ELEICAO, diasAteEleicao } from "@/lib/candidato";
+import { paraBruto, paraLiquido, type ModoImposto } from "@/lib/imposto";
+
+/** Cards por página em /criativos. */
+export const CRIATIVOS_POR_PAGINA = 50;
 import {
   PLANO_OBJETIVOS, PLANO_FASES, VERBA_TOTAL, IMPRESSOES_PLANO_MI,
   cpmPlanejado, objetivoDaCampanha, type PlanoObjetivoId,
@@ -91,7 +95,7 @@ export async function getInicioData(range: DateRange) {
 }
 
 // ---------- 02 Campanhas ----------
-export async function getCampanhasData(range: DateRange) {
+export async function getCampanhasData(range: DateRange, imposto: ModoImposto = "com") {
   const kwai: KwaiTotals = await getKwaiTotals();
 
   const res = await safe(async () => {
@@ -108,7 +112,20 @@ export async function getCampanhasData(range: DateRange) {
   }, { totals: EMPTY_TOTALS, campaigns: [] as CampaignRow[], daily: [] as DailyPoint[], acumulado: 0, seguidores: SEGUIDORES_ZERO }, "campanhas");
 
   const { totals, campaigns, daily, acumulado, seguidores } = res.value;
-  const totalInvest = kwai.spend + totals.spend;
+
+  /**
+   * Bruto ou líquido, escolhido pelo usuário.
+   *
+   * Só a Meta tem imposto, então o Kwai passa reto nos dois modos. O plano é
+   * escrito em bruto: no modo "sem imposto" quem se converte é a verba, não o
+   * gasto. Assim os dois lados da conta ficam sempre na mesma moeda.
+   */
+  const comImposto = imposto === "com";
+  const metaGasto = comImposto ? paraBruto(totals.spend) : totals.spend;
+  const metaAcumulado = comImposto ? paraBruto(acumulado) : acumulado;
+  const verba = comImposto ? VERBA_TOTAL : paraLiquido(VERBA_TOTAL);
+
+  const totalInvest = kwai.spend + metaGasto;
   const kwaiPct = totalInvest > 0 ? Math.round((kwai.spend / totalInvest) * 100) : 0;
 
   const metaCampaigns: CampaignRowView[] = campaigns.map((c) => ({
@@ -158,7 +175,7 @@ export async function getCampanhasData(range: DateRange) {
       {
         name: "Meta Ads",
         pct: 100 - kwaiPct + "%",
-        value: brl(totals.spend, 0),
+        value: brl(metaGasto, 0),
         note: `${campaigns.length} ${campaigns.length === 1 ? "campanha" : "campanhas"} · CPA ${totals.cpa > 0 ? brl(totals.cpa) : "—"}`,
         color: "#2E8FFF",
       },
@@ -174,20 +191,22 @@ export async function getCampanhasData(range: DateRange) {
      * janela), senão trocar o período faria o percentual do plano oscilar.
      */
     pacing: (() => {
-      const gasto = acumulado + kwai.spend;
+      const gasto = metaAcumulado + kwai.spend;
       const dias = diasAteEleicao();
-      const restante = Math.max(0, VERBA_TOTAL - gasto);
+      const restante = Math.max(0, verba - gasto);
+      const ritmoLiquido = daily.length ? daily.reduce((a, d) => a + d.spend, 0) / daily.length : 0;
       return {
-        budget: VERBA_TOTAL,
+        budget: verba,
         gasto,
         restante,
-        pctGasto: VERBA_TOTAL > 0 ? (gasto / VERBA_TOTAL) * 100 : 0,
+        pctGasto: verba > 0 ? (gasto / verba) * 100 : 0,
         diasRestantes: dias,
         dataEleicao: DATA_ELEICAO,
         // Quanto precisa sair por dia daqui até o 1º turno para usar toda a verba.
         mediaDiariaNecessaria: dias > 0 ? restante / dias : restante,
-        // Ritmo atual, para comparar com o necessário.
-        mediaDiariaAtual: daily.length ? daily.reduce((a, d) => a + d.spend, 0) / daily.length : 0,
+        // Ritmo atual, para comparar com o necessário — na mesma moeda do resto.
+        mediaDiariaAtual: comImposto ? paraBruto(ritmoLiquido) : ritmoLiquido,
+        imposto,
       };
     })(),
     // `leads` mantém o nome esperado pelo gráfico da página de campanhas.
@@ -197,7 +216,7 @@ export async function getCampanhasData(range: DateRange) {
 }
 
 // ---------- 03 Criativos ----------
-export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = "investimento", status = "todos", campanha = "todas") {
+export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = "investimento", status = "todos", campanha = "todas", pagina = 1) {
   const res = await safe(async () => {
     const totals = await getAccountTotals(range);
     // Sem teto: a campanha sobe anúncios aos poucos, cidade a cidade. Qualquer
@@ -258,7 +277,17 @@ export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = 
     }
   };
 
-  const criativos: CreativeCard[] = ordenado.map((a) => ({
+  /**
+   * Paginação. A página pedida é presa ao intervalo que existe: mudar de filtro
+   * estando na página 2 pode deixar um resultado com uma página só, e mostrar
+   * uma lista vazia seria pior do que voltar para o começo.
+   */
+  const totalPaginas = Math.max(1, Math.ceil(ordenado.length / CRIATIVOS_POR_PAGINA));
+  const paginaAtual = Math.min(Math.max(1, Math.floor(pagina) || 1), totalPaginas);
+  const inicio = (paginaAtual - 1) * CRIATIVOS_POR_PAGINA;
+  const daPagina = ordenado.slice(inicio, inicio + CRIATIVOS_POR_PAGINA);
+
+  const criativos: CreativeCard[] = daPagina.map((a) => ({
     name: a.label,
     platform: a.platform,
     spend: brl(a.spend, 0),
@@ -279,6 +308,12 @@ export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = 
     campanha,
     campanhasDisponiveis,
     totalSemFiltro: ads.length,
+    // Quantos sobraram depois dos filtros — é o universo que a paginação percorre.
+    totalFiltrado: ordenado.length,
+    pagina: paginaAtual,
+    totalPaginas,
+    primeiroDaPagina: ordenado.length ? inicio + 1 : 0,
+    ultimoDaPagina: inicio + daPagina.length,
     // Dados crus para o comparativo de criativos, sem os filtros aplicados.
     paraComparar: ads.map((a) => ({
       id: a.id,

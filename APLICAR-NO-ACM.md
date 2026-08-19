@@ -323,6 +323,101 @@ Ver `getAdsExtras()` em `lib/meta/campaigns.ts` do repositório de referência.
 **Teste de que ficou certo:** calcule `impressões ÷ alcance` e compare com o campo `frequency` que a
 própria Meta devolve. Batendo até a quarta casa, o alcance está correto.
 
+### 1.11 Verba bruta comparada com gasto líquido
+
+**Sintoma:** o percentual da verba já gasto e a média diária necessária saem **menores** que o real.
+Não há erro na tela; a campanha só parece mais folgada do que está.
+
+**Causa:** são duas moedas diferentes tratadas como uma. O plano de mídia é escrito em valores
+**brutos** — os R$ 2.000.000 previstos já incluem imposto. O que o gerenciador reporta é **líquido**,
+a mídia de fato entregue. O painel comparava um com o outro.
+
+Na Meta, no Brasil, a alíquota é de **12,15% do bruto**: de R$ 100 depositados, R$ 12,15 vão para
+imposto e R$ 87,85 viram mídia. Repare que a volta é **divisão**, não soma de 12,15%:
+
+```
+líquido = bruto × (1 − 0,1215)          →  2.000.000 bruto  = 1.757.000 líquido
+bruto   = líquido ÷ (1 − 0,1215)        →  22.624 líquido   =    25.753 bruto
+```
+
+Somar 12,15% ao líquido daria 25.373 — R$ 380 a menos, e o erro cresce com o valor. Confirme a
+alíquota e a convenção com quem cuida da mídia antes de fixar a constante; **o Kwai não tem imposto**,
+então lá bruto e líquido são o mesmo número.
+
+**Correção:** um botão "Com imposto / Sem imposto" no painel de investimento, e a conversão aplicada
+de forma coerente aos dois lados da conta:
+
+| Modo | Gasto da Meta | Verba do plano |
+|---|---|---|
+| Com imposto (bruto) | grosseado: `líquido ÷ 0,8785` | como está no plano |
+| Sem imposto (líquido) | como o gerenciador reporta | `bruto × 0,8785` |
+
+Tudo que deriva desses dois números tem de acompanhar: total investido, divisão Kwai × Meta,
+percentual gasto, saldo, média diária necessária e ritmo atual. Ver `lib/imposto.ts` e o parâmetro
+`imposto` de `getCampanhasData()` no repositório de referência. O estado vai na URL (`?imposto=`),
+para sobreviver ao recarregar e poder ser compartilhado.
+
+**Teste:** com o painel rodando, compare os dois modos e confira a aritmética.
+
+```bash
+for m in com sem; do curl -s "http://localhost:3000/campanhas?imposto=$m" \
+  | sed 's/<[^>]*>/ /g' | grep -o "R\$ [0-9.]* de verba prevista"; done
+# esperado: R$ 2.000.000 e R$ 1.757.000 (= 2.000.000 − 12,15%)
+```
+
+### 1.12 Datas montadas em UTC e lidas no fuso da conta
+
+**Sintoma:** a comparação "vs período anterior" usa uma janela deslocada um dia. Como os dois lados
+existem e têm números plausíveis, nada denuncia o erro na tela.
+
+**Causa:** `toISODate` formata no fuso da conta (`America/Fortaleza`, UTC−3), mas as datas eram
+criadas à **meia-noite em UTC**. Meia-noite UTC é 21h do dia **anterior** ali, então toda conversão
+voltava um dia:
+
+```js
+new Date("2026-08-13T00:00:00Z").toLocaleDateString("en-CA", { timeZone: "America/Fortaleza" })
+// "2026-08-12"  ← um dia atrás
+```
+
+No painel do Ciro, `previousRange(13→19/08)` devolvia 05→11/08 em vez de 06→12/08, e `daysBetween`
+começava um dia antes e perdia o último dia da janela.
+
+**Correção:** leia a data ISO ao **meio-dia** em UTC, não à meia-noite. Sobra folga de 12 horas para
+qualquer fuso e o dia do calendário se mantém:
+
+```ts
+const doISO = (iso: string) => new Date(`${iso}T12:00:00Z`);
+```
+
+Procure por `T00:00:00Z` no projeto — cada ocorrência combinada com um formatador que usa `timeZone`
+é uma instância desse defeito.
+
+### 1.13 Seletor de datas ignora a data escolhida
+
+**Sintoma:** a pessoa abre o calendário, clica no dia de início e no de fim, aplica — e a janela que
+carrega começa numa data que ela não escolheu.
+
+**Causa:** o calendário abre com o período atual já marcado. Nesse estado o `react-day-picker` em
+`mode="range"` trata o clique como "arrastar uma ponta do intervalo existente", não como "começar um
+intervalo novo". Com 13→19 na tela, clicar em 14 e depois em 17 produzia **13→17**: o 13 continuava
+sendo o início e a escolha da pessoa era descartada.
+
+**Como confirmar:** abra o calendário com um período já aplicado, clique em duas datas dentro dele e
+compare a URL resultante com o que foi clicado.
+
+**Correção:** havendo intervalo completo, o próximo clique recomeça.
+
+```tsx
+onSelect={(novo, diaClicado) => {
+  if (draft?.from && draft?.to) setDraft({ from: diaClicado, to: undefined });
+  else setDraft(novo);
+}}
+```
+
+Aproveite para aceitar **um dia só** como período válido (`to` ausente ⇒ usa o `from` nos dois lados);
+sem isso, escolher uma única data deixa o botão "Aplicar" inerte, que é como o defeito costuma
+aparecer para quem usa.
+
 ---
 
 ## Fase 2 — Módulos a copiar
@@ -344,6 +439,7 @@ Do `/tmp/ref-ciro`. Todos são agnósticos de candidato salvo onde indicado.
 | `app/loading.tsx` | Esqueleto de carregamento (streaming) | nenhuma |
 | `components/FiltroCampanha.tsx` | Dropdown de campanha que escreve na URL | nenhuma |
 | `components/ComparativoCriativos.tsx` | Comparar 2–3 peças: tabela, leitura e curva diária | nenhuma |
+| `lib/imposto.ts` | Conversão bruto × líquido da mídia | conferir a alíquota com quem cuida da mídia |
 
 Para o botão de atualizar, marque as chamadas com uma tag de cache:
 
@@ -383,6 +479,17 @@ Portar conforme o valor para a campanha. Nada aqui é pré-requisito das fases a
   entre peças com entregas muito diferentes; volume não é.
 - **Pacing da verba**: percentual gasto, dias até o 1º turno e média diária necessária.
 - **Filtro de status em Criativos**, montado a partir dos status que a conta realmente devolve.
+- **Presets "Hoje" e "Ontem"** no filtro de período. "Ontem" não cabe num modelo de preset que só
+  tem "tamanho da janela": precisa também de um deslocamento do fim da janela para trás.
+- **Calendário em tela estreita.** Ancorado à direita do botão, o painel de 378px vazava pela esquerda
+  e os presets ficavam cortados em "oje", "ntem". Em telas estreitas ele deixa de ser suspenso, ocupa
+  a largura toda, os presets viram chips numa fileira e só um mês aparece. No desktop, o oposto: sem
+  `flex-wrap: nowrap` em `.rdp-months`, o reset global `* { min-width: 0 }` fazia os dois meses
+  quebrarem um embaixo do outro e o painel virava uma torre de 560px.
+- **Paginação em Criativos** (50 por página), com o estado na URL. Dois detalhes que evitam tela
+  vazia: prenda a página pedida ao intervalo que existe, e faça os filtros **removerem** o parâmetro
+  de página — trocar de status estando na página 2 pode cair num intervalo que o resultado novo nem
+  tem. Em `lib/url.ts`, `buildHref` aceita string vazia como "remova este parâmetro".
 - **Comparativo de criativos** (`components/ComparativoCriativos.tsx`): o usuário escolhe 2 ou 3
   peças e compara. Três decisões que valem copiar junto:
   - **Tabela de números, sem barra.** A barra repetia a informação do próprio número e enchia a
@@ -420,6 +527,13 @@ video_play_actions,video_thruplay_watched_actions,video_p100_watched_actions"
 
   No painel do Ciro isso evitou publicar métricas mortas — e é a mesma lição do `total_follows`, que
   é campo válido da API e volta vazio nessa conta.
+- **Rótulo de dados nas linhas.** Dois cuidados: escreva o rótulo em **HTML por cima** do SVG, não
+  em `<text>` dentro dele — o gráfico usa `preserveAspectRatio="none"`, que esticaria a tipografia
+  junto com o desenho; e decida acima/abaixo **ponto a ponto**, pela ordem real das linhas ali, senão
+  no trecho em que elas se cruzam os dois números caem no mesmo vão e um cobre o outro. Acima de dez
+  pontos, rotule de N em N, sempre com o primeiro e o último. A posição do rótulo e a do traço têm de
+  sair da **mesma** função (`svgPontos` em `lib/style.ts`): com duas implementações da fórmula, um
+  ajuste de margem descola o rótulo da linha sem ninguém perceber.
 - Correções pequenas que valem: linha tracejada fina demais nos gráficos, ícones da barra lateral
   sem cor própria (somem no tema claro), chips decorativos que parecem clicáveis e não filtram nada.
 

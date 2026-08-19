@@ -1,17 +1,20 @@
 import { getCampanhasData } from "@/lib/dashboard";
 import { brl, pct } from "@/lib/format";
 import { resolveRange } from "@/lib/period";
-import type { SearchParams } from "@/lib/url";
+import { buildHref, type SearchParams } from "@/lib/url";
+import { resolveImposto, IMPOSTO_ROTULO } from "@/lib/imposto";
 import { Panel } from "@/components/ui/Panel";
 import { SplitBar } from "@/components/ui/Bar";
 import { SvgLines, DayAxis } from "@/components/ui/Chart";
 import { DataSourceBadge } from "@/components/ui/Pill";
 import { CampaignListPanel } from "@/components/CampaignListPanel";
+import { ChipLink } from "@/components/ui/Chip";
 
 export default async function CampanhasPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
   const range = resolveRange(sp);
-  const data = await getCampanhasData(range);
+  const imposto = resolveImposto(sp.imposto);
+  const data = await getCampanhasData(range, imposto);
 
   const dLabels = data.daily.map((d) => d.date.slice(8, 10) + "/" + d.date.slice(5, 7));
   const investLine = data.daily.map((d) => d.spend);
@@ -34,6 +37,20 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
           <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>Investimento total</div>
           <DataSourceBadge source={data.source} />
+        </div>
+
+        {/* O plano de mídia é escrito em valores brutos e o gerenciador reporta
+            líquido. Sem escolher a moeda, o painel comparava os dois direto e
+            subestimava tanto o percentual gasto quanto a média diária necessária. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", flexShrink: 0 }}>
+          <span style={{ fontSize: 9.5, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", whiteSpace: "nowrap" }}>Valores</span>
+          <ChipLink href={buildHref("/campanhas", sp, { imposto: "com" })} active={imposto === "com"}>Com imposto</ChipLink>
+          <ChipLink href={buildHref("/campanhas", sp, { imposto: "sem" })} active={imposto === "sem"}>Sem imposto</ChipLink>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>
+            {imposto === "com"
+              ? `bruto — como no plano de mídia, com os ${IMPOSTO_ROTULO} de imposto da Meta`
+              : `líquido — mídia entregue, sem os ${IMPOSTO_ROTULO} de imposto da Meta`}
+          </span>
         </div>
         <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: "clamp(22px,2.4vw,32px)", fontWeight: 600, letterSpacing: "-.02em" }}>
           {data.totalInvest}

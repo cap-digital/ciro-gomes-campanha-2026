@@ -213,6 +213,11 @@ button {
 }
 .rdp-months {
   gap: 16px;
+  /* O reset global tem `* { min-width: 0 }`, então o contêiner encolhia até o
+     mínimo e os dois meses quebravam um embaixo do outro, deixando o painel com
+     560px de altura. Lado a lado ele fica largo e baixo, que é como se lê um
+     seletor de intervalo. */
+  flex-wrap: nowrap;
 }
 .rdp-month_caption {
   font-weight: 700;
@@ -326,6 +331,50 @@ button {
      preso na tela, porque não existe "sair do hover" num dedo. */
   .rail-dica {
     display: none !important;
+  }
+
+  /* Calendário: ancorado à direita do botão, ele media 378px e vazava pela
+     esquerda da tela — os presets ficavam cortados em "oje", "ntem", " dias".
+     Em tela estreita ele deixa de ser suspenso e passa a ocupar a largura toda. */
+  .calendario {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    top: 96px !important;
+    max-height: 78vh;
+    overflow-y: auto;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+  /* Presets viram uma fileira que quebra linha, em vez de uma coluna que rouba
+     largura do calendário. */
+  .calendario-presets {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    min-width: 0 !important;
+  }
+  /* :not() poupa o botão Aplicar, que fica no mesmo contêiner e perderia o azul. */
+  .calendario-presets > button:not(.calendario-aplicar) {
+    flex: 0 0 auto;
+    min-height: 38px;
+    background: var(--soft) !important;
+  }
+  .calendario-risco {
+    display: none !important;
+  }
+  .calendario-aplicar {
+    flex: 1 0 100% !important;
+    min-height: 44px;
+  }
+  /* Um mês por vez: dois empilhados fazem o painel passar de 560px de altura.
+     O seletor é "todo mês que vem depois de outro mês" — `nth-child` erraria o
+     alvo, porque o primeiro filho de .rdp-months é a navegação, não um mês. */
+  .calendario .rdp-month ~ .rdp-month {
+    display: none;
+  }
+  .calendario .rdp-root {
+    margin: 0 auto;
   }
   /* Os 13 ícones saem de cena e dão lugar ao botão de menu: em 390px eles
      viravam alvos de ~28px sem rótulo, e o tooltip de hover ficava preso na

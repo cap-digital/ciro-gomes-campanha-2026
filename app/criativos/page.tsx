@@ -1,6 +1,7 @@
 import { getCriativosData } from "@/lib/dashboard";
 import { resolveRange } from "@/lib/period";
 import { buildHref, type SearchParams } from "@/lib/url";
+import Link from "next/link";
 import { ChipLink } from "@/components/ui/Chip";
 import { barStyle } from "@/lib/style";
 import { CRIATIVO_ORDENS, type CriativoOrdem } from "@/lib/types";
@@ -15,7 +16,8 @@ export default async function CriativosPage({ searchParams }: { searchParams: Pr
   const ordem = (typeof sp.ordem === "string" && ORDEM_IDS.includes(sp.ordem) ? sp.ordem : "investimento") as CriativoOrdem;
   const status = typeof sp.status === "string" ? sp.status : "todos";
   const campanha = typeof sp.campanha === "string" ? sp.campanha : "todas";
-  const data = await getCriativosData(range, ordem, status, campanha);
+  const pagina = Number(sp.pagina) || 1;
+  const data = await getCriativosData(range, ordem, status, campanha, pagina);
 
   return (
     <div className="pag" style={{ height: "100%", display: "flex", flexDirection: "column", gap: 12, minHeight: 0, minWidth: 0 }}>
@@ -23,11 +25,11 @@ export default async function CriativosPage({ searchParams }: { searchParams: Pr
         <span style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
           Status
         </span>
-        <ChipLink href={buildHref("/criativos", sp, { status: "todos" })} active={data.status === "todos"}>
+        <ChipLink href={buildHref("/criativos", sp, { status: "todos", pagina: "" })} active={data.status === "todos"}>
           Todos ({data.totalSemFiltro})
         </ChipLink>
         {data.statusDisponiveis.map((st) => (
-          <ChipLink key={st} href={buildHref("/criativos", sp, { status: st })} active={data.status === st} accent={st === "ATIVO" ? "#21C46A" : undefined}>
+          <ChipLink key={st} href={buildHref("/criativos", sp, { status: st, pagina: "" })} active={data.status === st} accent={st === "ATIVO" ? "#21C46A" : undefined}>
             {st.charAt(0) + st.slice(1).toLowerCase()}
           </ChipLink>
         ))}
@@ -41,7 +43,7 @@ export default async function CriativosPage({ searchParams }: { searchParams: Pr
           Ordenar
         </span>
         {CRIATIVO_ORDENS.map((o) => (
-          <ChipLink key={o.id} href={buildHref("/criativos", sp, { ordem: o.id })} active={ordem === o.id}>
+          <ChipLink key={o.id} href={buildHref("/criativos", sp, { ordem: o.id, pagina: "" })} active={ordem === o.id}>
             {o.label}
           </ChipLink>
         ))}
@@ -49,7 +51,11 @@ export default async function CriativosPage({ searchParams }: { searchParams: Pr
           <ComparativoCriativos anuncios={data.paraComparar} resultLabel={data.resultLabel} />
         </div>
       </div>
-      <div style={{ fontSize: 10.5, color: "var(--dim)", marginTop: -4 }}>{data.criativos.length} de {data.totalSemFiltro} anúncios</div>
+      <div style={{ fontSize: 10.5, color: "var(--dim)", marginTop: -4 }}>
+        {data.totalPaginas > 1
+          ? `${data.primeiroDaPagina}–${data.ultimoDaPagina} de ${data.totalFiltrado} anúncios`
+          : `${data.totalFiltrado} de ${data.totalSemFiltro} anúncios`}
+      </div>
       <div className="emp" style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(5,1fr)", gridAutoRows: "minmax(210px,1fr)", gap: 12, overflow: "auto", alignContent: "start" }}>
         {data.criativos.map((c, i) => (
           <div key={i} style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, boxShadow: "var(--shadow)", overflow: "hidden", display: "flex", flexDirection: "column", minHeight: 0 }}>
@@ -142,6 +148,34 @@ export default async function CriativosPage({ searchParams }: { searchParams: Pr
           </div>
         ))}
       </div>
+
+      {/* Paginação. Só aparece quando existe mais de uma página — com 20
+          anúncios na conta, um controle de página é ruído. */}
+      {data.totalPaginas > 1 && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "wrap", flexShrink: 0, paddingTop: 2 }}>
+          <PaginaLink sp={sp} para={data.pagina - 1} desativado={data.pagina === 1}>‹ Anterior</PaginaLink>
+          {Array.from({ length: data.totalPaginas }, (_, i) => i + 1).map((n) => (
+            <ChipLink key={n} href={buildHref("/criativos", sp, { pagina: String(n) })} active={n === data.pagina}>
+              {String(n)}
+            </ChipLink>
+          ))}
+          <PaginaLink sp={sp} para={data.pagina + 1} desativado={data.pagina === data.totalPaginas}>Próxima ›</PaginaLink>
+        </div>
+      )}
     </div>
+  );
+}
+
+/**
+ * Seta de página. Na ponta ela vira texto morto em vez de sumir: um controle que
+ * desaparece faz os outros pularem de lugar entre uma página e outra.
+ */
+function PaginaLink({ sp, para, desativado, children }: { sp: SearchParams; para: number; desativado: boolean; children: React.ReactNode }) {
+  const estilo = { fontSize: 11, fontWeight: 600, padding: "6px 11px", borderRadius: 8, whiteSpace: "nowrap" as const, flexShrink: 0 };
+  if (desativado) return <span style={{ ...estilo, color: "var(--dim)", cursor: "not-allowed" }}>{children}</span>;
+  return (
+    <Link href={buildHref("/criativos", sp, { pagina: String(para) })} scroll={false} style={{ ...estilo, color: "var(--text2)" }}>
+      {children}
+    </Link>
   );
 }

@@ -68,6 +68,28 @@ export function statusStyle(status: string): CSSProperties {
 }
 
 /** Gera um path SVG (0..w, 0..h) a partir de uma série de valores. */
+/**
+ * Posição de cada ponto da série, em porcentagem da área do gráfico.
+ *
+ * `svgPath` e os rótulos de dados leem daqui, e não cada um da sua conta: com
+ * duas implementações da mesma fórmula, um ajuste na margem vertical faria o
+ * rótulo descolar da linha sem ninguém perceber.
+ */
+export function svgPontos(vals: number[], h = 34): { xPct: number; yPct: number; v: number }[] {
+  if (!vals.length) return [];
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const r = max - min || 1;
+  // A margem de 1,5 no topo e na base é a mesma do `svgPath`, mas aqui expressa
+  // em porcentagem — por isso depende da altura do viewBox e ela vem por
+  // parâmetro, não fixa.
+  return vals.map((v, i) => ({
+    xPct: (i / Math.max(1, vals.length - 1)) * 100,
+    yPct: 100 - ((v - min) / r) * ((h - 3) / h) * 100 - (1.5 / h) * 100,
+    v,
+  }));
+}
+
 export function svgPath(vals: number[], w: number, h: number, close = false): string {
   if (!vals.length) return "";
   const min = Math.min(...vals);

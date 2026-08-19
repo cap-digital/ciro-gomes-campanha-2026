@@ -5,12 +5,22 @@ import { Panel } from "@/components/ui/Panel";
 import { KpiCard } from "@/components/ui/Kpi";
 import { ChipLink } from "@/components/ui/Chip";
 import { BarRow } from "@/components/ui/Bar";
-import { compact, num, pct } from "@/lib/format";
+import { brl, compact, num, pct } from "@/lib/format";
 import { SvgLines, DayAxis } from "@/components/ui/Chart";
 import { DataSourceBadge } from "@/components/ui/Pill";
 import { METRIC_LABELS, type Series } from "@/lib/types";
 
 const METRIC_KEYS = Object.keys(METRIC_LABELS) as (keyof Series)[];
+
+/**
+ * Cada série tem a sua unidade: dinheiro em reais, o resto em contagem. Sem
+ * isto o rótulo de investimento sairia como "6248" e o de alcance como "R$ 2,9 mi".
+ */
+function fmtSerie(metrica: keyof Series): (v: number) => string {
+  return metrica === "investimento" || metrica === "cpa"
+    ? (v) => brl(v, 0)
+    : (v) => compact(v);
+}
 
 export default async function DesempenhoPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
@@ -55,10 +65,11 @@ export default async function DesempenhoPage({ searchParams }: { searchParams: P
         </div>
         <div style={{ flex: 1, minHeight: 0 }}>
           <SvgLines
+            rotulos
             lines={[
-              { values: data.series[metricA], color: "var(--line1)", width: 1.8, areaFill: "var(--fill1)" },
+              { values: data.series[metricA], color: "var(--line1)", width: 1.8, areaFill: "var(--fill1)", fmt: fmtSerie(metricA) },
               // 0,7px tracejado sumia no fundo claro; 2px com traço mais longo fica legível.
-              { values: data.series[metricB], color: "#E08A00", width: 2, dashed: true },
+              { values: data.series[metricB], color: "#E08A00", width: 2, dashed: true, fmt: fmtSerie(metricB) },
             ]}
           />
         </div>
