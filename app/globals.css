@@ -312,19 +312,34 @@ button {
     padding: 8px 10px !important;
     gap: 10px !important;
   }
-  .rail-nav {
-    flex-direction: row !important;
-    justify-content: flex-start !important;
-    gap: 6px !important;
-    /* min-width:0 é o que permite encolher: sem ele os 13 ícones somam mais
-       de 400px, a barra não cede e a página inteira fica mais larga que a tela. */
-    min-width: 0 !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none;
+  /* Empurra tema e sair para a ponta direita, longe do menu. */
+  .rail-pe {
+    margin-left: auto;
   }
-  .rail-nav::-webkit-scrollbar {
-    height: 0;
+  /* Alvo de toque de 44px: o ícone tem 28px, que é pequeno demais para o dedo. */
+  .rail-pe > div {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+  /* Tooltip de hover não funciona no toque: ele abre no primeiro toque e fica
+     preso na tela, porque não existe "sair do hover" num dedo. */
+  .rail-dica {
+    display: none !important;
+  }
+  /* Os 13 ícones saem de cena e dão lugar ao botão de menu: em 390px eles
+     viravam alvos de ~28px sem rótulo, e o tooltip de hover ficava preso na
+     tela depois do toque. */
+  .rail-nav {
+    display: none !important;
+  }
+  .rail-menu-botao {
+    display: flex !important;
+    flex: 0 0 auto;
+  }
+  /* A caixa da barra é o contêiner do menu suspenso. */
+  .rail-caixa {
+    position: relative;
   }
   .rail-pe {
     flex-direction: row !important;

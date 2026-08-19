@@ -580,6 +580,22 @@ armadilhas que custaram tempo, todas com correção no arquivo de referência:
 Cabeçalhos de painel que juntam rótulo + selo numa linha precisam de `flexWrap: "wrap"`, senão o selo
 escapa da borda assim que o rótulo cresce.
 
+**A barra de navegação não vira faixa de ícones.** A primeira tentativa foi deitar a barra lateral no
+topo, com os 13 ícones em rolagem horizontal. Ficou ruim de usar por três motivos, e todos valem para
+o painel do ACM:
+
+- alvos de ~28px, abaixo dos 44px que o dedo pede;
+- ícone sem rótulo não diz para onde leva, e no desktop quem resolvia isso era o tooltip;
+- **o tooltip de hover fica preso na tela depois do toque**, porque em tela sensível ao toque não
+  existe "sair do hover". Na prática sobrava um balão com o nome de uma página flutuando sobre a
+  barra até o próximo toque em outro lugar.
+
+A solução foi um botão de menu (três traços + a palavra "Menu") que abre uma lista com ícone **e**
+rótulo, item de 44px, página atual destacada, véu que fecha ao tocar fora, e fechamento automático ao
+trocar de rota — senão o menu fica por cima do conteúdo novo e exige um segundo toque só para sair.
+Em `components/Sidebar.tsx` do repositório de referência. No mesmo movimento, esconda os tooltips em
+tela estreita (`.rail-dica { display: none }`) e dê 44px aos ícones que sobram na barra.
+
 **Como verificar sem depender do olho:** meça a largura do documento e liste quem estoura.
 
 ```js

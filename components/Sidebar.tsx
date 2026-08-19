@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -27,6 +27,7 @@ const railIcon = {
 function Tooltip({ show, children }: { show: boolean; children: React.ReactNode }) {
   return (
     <span
+      className="rail-dica"
       style={{
         position: "absolute",
         left: 40,
@@ -55,8 +56,20 @@ export function Sidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [hover, setHover] = useState<string | null>(null);
+  const [menu, setMenu] = useState(false);
   const { theme, toggle } = useTheme();
   const qs = searchParams.toString();
+
+  // Fecha ao trocar de página: o clique navega, e um menu aberto por cima do
+  // conteúdo novo obrigaria um segundo toque só para sair dele.
+  useEffect(() => setMenu(false), [pathname]);
+
+  useEffect(() => {
+    if (!menu) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menu]);
 
   return (
     <aside className="rail" style={{ width: 74, flex: "0 0 74px", padding: "8px 8px 8px 10px", display: "flex", flexDirection: "column", minHeight: 0, zIndex: 5 }}>
@@ -99,6 +112,52 @@ export function Sidebar() {
         </div>
 
         <div className="rail-div" style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
+
+        {/* Menu de telas estreitas. Fica oculto no desktop pelo CSS; no celular
+            ele substitui a fileira de ícones, que com 13 itens virava alvos
+            minúsculos e sem rótulo — e cujo tooltip de hover ficava preso na
+            tela depois do toque, porque toque não tem "sair do hover". */}
+        <button
+          className="rail-menu-botao"
+          onClick={() => setMenu((v) => !v)}
+          aria-expanded={menu}
+          aria-label={menu ? "Fechar menu de navegação" : "Abrir menu de navegação"}
+          style={{ display: "none", alignItems: "center", gap: 9, minHeight: 44, padding: "0 14px 0 10px", borderRadius: 99, cursor: "pointer", background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.14)", color: "#fff", fontFamily: "inherit" }}
+        >
+          <span className="ms" style={{ fontSize: 22, lineHeight: 1, color: "#fff" }}>{menu ? "close" : "menu"}</span>
+          {/* "Menu", não o nome da página: o cabeçalho logo abaixo já diz em que
+              tela você está, e repetir a palavra a 40px de distância não informa. */}
+          <span style={{ fontSize: 13, fontWeight: 700, whiteSpace: "nowrap" }}>Menu</span>
+        </button>
+
+        {menu && (
+          <>
+            {/* Véu: fecha ao tocar fora, sem precisar acertar o botão de novo. */}
+            <div onClick={() => setMenu(false)} style={{ position: "fixed", inset: 0, background: "rgba(4,10,26,.5)", zIndex: 40 }} />
+            <nav
+              className="rail-menu"
+              style={{ position: "absolute", top: "calc(100% + 6px)", left: 8, right: 8, maxHeight: "78vh", overflowY: "auto", background: "var(--rail)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 18, boxShadow: "0 30px 60px -18px rgba(0,0,0,.85)", padding: 7, display: "flex", flexDirection: "column", gap: 2, zIndex: 41 }}
+            >
+              {NAV_ITEMS.map((item) => {
+                const ativo = pathname === item.route;
+                return (
+                  <Link
+                    key={item.id}
+                    href={qs ? `${item.route}?${qs}` : item.route}
+                    onClick={() => setMenu(false)}
+                    scroll={false}
+                    style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 44, padding: "0 12px", borderRadius: 11, background: ativo ? "#fff" : "transparent", color: ativo ? "#0A1226" : "rgba(255,255,255,.82)", fontSize: 14, fontWeight: ativo ? 700 : 500 }}
+                  >
+                    <span className="ms" style={{ fontSize: 20, lineHeight: 1, color: ativo ? "#0A1226" : item.color, flex: "0 0 20px" }}>
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </>
+        )}
 
         <nav className="rail-nav" style={{ flex: "1 1 auto", overflow: "visible", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", gap: 0 }}>
           {NAV_ITEMS.map((item) => {
