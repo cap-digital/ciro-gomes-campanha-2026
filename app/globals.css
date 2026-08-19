@@ -18,24 +18,12 @@
   --posFg: #4be08c;
   --negBg: rgba(228, 34, 43, 0.16);
   --negFg: #ff8189;
-  --shadow:
-    0 24px 48px -20px rgba(0, 0, 0, 0.75), 0 6px 16px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --railShadow:
-    0 30px 60px -18px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.75), 0 6px 16px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --railShadow: 0 30px 60px -18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --line1: #35d0ff;
   --fill1: rgba(53, 208, 255, 0.16);
-  --slot12: repeating-linear-gradient(
-    135deg,
-    #132349 0 12px,
-    #182b5e 12px 24px
-  );
-  --slot10: repeating-linear-gradient(
-    135deg,
-    #132349 0 10px,
-    #182b5e 10px 20px
-  );
+  --slot12: repeating-linear-gradient(135deg, #132349 0 12px, #182b5e 12px 24px);
+  --slot10: repeating-linear-gradient(135deg, #132349 0 10px, #182b5e 10px 20px);
   --slot9: repeating-linear-gradient(135deg, #132349 0 9px, #182b5e 9px 18px);
   --slot8: repeating-linear-gradient(135deg, #132349 0 8px, #182b5e 8px 16px);
   --tagBg: rgba(53, 208, 255, 0.14);
@@ -71,25 +59,12 @@
   --posFg: #0e8a4c;
   --negBg: rgba(214, 26, 36, 0.11);
   --negFg: #c41821;
-  --shadow:
-    0 22px 44px -22px rgba(24, 45, 96, 0.4),
-    0 10px 22px -14px rgba(24, 45, 96, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  --railShadow:
-    0 30px 60px -20px rgba(24, 45, 96, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow: 0 22px 44px -22px rgba(24, 45, 96, 0.4), 0 10px 22px -14px rgba(24, 45, 96, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --railShadow: 0 30px 60px -20px rgba(24, 45, 96, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --line1: #1b6fe0;
   --fill1: rgba(46, 143, 255, 0.16);
-  --slot12: repeating-linear-gradient(
-    135deg,
-    #e4ebf8 0 12px,
-    #eff3fb 12px 24px
-  );
-  --slot10: repeating-linear-gradient(
-    135deg,
-    #e4ebf8 0 10px,
-    #eff3fb 10px 20px
-  );
+  --slot12: repeating-linear-gradient(135deg, #e4ebf8 0 12px, #eff3fb 12px 24px);
+  --slot10: repeating-linear-gradient(135deg, #e4ebf8 0 10px, #eff3fb 10px 20px);
   --slot9: repeating-linear-gradient(135deg, #e4ebf8 0 9px, #eff3fb 9px 18px);
   --slot8: repeating-linear-gradient(135deg, #e4ebf8 0 8px, #eff3fb 8px 16px);
   --tagBg: rgba(27, 111, 224, 0.1);
@@ -135,11 +110,7 @@ body {
   white-space: nowrap;
   direction: ltr;
   -webkit-font-feature-settings: "liga";
-  font-variation-settings:
-    "FILL" 0,
-    "wght" 400,
-    "GRAD" 0,
-    "opsz" 24;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
 nav::-webkit-scrollbar {
@@ -283,12 +254,7 @@ button {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.06) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.06) 50%, transparent 100%);
   transform: translateX(-100%);
   animation: varrer 1.25s ease-in-out infinite;
 }
@@ -423,6 +389,14 @@ button {
     flex: 0 0 300px !important;
     height: 300px;
   }
+  /* A régua A × B de /desempenho tem 12 chips. Empurrada para a margem, ela
+     disputava a linha com o título e o selo e sobrava um punhado de pixels —
+     por isso ganha a linha inteira e rola sozinha na horizontal se precisar. */
+  .regua-ab {
+    margin-left: 0 !important;
+    flex: 1 0 100% !important;
+  }
+
   /* O bloco da direita da barra de filtros perde o empurrão para a margem e
      ganha a própria linha, em vez de disputar espaço com os chips. */
   .barra-fim {
@@ -431,8 +405,23 @@ button {
     justify-content: flex-end;
   }
 
-  /* Comparativo de criativos: a prévia da peça cede altura, mas continua
-     grande o bastante para se reconhecer a arte. */
+  /* Comparativo de criativos: a tabela larga o piso de largura e aperta as
+     colunas para as duas ou três peças caberem na tela, em vez de obrigar a
+     arrastar de lado para ver a segunda coluna. `--pecas` vem do componente,
+     que é quem sabe quantas peças estão selecionadas. */
+  .cmp-tabela {
+    min-width: 0 !important;
+    grid-template-columns: minmax(84px, 1.1fr) repeat(var(--pecas, 2), minmax(62px, 1fr)) !important;
+  }
+  /* Sem quebrar linha, "CPE (custo por interação)" transborda da coluna e
+     encosta no número da primeira peça. */
+  .cmp-rot {
+    white-space: normal !important;
+    line-height: 1.25;
+  }
+
+  /* A prévia da peça cede altura, mas continua grande o bastante para se
+     reconhecer a arte. */
   .cmp-previa {
     height: 180px !important;
     flex-basis: 180px !important;

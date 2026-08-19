@@ -9,11 +9,16 @@ export type DiaAnuncio = {
   investimento: number;
   impressoes: number;
   cliques: number;
+  cliquesTotais: number;
   reacoes: number;
   comentarios: number;
   compartilhamentos: number;
   salvos: number;
   interacoes: number;
+  videoPlays: number;
+  video3s: number;
+  thruplays: number;
+  videoP100: number;
 };
 
 export type AnuncioComparavel = {
@@ -24,19 +29,38 @@ export type AnuncioComparavel = {
   status: string;
   thumbnailUrl?: string;
   permalink?: string;
+  // Totais da janela
   investimento: number;
   impressoes: number;
+  alcance: number;
   cliques: number;
+  cliquesTotais: number;
   resultados: number;
   interacoes: number;
   reacoes: number;
   comentarios: number;
   compartilhamentos: number;
   salvos: number;
+  videoPlays: number;
+  video3s: number;
+  thruplays: number;
+  videoP100: number;
+  // Custos
   cpa: number;
   cpm: number;
+  cpc: number;
+  cpcTotal: number;
+  cpe: number;
+  custoPorMilAlcancadas: number;
+  custoPorThruplay: number;
+  // Taxas
   ctr: number;
+  ctrTotal: number;
   taxaInteracao: number;
+  frequencia: number;
+  vtr: number;
+  hookRate: number;
+  retencao: number;
   /** Curva dia a dia — só os dias em que a peça de fato rodou. */
   serie: DiaAnuncio[];
 };
@@ -54,77 +78,78 @@ type Linha = {
   menorMelhor?: boolean;
   /** Só faz sentido comparar entre anúncios do mesmo objetivo. */
   dependeDoObjetivo?: boolean;
+  /**
+   * Métrica de vídeo: some da tabela quando nenhuma das peças escolhidas é
+   * vídeo. Nesta conta só 6 dos 58 anúncios têm vídeo — deixar sete linhas
+   * zeradas na comparação de duas artes estáticas seria só ruído.
+   */
+  soVideo?: boolean;
+  /** Nem maior nem menor é melhor: não marca vencedor (ex.: frequência). */
+  semVencedor?: boolean;
+  /** Explicação curta, no title da célula. */
+  dica?: string;
 };
 
+const vezes = (v: number) => (v > 0 ? `${v.toFixed(2).replace(".", ",")}\u00d7` : "\u2014");
+const moeda = (v: number) => (v > 0 ? brl(v) : "\u2014");
+const moedaFina = (v: number) => (v > 0 ? brl(v, 3) : "\u2014");
+const inteiro = (v: number) => num(Math.round(v));
+
 const LINHAS_TOTAL: Linha[] = [
-  {
-    chave: "investimento",
-    rotulo: "Investimento",
-    grupo: "Entrega",
-    fmt: (v) => brl(v, 0),
-  },
-  { chave: "impressoes", rotulo: "Impressões", grupo: "Entrega", fmt: compact },
-  {
-    chave: "cliques",
-    rotulo: "Cliques no link",
-    grupo: "Entrega",
-    fmt: (v) => num(Math.round(v)),
-  },
-  {
-    chave: "interacoes",
-    rotulo: "Interações",
-    grupo: "Engajamento",
-    fmt: (v) => num(Math.round(v)),
-  },
-  {
-    chave: "reacoes",
-    rotulo: "Reações",
-    grupo: "Engajamento",
-    fmt: (v) => num(Math.round(v)),
-  },
-  {
-    chave: "comentarios",
-    rotulo: "Comentários",
-    grupo: "Engajamento",
-    fmt: (v) => num(Math.round(v)),
-  },
-  {
-    chave: "compartilhamentos",
-    rotulo: "Compartilhamentos",
-    grupo: "Engajamento",
-    fmt: (v) => num(Math.round(v)),
-  },
-  {
-    chave: "salvos",
-    rotulo: "Salvamentos",
-    grupo: "Engajamento",
-    fmt: (v) => num(Math.round(v)),
-  },
+  { chave: "investimento", rotulo: "Investimento", grupo: "Entrega", fmt: (v) => brl(v, 0) },
+  { chave: "impressoes", rotulo: "Impressões", grupo: "Entrega", fmt: compact,
+    dica: "Quantas vezes a peça foi exibida, contando repetições." },
+  { chave: "alcance", rotulo: "Alcance", grupo: "Entrega", fmt: compact,
+    dica: "Pessoas únicas que viram a peça." },
+  { chave: "cliques", rotulo: "Cliques no link", grupo: "Entrega", fmt: inteiro,
+    dica: "Cliques que levaram ao destino do anúncio." },
+  { chave: "cliquesTotais", rotulo: "Cliques (todos)", grupo: "Entrega", fmt: inteiro,
+    dica: "Qualquer clique na peça: link, foto, perfil, ver mais." },
+
+  { chave: "interacoes", rotulo: "Interações", grupo: "Engajamento", fmt: inteiro,
+    dica: "Reações + comentários + compartilhamentos + salvamentos." },
+  { chave: "reacoes", rotulo: "Reações", grupo: "Engajamento", fmt: inteiro },
+  { chave: "comentarios", rotulo: "Comentários", grupo: "Engajamento", fmt: inteiro },
+  { chave: "compartilhamentos", rotulo: "Compartilhamentos", grupo: "Engajamento", fmt: inteiro },
+  { chave: "salvos", rotulo: "Salvamentos", grupo: "Engajamento", fmt: inteiro },
+
+  { chave: "videoPlays", rotulo: "Reproduções", grupo: "Vídeo", fmt: inteiro, soVideo: true,
+    dica: "Vezes em que o vídeo começou a tocar." },
+  { chave: "video3s", rotulo: "Visualizações de 3s", grupo: "Vídeo", fmt: inteiro, soVideo: true },
+  { chave: "thruplays", rotulo: "ThruPlays", grupo: "Vídeo", fmt: inteiro, soVideo: true,
+    dica: "Assistiram 15 segundos, ou o vídeo inteiro se for mais curto." },
+  { chave: "videoP100", rotulo: "Assistiram até o fim", grupo: "Vídeo", fmt: inteiro, soVideo: true },
 ];
 
 const LINHAS_TAXA: Linha[] = [
-  { chave: "ctr", rotulo: "CTR", grupo: "Eficiência", fmt: (v) => pct(v, 2) },
-  {
-    chave: "taxaInteracao",
-    rotulo: "Taxa de interação",
-    grupo: "Eficiência",
-    fmt: (v) => pct(v, 2),
-  },
-  {
-    chave: "cpm",
-    rotulo: "CPM",
-    grupo: "Eficiência",
-    fmt: (v) => (v > 0 ? brl(v) : "—"),
-    menorMelhor: true,
-  },
-  {
-    chave: "cpa",
-    rotulo: "Custo por resultado",
-    grupo: "Eficiência",
-    fmt: (v) => (v > 0 ? brl(v) : "—"),
-    menorMelhor: true,
-    dependeDoObjetivo: true,
-  },
+  { chave: "cpm", rotulo: "CPM", grupo: "Custos", fmt: moeda, menorMelhor: true,
+    dica: "Custo por mil impressões: investimento ÷ impressões × 1.000." },
+  { chave: "custoPorMilAlcancadas", rotulo: "Custo por mil alcançadas", grupo: "Custos", fmt: moeda, menorMelhor: true,
+    dica: "Como o CPM, mas por pessoas únicas em vez de exibições." },
+  { chave: "cpc", rotulo: "CPC (link)", grupo: "Custos", fmt: moeda, menorMelhor: true,
+    dica: "Investimento ÷ cliques no link." },
+  { chave: "cpcTotal", rotulo: "CPC (todos)", grupo: "Custos", fmt: moeda, menorMelhor: true,
+    dica: "Investimento ÷ todos os cliques na peça." },
+  { chave: "cpe", rotulo: "CPE (custo por interação)", grupo: "Custos", fmt: moedaFina, menorMelhor: true,
+    dica: "Investimento ÷ interações. Quanto custa cada reação, comentário, compartilhamento ou salvamento." },
+  { chave: "custoPorThruplay", rotulo: "Custo por ThruPlay", grupo: "Custos", fmt: moedaFina, menorMelhor: true, soVideo: true },
+  { chave: "cpa", rotulo: "Custo por resultado", grupo: "Custos", fmt: moeda, menorMelhor: true, dependeDoObjetivo: true,
+    dica: "Investimento ÷ resultados do objetivo da campanha." },
+
+  { chave: "ctr", rotulo: "CTR (link)", grupo: "Taxas", fmt: (v) => pct(v, 2),
+    dica: "Cliques no link ÷ impressões." },
+  { chave: "ctrTotal", rotulo: "CTR (todos)", grupo: "Taxas", fmt: (v) => pct(v, 2),
+    dica: "Todos os cliques ÷ impressões." },
+  { chave: "taxaInteracao", rotulo: "Taxa de interação", grupo: "Taxas", fmt: (v) => pct(v, 2),
+    dica: "Interações ÷ impressões. É a medida mais limpa da reação do público à arte." },
+  { chave: "frequencia", rotulo: "Frequência", grupo: "Taxas", fmt: vezes, semVencedor: true,
+    dica: "Impressões ÷ alcance: quantas vezes, em média, cada pessoa viu a peça. Nem alto nem baixo é bom por si só." },
+  { chave: "hookRate", rotulo: "Hook rate (3s)", grupo: "Taxas", fmt: (v) => pct(v, 2), soVideo: true,
+    dica: "Visualizações de 3s ÷ impressões: quanta gente o vídeo segura nos primeiros segundos." },
+  { chave: "vtr", rotulo: "VTR (ThruPlay)", grupo: "Taxas", fmt: (v) => pct(v, 2), soVideo: true,
+    dica: "ThruPlays ÷ impressões." },
+  { chave: "retencao", rotulo: "Retenção até o fim", grupo: "Taxas", fmt: (v) => pct(v, 1), soVideo: true,
+    dica: "Assistiram até o fim ÷ reproduções." },
 ];
 
 /**
@@ -132,21 +157,40 @@ const LINHAS_TAXA: Linha[] = [
  * mostra o total da janela) e o gráfico (que mostra a curva): só as métricas
  * que aparecem aqui podem virar linha no gráfico.
  */
-const DIARIO: Partial<
-  Record<keyof AnuncioComparavel, (d: DiaAnuncio) => number>
-> = {
+const DIARIO: Partial<Record<keyof AnuncioComparavel, (d: DiaAnuncio) => number | null>> = {
   investimento: (d) => d.investimento,
   impressoes: (d) => d.impressoes,
   cliques: (d) => d.cliques,
+  cliquesTotais: (d) => d.cliquesTotais,
   interacoes: (d) => d.interacoes,
   reacoes: (d) => d.reacoes,
   comentarios: (d) => d.comentarios,
   compartilhamentos: (d) => d.compartilhamentos,
   salvos: (d) => d.salvos,
-  ctr: (d) => (d.impressoes > 0 ? (d.cliques / d.impressoes) * 100 : 0),
-  taxaInteracao: (d) =>
-    d.impressoes > 0 ? (d.interacoes / d.impressoes) * 100 : 0,
-  cpm: (d) => (d.impressoes > 0 ? (d.investimento / d.impressoes) * 1000 : 0),
+  videoPlays: (d) => d.videoPlays,
+  video3s: (d) => d.video3s,
+  thruplays: (d) => d.thruplays,
+  videoP100: (d) => d.videoP100,
+  // Custos e taxas devolvem `null` quando o denominador do dia é zero. Zero
+  // seria mentira de dois jeitos: num gráfico de custo a linha despencaria como
+  // se o dia tivesse saído de graça, e numa taxa apagaria a diferença entre
+  // "ninguém reagiu" e "a peça nem rodou". `null` vira buraco na curva.
+  cpm: (d) => (d.impressoes > 0 ? (d.investimento / d.impressoes) * 1000 : null),
+  cpc: (d) => (d.cliques > 0 ? d.investimento / d.cliques : null),
+  cpcTotal: (d) => (d.cliquesTotais > 0 ? d.investimento / d.cliquesTotais : null),
+  cpe: (d) => (d.interacoes > 0 ? d.investimento / d.interacoes : null),
+  custoPorThruplay: (d) => (d.thruplays > 0 ? d.investimento / d.thruplays : null),
+  // Nas taxas o denominador é a impressão: com impressão e nenhum clique, 0% é
+  // resposta legítima — só a ausência de impressão é que não tem resposta.
+  ctr: (d) => (d.impressoes > 0 ? (d.cliques / d.impressoes) * 100 : null),
+  ctrTotal: (d) => (d.impressoes > 0 ? (d.cliquesTotais / d.impressoes) * 100 : null),
+  taxaInteracao: (d) => (d.impressoes > 0 ? (d.interacoes / d.impressoes) * 100 : null),
+  hookRate: (d) => (d.impressoes > 0 ? (d.video3s / d.impressoes) * 100 : null),
+  vtr: (d) => (d.impressoes > 0 ? (d.thruplays / d.impressoes) * 100 : null),
+  retencao: (d) => (d.videoPlays > 0 ? (d.videoP100 / d.videoPlays) * 100 : null),
+  // `alcance`, `frequencia` e `custoPorMilAlcancadas` ficam de fora de
+  // propósito: alcance é gente única, e somar o alcance de cada dia contaria
+  // várias vezes quem voltou a ver a peça no dia seguinte.
 };
 
 const diaCurto = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
@@ -158,48 +202,27 @@ const diaCurto = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
  * linha é quebrada em trechos contínuos. Zerar daria a impressão de queda de
  * desempenho onde na verdade o anúncio nem estava no ar.
  */
-function GraficoDiario({
-  sel,
-  linha,
-}: {
-  sel: AnuncioComparavel[];
-  linha: Linha;
-}) {
+function GraficoDiario({ sel, linha }: { sel: AnuncioComparavel[]; linha: Linha }) {
   const [hover, setHover] = useState<number | null>(null);
   const ler = DIARIO[linha.chave]!;
 
-  const dias = useMemo(
-    () =>
-      Array.from(new Set(sel.flatMap((a) => a.serie.map((d) => d.dia)))).sort(),
-    [sel],
-  );
+  const dias = useMemo(() => Array.from(new Set(sel.flatMap((a) => a.serie.map((d) => d.dia)))).sort(), [sel]);
 
   const series = useMemo(
     () =>
       sel.map((a) => {
         const porDia = new Map(a.serie.map((d) => [d.dia, ler(d)]));
-        return dias.map((d) => (porDia.has(d) ? porDia.get(d)! : null));
+        return dias.map((d) => porDia.get(d) ?? null);
       }),
     [sel, dias, ler],
   );
 
-  const max = Math.max(
-    ...series.flat().filter((v): v is number => v !== null),
-    0,
-  );
+  const max = Math.max(...series.flat().filter((v): v is number => v !== null), 0);
 
   if (dias.length < 2) {
     return (
-      <div
-        style={{
-          fontSize: 11.5,
-          color: "var(--dim)",
-          textAlign: "center",
-          padding: "26px 0",
-        }}
-      >
-        a janela tem menos de dois dias de veiculação — não há curva para
-        desenhar
+      <div style={{ fontSize: 11.5, color: "var(--dim)", textAlign: "center", padding: "26px 0" }}>
+        a janela tem menos de dois dias de veiculação — não há curva para desenhar
       </div>
     );
   }
@@ -233,12 +256,7 @@ function GraficoDiario({
         onMouseMove={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
           const p = (e.clientX - r.left) / Math.max(1, r.width);
-          setHover(
-            Math.max(
-              0,
-              Math.min(dias.length - 1, Math.round(p * (dias.length - 1))),
-            ),
-          );
+          setHover(Math.max(0, Math.min(dias.length - 1, Math.round(p * (dias.length - 1)))));
         }}
       >
         <div
@@ -255,11 +273,7 @@ function GraficoDiario({
         >
           {linha.fmt(max)}
         </div>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          preserveAspectRatio="none"
-          style={{ width: "100%", height: 200, display: "block" }}
-        >
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 200, display: "block" }}>
           {[0.25, 0.5, 0.75].map((f) => (
             <line
               key={f}
@@ -305,10 +319,7 @@ function GraficoDiario({
               position: "absolute",
               top: 0,
               left: `${(hover / (dias.length - 1)) * 100}%`,
-              transform:
-                hover > dias.length / 2
-                  ? "translateX(calc(-100% - 8px))"
-                  : "translateX(8px)",
+              transform: hover > dias.length / 2 ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
               background: "var(--panel2)",
               border: "1px solid var(--line)",
               borderRadius: 9,
@@ -318,47 +329,14 @@ function GraficoDiario({
               zIndex: 2,
             }}
           >
-            <div
-              style={{
-                fontFamily: "'Inter',sans-serif",
-                fontVariantNumeric: "tabular-nums",
-                fontSize: 10,
-                color: "var(--muted)",
-                marginBottom: 3,
-              }}
-            >
+            <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 10, color: "var(--muted)", marginBottom: 3 }}>
               {diaCurto(dias[hover])}
             </div>
             {sel.map((a, i) => (
-              <div
-                key={a.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 10.5,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: 99,
-                    background: CORES[i],
-                    flex: "0 0 7px",
-                  }}
-                />
-                <span
-                  style={{
-                    fontFamily: "'Inter',sans-serif",
-                    fontVariantNumeric: "tabular-nums",
-                    color: "var(--text2)",
-                  }}
-                >
-                  {series[i][hover] === null
-                    ? "não veiculou"
-                    : linha.fmt(series[i][hover]!)}
+              <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, whiteSpace: "nowrap" }}>
+                <span style={{ width: 7, height: 7, borderRadius: 99, background: CORES[i], flex: "0 0 7px" }} />
+                <span style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", color: "var(--text2)" }}>
+                  {series[i][hover] === null ? "não veiculou" : linha.fmt(series[i][hover]!)}
                 </span>
               </div>
             ))}
@@ -389,20 +367,14 @@ function GraficoDiario({
  * Leitura gerada dos próprios números — sem texto fixo e sem modelo de linguagem.
  * Diz o que de fato difere entre as peças e onde a comparação não vale.
  */
-function lerComparativo(
-  sel: AnuncioComparavel[],
-  mesmoObjetivo: boolean,
-  resultLabel: string,
-): string[] {
+function lerComparativo(sel: AnuncioComparavel[], mesmoObjetivo: boolean, resultLabel: string): string[] {
   if (sel.length < 2) return [];
   const frases: string[] = [];
-  const melhorPor = (f: (a: AnuncioComparavel) => number, menor = false) =>
-    [...sel].sort((a, b) => (menor ? f(a) - f(b) : f(b) - f(a)))[0];
+  const melhorPor = (f: (a: AnuncioComparavel) => number, menor = false) => [...sel].sort((a, b) => (menor ? f(a) - f(b) : f(b) - f(a)))[0];
 
   const maisCliques = melhorPor((a) => a.ctr);
   const outros = sel.filter((a) => a.id !== maisCliques.id);
-  const mediaOutros =
-    outros.reduce((s, a) => s + a.ctr, 0) / Math.max(1, outros.length);
+  const mediaOutros = outros.reduce((s, a) => s + a.ctr, 0) / Math.max(1, outros.length);
   if (maisCliques.ctr > 0) {
     // Quando a outra peça praticamente não teve clique, a razão explode (chegou a
     // 451x num caso real) e vira ruído. Acima de 10x a comparação deixa de ser
@@ -436,9 +408,7 @@ function lerComparativo(
         `(${pct(maisEngaja.taxaInteracao, 2)}) — sinal de peça que gera conversa, mesmo não sendo a que mais leva ao clique.`,
     );
   } else if (maisEngaja.taxaInteracao > 0) {
-    frases.push(
-      `"${maisEngaja.nome}" lidera também em taxa de interação (${pct(maisEngaja.taxaInteracao, 2)}).`,
-    );
+    frases.push(`"${maisEngaja.nome}" lidera também em taxa de interação (${pct(maisEngaja.taxaInteracao, 2)}).`);
   }
 
   const maisBarato = melhorPor((a) => a.cpm || Infinity, true);
@@ -456,20 +426,45 @@ function lerComparativo(
     }
   }
 
+  // Vídeo tem duas perguntas próprias: a peça segura nos primeiros segundos
+  // (hook rate) e ela sustenta até o fim (retenção)? São coisas diferentes — dá
+  // para prender bem e perder todo mundo no meio.
+  const videos = sel.filter((a) => a.videoPlays > 0);
+  if (videos.length >= 2) {
+    const prende = [...videos].sort((x, y) => y.hookRate - x.hookRate)[0];
+    const segura = [...videos].sort((x, y) => y.retencao - x.retencao)[0];
+    if (prende.id === segura.id) {
+      frases.push(
+        `Entre os vídeos, "${prende.nome}" ganha nas duas pontas: prende ${pct(prende.hookRate, 1)} de quem viu nos ` +
+          `3 primeiros segundos e leva ${pct(prende.retencao, 1)} das reproduções até o fim.`,
+      );
+    } else {
+      frases.push(
+        `"${prende.nome}" é a que mais prende no começo (hook rate de ${pct(prende.hookRate, 1)}), mas quem sustenta ` +
+          `até o fim é "${segura.nome}" (${pct(segura.retencao, 1)} de retenção) — abertura forte e miolo fraco são ` +
+          "problemas separados, e o corte de cada peça é que decide qual dos dois você tem.",
+      );
+    }
+  }
+
+  // Frequência alta com engajamento baixo é o sinal clássico de saturação: a
+  // mesma pessoa viu a peça muitas vezes e parou de reagir.
+  const saturada = sel.find((a) => a.frequencia >= 3 && a.impressoes > 0);
+  if (saturada) {
+    frases.push(
+      `"${saturada.nome}" já foi vista ${vezes(saturada.frequencia)} pela mesma pessoa, em média. Frequência nesse ` +
+        "patamar costuma vir com queda de resposta e alta no custo — vale conferir a curva dia a dia antes de investir mais.",
+    );
+  }
+
   const semEntrega = sel.filter((a) => a.impressoes === 0);
   if (semEntrega.length) {
-    frases.push(
-      `${semEntrega.map((a) => `"${a.nome}"`).join(", ")} não teve entrega no período — os números dela são zero, não baixos.`,
-    );
+    frases.push(`${semEntrega.map((a) => `"${a.nome}"`).join(", ")} não teve entrega no período — os números dela são zero, não baixos.`);
   }
 
   const desigual =
     sel.some((a) => a.impressoes > 0) &&
-    Math.max(...sel.map((a) => a.impressoes)) >
-      Math.min(
-        ...sel.filter((a) => a.impressoes > 0).map((a) => a.impressoes),
-      ) *
-        8;
+    Math.max(...sel.map((a) => a.impressoes)) > Math.min(...sel.filter((a) => a.impressoes > 0).map((a) => a.impressoes)) * 8;
   if (desigual) {
     frases.push(
       "As peças receberam volumes de entrega muito diferentes. Compare pelas taxas (CTR, interação, CPM); " +
@@ -510,42 +505,15 @@ function Seletor({
     const q = busca.trim().toLowerCase();
     return anuncios
       .filter((a) => !escolhidos.includes(a.id) || a.id === atual?.id)
-      .filter(
-        (a) =>
-          !q ||
-          a.nome.toLowerCase().includes(q) ||
-          a.campanha.toLowerCase().includes(q),
-      )
+      .filter((a) => !q || a.nome.toLowerCase().includes(q) || a.campanha.toLowerCase().includes(q))
       .slice(0, 60);
   }, [anuncios, busca, escolhidos, atual]);
 
   return (
     <div style={{ position: "relative", flex: "1 1 210px", minWidth: 0 }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          marginBottom: 5,
-        }}
-      >
-        <span
-          style={{
-            width: 9,
-            height: 9,
-            borderRadius: 99,
-            background: cor,
-            flex: "0 0 auto",
-          }}
-        />
-        <span
-          style={{
-            fontSize: 10.5,
-            letterSpacing: ".1em",
-            textTransform: "uppercase",
-            color: "var(--muted)",
-          }}
-        >
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+        <span style={{ width: 9, height: 9, borderRadius: 99, background: cor, flex: "0 0 auto" }} />
+        <span style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--muted)" }}>
           Peça {indice + 1}
         </span>
         {atual && indice >= 2 && (
@@ -585,59 +553,21 @@ function Seletor({
           minWidth: 0,
         }}
       >
-        <span
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: 7,
-            background: "var(--slot8)",
-            overflow: "hidden",
-            flex: "0 0 34px",
-          }}
-        >
+        <span style={{ width: 34, height: 34, borderRadius: 7, background: "var(--slot8)", overflow: "hidden", flex: "0 0 34px" }}>
           {atual?.thumbnailUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={atual.thumbnailUrl}
-              alt=""
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-              }}
-            />
+            <img src={atual.thumbnailUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           )}
         </span>
         <span style={{ minWidth: 0, flex: 1 }}>
-          <span
-            style={{
-              display: "block",
-              fontSize: 11.5,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
+          <span style={{ display: "block", fontSize: 11.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {atual ? atual.nome : "Selecionar anúncio"}
           </span>
-          <span
-            style={{
-              display: "block",
-              fontSize: 9.5,
-              color: "var(--dim)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
+          <span style={{ display: "block", fontSize: 9.5, color: "var(--dim)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {atual ? atual.objetivo : "buscar pelo nome ou campanha"}
           </span>
         </span>
-        <span style={{ color: "var(--dim)", fontSize: 11 }}>
-          {aberto ? "▲" : "▼"}
-        </span>
+        <span style={{ color: "var(--dim)", fontSize: 11 }}>{aberto ? "▲" : "▼"}</span>
       </button>
 
       {aberto && (
@@ -674,14 +604,7 @@ function Seletor({
               fontFamily: "inherit",
             }}
           />
-          <div
-            style={{
-              overflow: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
+          <div style={{ overflow: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
             {lista.map((a) => (
               <button
                 key={a.id}
@@ -694,10 +617,7 @@ function Seletor({
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  background:
-                    a.id === atual?.id
-                      ? "var(--rule-2, var(--soft))"
-                      : "transparent",
+                  background: a.id === atual?.id ? "var(--rule-2, var(--soft))" : "transparent",
                   border: "none",
                   borderRadius: 7,
                   padding: "6px 7px",
@@ -708,66 +628,24 @@ function Seletor({
                   minWidth: 0,
                 }}
               >
-                <span
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 6,
-                    background: "var(--slot8)",
-                    overflow: "hidden",
-                    flex: "0 0 28px",
-                  }}
-                >
+                <span style={{ width: 28, height: 28, borderRadius: 6, background: "var(--slot8)", overflow: "hidden", flex: "0 0 28px" }}>
                   {a.thumbnailUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={a.thumbnailUrl}
-                      alt=""
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
+                    <img src={a.thumbnailUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                   )}
                 </span>
                 <span style={{ minWidth: 0 }}>
-                  <span
-                    style={{
-                      display: "block",
-                      fontSize: 11,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
+                  <span style={{ display: "block", fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {a.nome}
                   </span>
-                  <span
-                    style={{
-                      display: "block",
-                      fontSize: 9.5,
-                      color: "var(--dim)",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
+                  <span style={{ display: "block", fontSize: 9.5, color: "var(--dim)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {a.objetivo} · {compact(a.impressoes)} impr.
                   </span>
                 </span>
               </button>
             ))}
             {!lista.length && (
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "var(--dim)",
-                  padding: "10px 6px",
-                  textAlign: "center",
-                }}
-              >
+              <div style={{ fontSize: 11, color: "var(--dim)", padding: "10px 6px", textAlign: "center" }}>
                 nada encontrado
               </div>
             )}
@@ -778,18 +656,11 @@ function Seletor({
   );
 }
 
-export function ComparativoCriativos({
-  anuncios,
-  resultLabel,
-}: {
-  anuncios: AnuncioComparavel[];
-  resultLabel: string;
-}) {
+export function ComparativoCriativos({ anuncios, resultLabel }: { anuncios: AnuncioComparavel[]; resultLabel: string }) {
   const [aberto, setAberto] = useState(false);
   const [ids, setIds] = useState<string[]>(["", ""]);
   const [modo, setModo] = useState<Modo>("total");
-  const [chaveGrafico, setChaveGrafico] =
-    useState<keyof AnuncioComparavel>("impressoes");
+  const [chaveGrafico, setChaveGrafico] = useState<keyof AnuncioComparavel>("impressoes");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setAberto(false);
@@ -797,16 +668,12 @@ export function ComparativoCriativos({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const sel = ids
-    .map((id) => anuncios.find((a) => a.id === id))
-    .filter(Boolean) as AnuncioComparavel[];
+  const sel = ids.map((id) => anuncios.find((a) => a.id === id)).filter(Boolean) as AnuncioComparavel[];
   const objetivos = Array.from(new Set(sel.map((a) => a.objetivo)));
   const mesmoObjetivo = objetivos.length <= 1;
+  const temVideo = sel.some((a) => a.videoPlays > 0 || a.thruplays > 0);
   const linhas = modo === "total" ? LINHAS_TOTAL : LINHAS_TAXA;
-  const leitura = useMemo(
-    () => lerComparativo(sel, mesmoObjetivo, resultLabel),
-    [sel, mesmoObjetivo, resultLabel],
-  );
+  const leitura = useMemo(() => lerComparativo(sel, mesmoObjetivo, resultLabel), [sel, mesmoObjetivo, resultLabel]);
 
   /**
    * A tabela é um grid só, para as colunas das peças ficarem alinhadas de ponta
@@ -815,55 +682,35 @@ export function ComparativoCriativos({
    */
   const celulas = useMemo(() => {
     const porGrupo = new Map<string, Linha[]>();
-    for (const l of linhas)
-      porGrupo.set(l.grupo, [...(porGrupo.get(l.grupo) || []), l]);
+    for (const l of linhas) porGrupo.set(l.grupo, [...(porGrupo.get(l.grupo) || []), l]);
 
     type Celula =
       | { tipo: "grupo"; grupo: string }
-      | {
-          tipo: "linha";
-          linha: Linha;
-          vals: number[];
-          melhor: number;
-          comparavel: boolean;
-          par: boolean;
-        };
+      | { tipo: "linha"; linha: Linha; vals: number[]; melhor: number; comparavel: boolean; par: boolean };
 
     const saida: Celula[] = [];
     let i = 0;
     for (const [grupo, ls] of porGrupo) {
+      // Linha de vídeo só entra se alguma peça escolhida for vídeo — senão a
+      // tabela ganharia sete linhas em branco.
+      const visiveis = ls.filter((l) => !l.soVideo || temVideo);
+      if (!visiveis.length) continue;
       saida.push({ tipo: "grupo", grupo });
-      for (const l of ls) {
+      for (const l of visiveis) {
         const vals = sel.map((a) => Number(a[l.chave]) || 0);
         const validos = vals.filter((v) => v > 0);
         const comparavel = !l.dependeDoObjetivo || mesmoObjetivo;
-        const melhor =
-          !comparavel || validos.length < 2
-            ? -1
-            : l.menorMelhor
-              ? vals.indexOf(Math.min(...validos))
-              : vals.indexOf(Math.max(...validos));
-        saida.push({
-          tipo: "linha",
-          linha: l,
-          vals,
-          melhor,
-          comparavel,
-          par: i++ % 2 === 0,
-        });
+        const melhor = !comparavel || l.semVencedor || validos.length < 2 ? -1 : l.menorMelhor ? vals.indexOf(Math.min(...validos)) : vals.indexOf(Math.max(...validos));
+        saida.push({ tipo: "linha", linha: l, vals, melhor, comparavel, par: i++ % 2 === 0 });
       }
     }
     return saida;
-  }, [linhas, sel, mesmoObjetivo]);
+  }, [linhas, sel, mesmoObjetivo, temVideo]);
 
   // Só entram no gráfico as métricas que existem dia a dia. `cpa` depende de
   // conversões, que não são buscadas por dia — então não aparece na lista.
-  const opcoesGrafico = useMemo(
-    () => linhas.filter((l) => l.chave in DIARIO),
-    [linhas],
-  );
-  const linhaGrafico =
-    opcoesGrafico.find((l) => l.chave === chaveGrafico) ?? opcoesGrafico[0];
+  const opcoesGrafico = useMemo(() => linhas.filter((l) => l.chave in DIARIO && (!l.soVideo || temVideo)), [linhas, temVideo]);
+  const linhaGrafico = opcoesGrafico.find((l) => l.chave === chaveGrafico) ?? opcoesGrafico[0];
 
   if (!anuncios.length) return null;
 
@@ -890,9 +737,7 @@ export function ComparativoCriativos({
           fontFamily: "inherit",
         }}
       >
-        <span className="ms" style={{ fontSize: 15, lineHeight: 1 }}>
-          compare_arrows
-        </span>
+        <span className="ms" style={{ fontSize: 15, lineHeight: 1 }}>compare_arrows</span>
         Comparar criativos
       </button>
 
@@ -925,25 +770,8 @@ export function ComparativoCriativos({
               minHeight: 0,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 10,
-                padding: "16px 20px 12px",
-                borderBottom: "1px solid var(--line)",
-                flexWrap: "wrap",
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Poppins',sans-serif",
-                  fontWeight: 800,
-                  fontSize: 15,
-                }}
-              >
-                Comparar criativos
-              </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, padding: "16px 20px 12px", borderBottom: "1px solid var(--line)", flexWrap: "wrap" }}>
+              <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: 15 }}>Comparar criativos</div>
               <div style={{ fontSize: 10.5, color: "var(--dim)" }}>
                 até {MAX} peças · todas medidas na mesma janela de datas
               </div>
@@ -970,25 +798,8 @@ export function ComparativoCriativos({
               </button>
             </div>
 
-            <div
-              style={{
-                flex: 1,
-                minHeight: 0,
-                overflow: "auto",
-                padding: "16px 20px 20px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 16,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  flexWrap: "wrap",
-                  alignItems: "flex-start",
-                }}
-              >
+            <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "16px 20px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
                 {ids.map((_, i) => (
                   <Seletor
                     key={i}
@@ -996,9 +807,7 @@ export function ComparativoCriativos({
                     escolhidos={ids}
                     indice={i}
                     cor={CORES[i]}
-                    onEscolher={(id) =>
-                      setIds((p) => p.map((v, k) => (k === i ? id : v)))
-                    }
+                    onEscolher={(id) => setIds((p) => p.map((v, k) => (k === i ? id : v)))}
                     onRemover={() => setIds((p) => p.filter((_, k) => k !== i))}
                   />
                 ))}
@@ -1025,14 +834,7 @@ export function ComparativoCriativos({
               </div>
 
               {sel.length < 2 ? (
-                <div
-                  style={{
-                    padding: "40px 0",
-                    textAlign: "center",
-                    color: "var(--dim)",
-                    fontSize: 12.5,
-                  }}
-                >
+                <div style={{ padding: "40px 0", textAlign: "center", color: "var(--dim)", fontSize: 12.5 }}>
                   Escolha ao menos duas peças para comparar.
                 </div>
               ) : (
@@ -1048,41 +850,16 @@ export function ComparativoCriativos({
                         gap: 9,
                       }}
                     >
-                      <span
-                        style={{
-                          color: "#FFCF54",
-                          fontSize: 14,
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        ⚠
-                      </span>
-                      <div
-                        style={{
-                          fontSize: 11.5,
-                          lineHeight: 1.55,
-                          color: "var(--text2)",
-                        }}
-                      >
-                        <b style={{ color: "#FFCF54" }}>
-                          Objetivos diferentes ({objetivos.join(" × ")}).
-                        </b>{" "}
-                        A Meta otimiza a entrega de cada campanha para a sua
-                        própria meta, então <b>resultados</b> e{" "}
-                        <b>custo por resultado</b> não são comparáveis entre
-                        estas peças. CTR, taxa de interação e CPM continuam
-                        válidos — medem a reação do público à arte.
+                      <span style={{ color: "#FFCF54", fontSize: 14, lineHeight: 1.2 }}>⚠</span>
+                      <div style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--text2)" }}>
+                        <b style={{ color: "#FFCF54" }}>Objetivos diferentes ({objetivos.join(" × ")}).</b> A Meta otimiza a entrega de cada campanha
+                        para a sua própria meta, então <b>resultados</b> e <b>custo por resultado</b> não são comparáveis entre estas peças. CTR, taxa
+                        de interação e CPM continuam válidos — medem a reação do público à arte.
                       </div>
                     </div>
                   )}
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: `repeat(${sel.length},minmax(0,1fr))`,
-                      gap: 12,
-                    }}
-                  >
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${sel.length},minmax(0,1fr))`, gap: 12 }}>
                     {sel.map((a, i) => (
                       <div
                         key={a.id}
@@ -1095,72 +872,25 @@ export function ComparativoCriativos({
                           flexDirection: "column",
                         }}
                       >
-                        <div
-                          className="cmp-previa"
-                          style={{
-                            height: 250,
-                            background: "var(--slot9)",
-                            position: "relative",
-                            flex: "0 0 250px",
-                          }}
-                        >
+                        <div className="cmp-previa" style={{ height: 250, background: "var(--slot9)", position: "relative", flex: "0 0 250px" }}>
                           {a.thumbnailUrl && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={a.thumbnailUrl}
                               alt={a.nome}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                objectPosition: "center 22%",
-                                display: "block",
-                              }}
+                              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 22%", display: "block" }}
                             />
                           )}
                         </div>
-                        <div
-                          style={{
-                            padding: "9px 11px",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 3,
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 11.5,
-                              fontWeight: 600,
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
+                        <div style={{ padding: "9px 11px", display: "flex", flexDirection: "column", gap: 3 }}>
+                          <div style={{ fontSize: 11.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {a.nome}
                           </div>
-                          <div
-                            style={{
-                              fontSize: 9.5,
-                              color: "var(--dim)",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
+                          <div style={{ fontSize: 9.5, color: "var(--dim)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {a.campanha}
                           </div>
                           {a.permalink && (
-                            <a
-                              href={a.permalink}
-                              target="_blank"
-                              rel="noreferrer"
-                              style={{
-                                fontSize: 10,
-                                color: "#35D0FF",
-                                textDecoration: "none",
-                                marginTop: 2,
-                              }}
-                            >
+                            <a href={a.permalink} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: "#35D0FF", textDecoration: "none", marginTop: 2 }}>
                               Abrir publicação ↗
                             </a>
                           )}
@@ -1169,30 +899,11 @@ export function ComparativoCriativos({
                     ))}
                   </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 7,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 10,
-                        letterSpacing: ".14em",
-                        textTransform: "uppercase",
-                        color: "var(--muted)",
-                      }}
-                    >
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--muted)" }}>
                       Exibir
                     </span>
-                    {(
-                      [
-                        ["total", "Totais do período"],
-                        ["taxa", "Taxas e custos"],
-                      ] as [Modo, string][]
-                    ).map(([id, rot]) => (
+                    {([["total", "Totais do período"], ["taxa", "Taxas e custos"]] as [Modo, string][]).map(([id, rot]) => (
                       <button
                         key={id}
                         onClick={() => setModo(id)}
@@ -1204,26 +915,15 @@ export function ComparativoCriativos({
                           borderRadius: 7,
                           background: modo === id ? "#2E8FFF" : "transparent",
                           color: modo === id ? "#fff" : "var(--muted)",
-                          border:
-                            modo === id
-                              ? "1px solid rgba(255,255,255,.18)"
-                              : "1px solid transparent",
+                          border: modo === id ? "1px solid rgba(255,255,255,.18)" : "1px solid transparent",
                           fontFamily: "inherit",
                         }}
                       >
                         {rot}
                       </button>
                     ))}
-                    <span
-                      style={{
-                        fontSize: 10,
-                        color: "var(--dim)",
-                        marginLeft: 4,
-                      }}
-                    >
-                      {modo === "total"
-                        ? "volume bruto — depende de quanto cada peça foi veiculada"
-                        : "independem do volume — é aqui que a arte se compara"}
+                    <span style={{ fontSize: 10, color: "var(--dim)", marginLeft: 4 }}>
+                      {modo === "total" ? "volume bruto — depende de quanto cada peça foi veiculada" : "independem do volume — é aqui que a arte se compara"}
                     </span>
                   </div>
 
@@ -1242,14 +942,16 @@ export function ComparativoCriativos({
                         gridTemplateColumns: `minmax(140px,1.1fr) repeat(${sel.length},minmax(92px,1fr))`,
                         minWidth: 150 + sel.length * 104,
                         alignItems: "center",
+                        // A media query de tela estreita precisa saber quantas peças existem
+                        // para remontar as colunas; o número só existe aqui, em tempo de render.
+                        ["--pecas" as string]: String(sel.length),
                       }}
                     >
-                      <div style={{ borderBottom: "1px solid var(--line)", padding: "0 8px 7px" }} />
+                      <div />
                       {sel.map((a, i) => (
                         <div
                           key={a.id}
                           style={{
-                            borderBottom: "1px solid var(--line)",
                             padding: "0 8px 7px",
                             textAlign: "right",
                             fontSize: 10,
@@ -1266,6 +968,12 @@ export function ComparativoCriativos({
                           Peça {i + 1}
                         </div>
                       ))}
+                      {/* Régua inteira, numa célula só. Com `border-bottom` em
+                          cada célula do cabeçalho a linha saía partida: a
+                          coluna vazia à esquerda mede menos que a que tem
+                          texto, e `align-items: center` deixava as duas bordas
+                          em alturas diferentes. */}
+                      <div style={{ gridColumn: "1 / -1", height: 1, background: "var(--line)" }} />
 
                       {celulas.map((c) =>
                         c.tipo === "grupo" ? (
@@ -1285,6 +993,7 @@ export function ComparativoCriativos({
                         ) : (
                           <Fragment key={String(c.linha.chave)}>
                             <div
+                              className="cmp-rot"
                               style={{
                                 fontSize: 11.5,
                                 color: "var(--text2)",
@@ -1294,14 +1003,9 @@ export function ComparativoCriativos({
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              {c.linha.rotulo}
+                              <span title={c.linha.dica}>{c.linha.rotulo}</span>
                               {!c.comparavel && (
-                                <span
-                                  style={{ color: "#FFCF54", marginLeft: 4 }}
-                                  title="Não comparável: objetivos diferentes"
-                                >
-                                  ⚠
-                                </span>
+                                <span style={{ color: "#FFCF54", marginLeft: 4 }} title="Não comparável: objetivos diferentes">⚠</span>
                               )}
                             </div>
                             {sel.map((a, i) => (
@@ -1314,10 +1018,8 @@ export function ComparativoCriativos({
                                   textAlign: "right",
                                   padding: "7px 8px",
                                   background: c.par ? "var(--soft)" : "transparent",
-                                  borderRadius:
-                                    i === sel.length - 1 ? "0 7px 7px 0" : 0,
-                                  color:
-                                    i === c.melhor ? "#4BE08C" : "var(--text)",
+                                  borderRadius: i === sel.length - 1 ? "0 7px 7px 0" : 0,
+                                  color: i === c.melhor ? "#4BE08C" : "var(--text)",
                                   fontWeight: i === c.melhor ? 700 : 400,
                                   whiteSpace: "nowrap",
                                 }}
@@ -1343,25 +1045,11 @@ export function ComparativoCriativos({
                         gap: 6,
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: 9.5,
-                          letterSpacing: ".14em",
-                          textTransform: "uppercase",
-                          color: "var(--muted)",
-                        }}
-                      >
+                      <div style={{ fontSize: 9.5, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--muted)" }}>
                         Leitura
                       </div>
                       {leitura.map((f, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            fontSize: 11.5,
-                            lineHeight: 1.55,
-                            color: "var(--text2)",
-                          }}
-                        >
+                        <div key={i} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--text2)" }}>
                           {f}
                         </div>
                       ))}
@@ -1371,33 +1059,9 @@ export function ComparativoCriativos({
                   {/* Curva no tempo: a tabela diz onde cada peça chegou, o
                       gráfico diz como chegou — se subiu, saturou ou caiu. */}
                   {linhaGrafico && (
-                    <div
-                      style={{
-                        border: "1px solid var(--line)",
-                        borderRadius: 11,
-                        padding: "13px 15px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 10,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 7,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: 9.5,
-                            letterSpacing: ".14em",
-                            textTransform: "uppercase",
-                            color: "var(--muted)",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
+                    <div style={{ border: "1px solid var(--line)", borderRadius: 11, padding: "13px 15px", display: "flex", flexDirection: "column", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 9.5, letterSpacing: ".14em", textTransform: "uppercase", color: "var(--muted)", whiteSpace: "nowrap" }}>
                           Dia a dia
                         </span>
                         {opcoesGrafico.map((l) => (
@@ -1412,18 +1076,9 @@ export function ComparativoCriativos({
                               borderRadius: 7,
                               whiteSpace: "nowrap",
                               flexShrink: 0,
-                              background:
-                                l.chave === linhaGrafico.chave
-                                  ? "#9B7BFF"
-                                  : "transparent",
-                              color:
-                                l.chave === linhaGrafico.chave
-                                  ? "#fff"
-                                  : "var(--muted)",
-                              border:
-                                l.chave === linhaGrafico.chave
-                                  ? "1px solid rgba(255,255,255,.18)"
-                                  : "1px solid transparent",
+                              background: l.chave === linhaGrafico.chave ? "#9B7BFF" : "transparent",
+                              color: l.chave === linhaGrafico.chave ? "#fff" : "var(--muted)",
+                              border: l.chave === linhaGrafico.chave ? "1px solid rgba(255,255,255,.18)" : "1px solid transparent",
                               fontFamily: "inherit",
                             }}
                           >
@@ -1432,41 +1087,11 @@ export function ComparativoCriativos({
                         ))}
                       </div>
                       <GraficoDiario sel={sel} linha={linhaGrafico} />
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 14,
-                          flexWrap: "wrap",
-                          fontSize: 10.5,
-                          color: "var(--muted2)",
-                        }}
-                      >
+                      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", fontSize: 10.5, color: "var(--muted2)" }}>
                         {sel.map((a, i) => (
-                          <span
-                            key={a.id}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
-                              minWidth: 0,
-                            }}
-                          >
-                            <span
-                              style={{
-                                width: 14,
-                                height: 2,
-                                background: CORES[i],
-                                flex: "0 0 14px",
-                              }}
-                            />
-                            <span
-                              style={{
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                maxWidth: 260,
-                              }}
-                            >
+                          <span key={a.id} style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                            <span style={{ width: 14, height: 2, background: CORES[i], flex: "0 0 14px" }} />
+                            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 260 }}>
                               {a.nome}
                             </span>
                           </span>

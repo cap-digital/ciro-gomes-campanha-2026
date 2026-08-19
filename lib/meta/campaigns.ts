@@ -1,5 +1,5 @@
 import "server-only";
-import { graphAccount, graphAccountAll, metaEnv, n, sumActionsExact, type GraphInsightRow, type GraphPaged } from "./graph";
+import { graphAccount, graphAccountAll, metaEnv, n, sumActionsExact, sumAll, type GraphInsightRow, type GraphPaged } from "./graph";
 import { countFor, type ConversionMetric } from "./conversion";
 import { adLabel, campaignLabel, parseCampaign } from "./taxonomy";
 import type { DateRange } from "@/lib/period";
@@ -27,6 +27,11 @@ const OBJECTIVE_LABEL: Record<string, string> = {
   CONVERSIONS: "Conversões",
   APP_INSTALLS: "Instalações de app",
 };
+
+/** Campos de vídeo pedidos à Meta. Ficam num só lugar porque a consulta de
+    totais e a de série diária precisam pedir exatamente os mesmos. */
+const VIDEO_FIELDS =
+  "video_play_actions,video_p100_watched_actions,video_thruplay_watched_actions";
 
 function prettify(raw: string): string {
   const cleaned = raw.replace(/^OUTCOME_/, "").replace(/_/g, " ").toLowerCase();
@@ -153,6 +158,19 @@ export type AdCreativeRow = {
   saves: number;
   /** Soma das interações com a publicação (reações + comentários + compart. + salvos). */
   interacoes: number;
+  /** Pessoas únicas alcançadas. Vem de consulta SEM breakdown: somar alcance
+      por plataforma contaria duas vezes quem viu no Facebook e no Instagram. */
+  reach: number;
+  /** Todos os cliques no anúncio, não só os que levam ao link. */
+  clicksAll: number;
+  /** Reproduções de vídeo iniciadas. Zero em peça estática. */
+  videoPlays: number;
+  /** Visualizações de 3 segundos. */
+  video3s: number;
+  /** ThruPlays: 15s ou o vídeo inteiro, o que vier primeiro. */
+  thruplays: number;
+  /** Assistiram 100% do vídeo. */
+  videoP100: number;
   /** Campanha a que o anúncio pertence, para o filtro da página. */
   campaignId: string;
   campaignName: string;
@@ -219,10 +237,61 @@ const PLATFORM_LABEL: Record<string, string> = {
   audience_network: "Audience Network",
 };
 
+/** Métricas do anúncio que não podem sair da consulta com breakdown. */
+type Extras = {
+  reach: number;
+  clicksAll: number;
+  videoPlays: number;
+  video3s: number;
+  thruplays: number;
+  videoP100: number;
+};
+
+/**
+ * Alcance, cliques totais e métricas de vídeo — numa consulta SEM breakdown.
+ *
+ * Alcance conta pessoas únicas: somar o alcance por plataforma contaria duas
+ * vezes quem viu a peça no Facebook e no Instagram. As de vídeo vêm em campos
+ * próprios (não dentro de `actions`) e só existem em anúncios de vídeo — nesta
+ * conta, 6 dos 58 —, então voltam zeradas no resto, o que é o valor correto.
+ */
+async function getAdsExtras(range: DateRange): Promise<Map<string, Extras>> {
+  const { accountId } = metaEnv();
+  const linhas = await graphAccountAll<GraphInsightRow>(`${accountId}/insights`, {
+    fields:
+      "ad_id,reach,clicks," + VIDEO_FIELDS + ",actions",
+    level: "ad",
+    time_range: JSON.stringify({ since: range.since, until: range.until }),
+  });
+
+  const mapa = new Map<string, Extras>();
+  for (const row of linhas) {
+    if (!row.ad_id) continue;
+    mapa.set(row.ad_id, {
+      reach: n(row.reach),
+      clicksAll: n(row.clicks),
+      videoPlays: sumAll(row.video_play_actions),
+      video3s: sumActionsExact(row.actions, ["video_view"]),
+      thruplays: sumAll(row.video_thruplay_watched_actions),
+      videoP100: sumAll(row.video_p100_watched_actions),
+    });
+  }
+  return mapa;
+}
+
+const EXTRAS_ZERO: Extras = {
+  reach: 0,
+  clicksAll: 0,
+  videoPlays: 0,
+  video3s: 0,
+  thruplays: 0,
+  videoP100: 0,
+};
+
 export async function getAdsWithCreatives(range: DateRange, metric: ConversionMetric, limit = Infinity): Promise<AdCreativeRow[]> {
   const { accountId } = metaEnv();
 
-  const [ads, insights] = await Promise.all([
+  const [ads, insights, extras] = await Promise.all([
     graphAccountAll<{ id: string; name: string; effective_status?: string; creative?: RawCreative }>(`${accountId}/ads`, {
       fields:
         "id,name,effective_status,creative{id,thumbnail_url,image_url,instagram_permalink_url," +
@@ -234,6 +303,7 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
       breakdowns: "publisher_platform",
       time_range: JSON.stringify({ since: range.since, until: range.until }),
     }),
+    getAdsExtras(range),
   ]);
 
   // Um anúncio entrega em várias plataformas: soma tudo e guarda a plataforma
@@ -292,6 +362,7 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
       shares: stats.shares,
       saves: stats.saves,
       interacoes: stats.reactions + stats.comments + stats.shares + stats.saves,
+      ...(extras.get(ad.id) ?? EXTRAS_ZERO),
       campaignId: stats.campaignId,
       campaignName: campaignLabel(stats.campaignName),
       engRate:
@@ -329,11 +400,16 @@ export type AdDia = {
   investimento: number;
   impressoes: number;
   cliques: number;
+  cliquesTotais: number;
   reacoes: number;
   comentarios: number;
   compartilhamentos: number;
   salvos: number;
   interacoes: number;
+  videoPlays: number;
+  video3s: number;
+  thruplays: number;
+  videoP100: number;
 };
 
 /**
@@ -347,7 +423,7 @@ export type AdDia = {
 export async function getAdsDailySeries(range: DateRange): Promise<Map<string, AdDia[]>> {
   const { accountId } = metaEnv();
   const linhas = await graphAccountAll<GraphInsightRow & { date_start?: string }>(`${accountId}/insights`, {
-    fields: "spend,impressions,inline_link_clicks,actions,ad_id",
+    fields: "spend,impressions,inline_link_clicks,clicks,actions,ad_id," + VIDEO_FIELDS,
     level: "ad",
     time_increment: "1",
     time_range: JSON.stringify({ since: range.since, until: range.until }),
@@ -369,11 +445,16 @@ export async function getAdsDailySeries(range: DateRange): Promise<Map<string, A
       investimento: n(row.spend),
       impressoes: n(row.impressions),
       cliques: n(row.inline_link_clicks),
+      cliquesTotais: n(row.clicks),
       reacoes,
       comentarios,
       compartilhamentos,
       salvos,
       interacoes: reacoes + comentarios + compartilhamentos + salvos,
+      videoPlays: sumAll(row.video_play_actions),
+      video3s: sumActionsExact(row.actions, ["video_view"]),
+      thruplays: sumAll(row.video_thruplay_watched_actions),
+      videoP100: sumAll(row.video_p100_watched_actions),
     });
     porAnuncio.set(id, lista);
   }
