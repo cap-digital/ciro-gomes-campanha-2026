@@ -13,16 +13,16 @@ export default async function PeriodoPage({ searchParams }: { searchParams: Prom
   const mini = criativos.criativos.slice(0, 6);
 
   return (
-    <div style={{ height: "100%", display: "grid", gridTemplateColumns: "minmax(0,1fr)", gridTemplateRows: "auto minmax(0,1.25fr) minmax(0,1fr)", gap: 12, minHeight: 0, minWidth: 0 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 12, minWidth: 0 }}>
+    <div className="pag" style={{ height: "100%", display: "grid", gridTemplateColumns: "minmax(0,1fr)", gridTemplateRows: "auto minmax(0,1.25fr) minmax(0,1fr)", gap: 12, minHeight: 0, minWidth: 0 }}>
+      <div className="emp" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 12, minWidth: 0 }}>
         {data.periodoKpis.map((k, i) => (
           <KpiCard key={i} {...k} big />
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.6fr) minmax(0,1fr)", gap: 12, minHeight: 0 }}>
+      <div className="emp" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.6fr) minmax(0,1fr)", gap: 12, minHeight: 0 }}>
         <AccentPanel style={{ padding: "16px 18px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9, flexWrap: "wrap" }}>
             <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: 14 }}>Leitura das campanhas</div>
             <DataSourceBadge source={data.source} />
           </div>
@@ -59,7 +59,7 @@ export default async function PeriodoPage({ searchParams }: { searchParams: Prom
         </div>
         {/* Cards verticais preenchendo a altura do painel: o criativo é a
             informação principal aqui, então a imagem fica com o espaço. */}
-        <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gridTemplateRows: "minmax(0,1fr)", gap: 10 }}>
+        <div className="emp" style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gridTemplateRows: "minmax(0,1fr)", gap: 10 }}>
           {mini.map((c, i) => (
             <a
               key={i}

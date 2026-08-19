@@ -52,7 +52,7 @@ export function KpiCard({ label, value, delta, note, good, big }: Kpi & { big?: 
 
 export function KpiGrid({ items, columns = 5 }: { items: Kpi[]; columns?: number }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${columns},1fr)`, gap: 12 }}>
+    <div className="emp" style={{ display: "grid", gridTemplateColumns: `repeat(${columns},1fr)`, gap: 12 }}>
       {items.map((k, i) => (
         <KpiCard key={i} {...k} big />
       ))}

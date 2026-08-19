@@ -13,6 +13,7 @@ export function Panel({
 }) {
   return (
     <div
+      className="painel"
       style={{
         background: "var(--panel)",
         border: "1px solid var(--line)",
@@ -36,6 +37,7 @@ export function Panel({
 export function AccentPanel({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
     <div
+      className="painel"
       style={{
         background: "var(--panelAccent)",
         border: "1px solid var(--accentLine)",
@@ -55,7 +57,7 @@ export function AccentPanel({ children, style }: { children: ReactNode; style?: 
 
 export function SectionLabel({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", marginBottom: 10, gap: 10 }}>
+    <div style={{ display: "flex", alignItems: "center", marginBottom: 10, gap: 10, flexWrap: "wrap" }}>
       <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>{children}</div>
       {right ? <div style={{ marginLeft: "auto" }}>{right}</div> : null}
     </div>

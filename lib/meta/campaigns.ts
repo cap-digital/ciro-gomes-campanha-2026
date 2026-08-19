@@ -151,6 +151,11 @@ export type AdCreativeRow = {
   comments: number;
   shares: number;
   saves: number;
+  /** Soma das interações com a publicação (reações + comentários + compart. + salvos). */
+  interacoes: number;
+  /** Campanha a que o anúncio pertence, para o filtro da página. */
+  campaignId: string;
+  campaignName: string;
   /** Interações totais ÷ impressões, em %. Comparável entre peças. */
   engRate: number;
   /** Status traduzido (ATIVO, PAUSADO, EM ANÁLISE...). */
@@ -224,7 +229,7 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
         "effective_object_story_id,object_story_spec}",
     }),
     graphAccountAll<GraphInsightRow>(`${accountId}/insights`, {
-      fields: "spend,impressions,inline_link_clicks,actions,ad_id,ad_name",
+      fields: "spend,impressions,inline_link_clicks,actions,ad_id,ad_name,campaign_id,campaign_name",
       level: "ad",
       breakdowns: "publisher_platform",
       time_range: JSON.stringify({ since: range.since, until: range.until }),
@@ -235,14 +240,26 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
   // com maior investimento como a dominante (em vez de pegar a primeira linha).
   const byAd = new Map<
     string,
-    { spend: number; conversions: number; impressions: number; clicks: number; reactions: number; comments: number; shares: number; saves: number; byPlatform: Map<string, number> }
+    {
+      spend: number; conversions: number; impressions: number; clicks: number;
+      reactions: number; comments: number; shares: number; saves: number;
+      campaignId: string; campaignName: string;
+      byPlatform: Map<string, number>;
+    }
   >();
   for (const row of insights) {
     const id = row.ad_id;
     if (!id) continue;
     const entry =
       byAd.get(id) ||
-      { spend: 0, conversions: 0, impressions: 0, clicks: 0, reactions: 0, comments: 0, shares: 0, saves: 0, byPlatform: new Map<string, number>() };
+      {
+        spend: 0, conversions: 0, impressions: 0, clicks: 0,
+        reactions: 0, comments: 0, shares: 0, saves: 0,
+        campaignId: "", campaignName: "",
+        byPlatform: new Map<string, number>(),
+      };
+    if (row.campaign_id) entry.campaignId = row.campaign_id;
+    if (row.campaign_name) entry.campaignName = row.campaign_name;
     const spend = n(row.spend);
     entry.spend += spend;
     entry.impressions += n(row.impressions);
@@ -274,6 +291,9 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
       comments: stats.comments,
       shares: stats.shares,
       saves: stats.saves,
+      interacoes: stats.reactions + stats.comments + stats.shares + stats.saves,
+      campaignId: stats.campaignId,
+      campaignName: campaignLabel(stats.campaignName),
       engRate:
         stats.impressions > 0
           ? ((stats.reactions + stats.comments + stats.shares + stats.saves) / stats.impressions) * 100
@@ -300,4 +320,63 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
 
   const ordenado = rows.sort((a, b) => b.spend - a.spend);
   return Number.isFinite(limit) ? ordenado.slice(0, limit) : ordenado;
+}
+
+/** Um dia de veiculação de um anúncio. */
+export type AdDia = {
+  /** ISO (YYYY-MM-DD). */
+  dia: string;
+  investimento: number;
+  impressoes: number;
+  cliques: number;
+  reacoes: number;
+  comentarios: number;
+  compartilhamentos: number;
+  salvos: number;
+  interacoes: number;
+};
+
+/**
+ * Série diária por anúncio — a base do gráfico do comparativo de criativos.
+ *
+ * `time_increment: 1` devolve uma linha por anúncio POR DIA; sem breakdown de
+ * plataforma, porque aqui a curva é do anúncio inteiro. Só os dias com entrega
+ * voltam da Meta: quem começou depois simplesmente não tem linha antes disso, e
+ * é o gráfico que decide como representar essa ausência.
+ */
+export async function getAdsDailySeries(range: DateRange): Promise<Map<string, AdDia[]>> {
+  const { accountId } = metaEnv();
+  const linhas = await graphAccountAll<GraphInsightRow & { date_start?: string }>(`${accountId}/insights`, {
+    fields: "spend,impressions,inline_link_clicks,actions,ad_id",
+    level: "ad",
+    time_increment: "1",
+    time_range: JSON.stringify({ since: range.since, until: range.until }),
+    limit: "500",
+  });
+
+  const porAnuncio = new Map<string, AdDia[]>();
+  for (const row of linhas) {
+    const id = row.ad_id;
+    const dia = row.date_start;
+    if (!id || !dia) continue;
+    const reacoes = sumActionsExact(row.actions, ["post_reaction"]);
+    const comentarios = sumActionsExact(row.actions, ["comment"]);
+    const compartilhamentos = sumActionsExact(row.actions, ["post"]);
+    const salvos = sumActionsExact(row.actions, ["onsite_conversion.post_save"]);
+    const lista = porAnuncio.get(id) || [];
+    lista.push({
+      dia,
+      investimento: n(row.spend),
+      impressoes: n(row.impressions),
+      cliques: n(row.inline_link_clicks),
+      reacoes,
+      comentarios,
+      compartilhamentos,
+      salvos,
+      interacoes: reacoes + comentarios + compartilhamentos + salvos,
+    });
+    porAnuncio.set(id, lista);
+  }
+  for (const lista of porAnuncio.values()) lista.sort((a, b) => a.dia.localeCompare(b.dia));
+  return porAnuncio;
 }

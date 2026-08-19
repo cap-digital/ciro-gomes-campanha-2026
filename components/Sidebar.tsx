@@ -59,7 +59,7 @@ export function Sidebar() {
   const qs = searchParams.toString();
 
   return (
-    <aside style={{ width: 74, flex: "0 0 74px", padding: "8px 8px 8px 10px", display: "flex", flexDirection: "column", minHeight: 0, zIndex: 5 }}>
+    <aside className="rail" style={{ width: 74, flex: "0 0 74px", padding: "8px 8px 8px 10px", display: "flex", flexDirection: "column", minHeight: 0, zIndex: 5 }}>
       <div
         style={{
           flex: 1,
@@ -73,6 +73,7 @@ export function Sidebar() {
           padding: "10px 8px",
           gap: 6,
         }}
+        className="rail-caixa"
       >
         <div
           style={{
@@ -97,9 +98,9 @@ export function Sidebar() {
           />
         </div>
 
-        <div style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
+        <div className="rail-div" style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
 
-        <nav style={{ flex: "1 1 auto", overflow: "visible", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", gap: 0 }}>
+        <nav className="rail-nav" style={{ flex: "1 1 auto", overflow: "visible", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-evenly", gap: 0 }}>
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.route;
             return (
@@ -129,9 +130,9 @@ export function Sidebar() {
           })}
         </nav>
 
-        <div style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
+        <div className="rail-div" style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
 
-        <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+        <div className="rail-pe" style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
           <div
             onClick={toggle}
             onMouseEnter={() => setHover("__theme")}

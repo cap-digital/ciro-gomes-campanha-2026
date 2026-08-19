@@ -20,6 +20,7 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
 
   return (
     <div
+      className="pag"
       style={{
         height: "100%",
         display: "grid",
@@ -40,7 +41,7 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
         <div style={{ flexShrink: 0 }}>
           <SplitBar leftPct={data.kwaiPct} leftColor="#FF7A00" rightColor="#2E8FFF" />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, minWidth: 0, flexShrink: 0 }}>
+        <div className="emp" style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, minWidth: 0, flexShrink: 0 }}>
           {data.splitCards.map((s, i) => (
             <div key={i} style={{ background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.06)", borderRadius: 12, padding: "9px 11px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -58,6 +59,7 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
             dia até o 1º turno. Sem isso o "investimento total" não diz se a
             campanha está adiantada ou atrasada. */}
         <div
+          className="emp"
           style={{
             marginTop: 12,
             display: "grid",
@@ -154,7 +156,7 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
         <DayAxis labels={dLabels} />
       </Panel>
 
-      <div style={{ gridColumn: "span 12", minWidth: 0, display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gap: 12, minHeight: 0 }}>
+      <div className="emp" style={{ gridColumn: "span 12", minWidth: 0, display: "grid", gridTemplateColumns: "repeat(6,minmax(0,1fr))", gap: 12, minHeight: 0 }}>
         {data.resultCards.map((r, i) => (
           <div key={i} style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, boxShadow: "var(--shadow)", padding: "13px 14px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 6, minHeight: 0 }}>
             <div style={{ fontSize: 9.5, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase" }}>{r.label}</div>

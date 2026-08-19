@@ -28,15 +28,24 @@ export function chipStyle(active: boolean, accent?: string): CSSProperties {
     padding: "6px 11px",
     borderRadius: 8,
     whiteSpace: "nowrap",
+    /* O reset global tem `* { min-width: 0 }`, então num flex apertado o chip
+       encolheria abaixo do próprio texto e um passaria por cima do outro. */
+    flexShrink: 0,
     background: active ? accent || "#2E8FFF" : "transparent",
     color: active ? "#fff" : "var(--muted)",
-    border: active ? "1px solid rgba(255,255,255,.18)" : "1px solid transparent",
+    border: active
+      ? "1px solid rgba(255,255,255,.18)"
+      : "1px solid transparent",
     boxShadow: active ? "0 8px 16px -8px rgba(46,143,255,.7)" : "none",
     transition: "all .15s",
   };
 }
 
-export function barStyle(p: number, color: string, h: string | number = "100%"): CSSProperties {
+export function barStyle(
+  p: number,
+  color: string,
+  h: string | number = "100%",
+): CSSProperties {
   return {
     width: Math.max(2, Math.min(100, p)) + "%",
     height: h,
@@ -60,12 +69,22 @@ export function statusStyle(status: string): CSSProperties {
         : st === "TESTE"
           ? "rgba(245,179,1,.14)"
           : "rgba(255,255,255,.07)",
-    color: st === "ATIVO" || st === "ATIVA" ? "#4BE08C" : st === "TESTE" ? "#FFCF54" : "#8FA0C4",
+    color:
+      st === "ATIVO" || st === "ATIVA"
+        ? "#4BE08C"
+        : st === "TESTE"
+          ? "#FFCF54"
+          : "#8FA0C4",
   };
 }
 
 /** Gera um path SVG (0..w, 0..h) a partir de uma série de valores. */
-export function svgPath(vals: number[], w: number, h: number, close = false): string {
+export function svgPath(
+  vals: number[],
+  w: number,
+  h: number,
+  close = false,
+): string {
   if (!vals.length) return "";
   const min = Math.min(...vals);
   const max = Math.max(...vals);
@@ -74,7 +93,8 @@ export function svgPath(vals: number[], w: number, h: number, close = false): st
     (i / Math.max(1, vals.length - 1)) * w,
     h - ((v - min) / r) * (h - 3) - 1.5,
   ]);
-  let d = "M" + pts.map((p) => p[0].toFixed(2) + " " + p[1].toFixed(2)).join(" L");
+  let d =
+    "M" + pts.map((p) => p[0].toFixed(2) + " " + p[1].toFixed(2)).join(" L");
   if (close) d += ` L${w} ${h} L0 ${h} Z`;
   return d;
 }

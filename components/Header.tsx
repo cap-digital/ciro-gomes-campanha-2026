@@ -38,6 +38,7 @@ export function Header() {
 
   return (
     <header
+      className="cabecalho"
       style={{
         height: 60,
         flex: "0 0 60px",
@@ -50,7 +51,7 @@ export function Header() {
         zIndex: 2,
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
+      <div className="cabecalho-id" style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
         <div
           style={{
             fontFamily: "'Poppins',sans-serif",

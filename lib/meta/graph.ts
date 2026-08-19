@@ -60,7 +60,15 @@ async function fetchJson<T>(url: string, path: string, revalidate: number): Prom
   return (await res.json()) as T;
 }
 
-async function graphFetch<T>(path: string, params: Params, token: string, revalidate = 120): Promise<T> {
+/**
+ * Janela de cache padrão. Com 120s, quase todo clique caía em cache frio e
+ * pagava a ida completa à Meta (até 6,5s numa rota). Em 600s a navegação fica
+ * instantânea na maior parte do tempo, e o botão "Atualizar" force a releitura
+ * quando a equipe mexe no gerenciador e quer ver o efeito na hora.
+ */
+const REVALIDATE_PADRAO = 600;
+
+async function graphFetch<T>(path: string, params: Params, token: string, revalidate = REVALIDATE_PADRAO): Promise<T> {
   return fetchJson<T>(buildUrl(path, params, token), path, revalidate);
 }
 
@@ -89,7 +97,7 @@ export async function graphAccountAll<T>(path: string, params: Params, maxPages 
   const out: T[] = [];
 
   for (let page = 0; page < maxPages; page++) {
-    const res = await fetchJson<GraphPaged<T>>(url, path, revalidate ?? 120);
+    const res = await fetchJson<GraphPaged<T>>(url, path, revalidate ?? REVALIDATE_PADRAO);
     out.push(...(res.data || []));
     const next = res.paging?.next;
     if (!next) break;

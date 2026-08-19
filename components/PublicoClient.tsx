@@ -59,7 +59,7 @@ export function PublicoClient({
   };
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", gap: 12, minHeight: 0, minWidth: 0 }}>
+    <div className="pag" style={{ height: "100%", display: "flex", flexDirection: "column", gap: 12, minHeight: 0, minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         <span style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
           Métrica
@@ -89,7 +89,7 @@ export function PublicoClient({
         </div>
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)", gridTemplateRows: "minmax(0,1fr) minmax(0,1fr)", gap: 12 }}>
+      <div className="emp" style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "minmax(0,1.15fr) minmax(0,1fr)", gridTemplateRows: "minmax(0,1fr) minmax(0,1fr)", gap: 12 }}>
         <Panel style={{ padding: "13px 15px" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 10 }}>
             <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>Faixa etária e gênero</div>
@@ -154,7 +154,7 @@ export function PublicoClient({
           <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>
             Horário do dia · {metrica.label.toLowerCase()}
           </div>
-          <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "flex-end", gap: 4, paddingBottom: 16, paddingTop: 4, position: "relative" }}>
+          <div className="grafico" style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "flex-end", gap: 4, paddingBottom: 16, paddingTop: 4, position: "relative" }}>
             {horarios.map((h) => {
               const alt = Math.max(2, pctDe(h[metricaId], maxHora));
               const pico = h[metricaId] >= maxHora * 0.8;

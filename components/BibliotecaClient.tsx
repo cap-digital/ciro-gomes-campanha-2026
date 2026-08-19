@@ -346,7 +346,7 @@ function ComparativoChart({ dados }: { dados: ComparativoAtivos }) {
           onMouseMove={onMove}
           onMouseLeave={() => setHover(null)}
         >
-          <svg viewBox={`0 0 100 ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
+          <svg className="grafico" viewBox={`0 0 100 ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
             {ticks.map((t, i) => (
               <line
                 key={i}
@@ -539,7 +539,7 @@ function CardsFaixa({ dados }: { dados: ComparativoAtivos }) {
   ];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10 }}>
+    <div className="emp" style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10 }}>
       {blocos.map((b) => (
         <div key={b.titulo} style={{ background: "var(--soft)", border: "1px solid var(--line)", borderRadius: 12, padding: "10px 13px", display: "flex", flexDirection: "column", gap: 7 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
@@ -635,7 +635,7 @@ function ComparativoModal({ dados, onClose }: { dados: ComparativoAtivos; onClos
           minHeight: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: 14 }}>Anúncios ativos por candidato</div>
           <div style={{ fontSize: 10.5, color: "var(--dim)" }}>ao longo do tempo · Biblioteca de Anúncios Meta</div>
           <button
@@ -707,10 +707,10 @@ export function BibliotecaClient({
   const ativosPct = overview.total > 0 ? Math.round((overview.ativos / overview.total) * 100) : 0;
 
   return (
-    <div style={{ height: "100%", display: "grid", gridTemplateColumns: "340px minmax(0,1fr)", gap: 12, minHeight: 0, minWidth: 0 }}>
+    <div className="pag" style={{ height: "100%", display: "grid", gridTemplateColumns: "340px minmax(0,1fr)", gap: 12, minHeight: 0, minWidth: 0 }}>
       <div style={{ display: "grid", gridTemplateRows: "auto auto minmax(0,1fr)", gap: 12, minHeight: 0 }}>
         <Panel style={{ padding: "14px 16px", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>Visão geral</div>
             <DataSourceBadge source={source} />
           </div>
@@ -863,7 +863,7 @@ export function BibliotecaClient({
             </button>
           </div>
         </div>
-        <div style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(2,1fr)", gridTemplateRows: "repeat(4,1fr)", gap: 12, overflow: "auto" }}>
+        <div className="emp" style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "repeat(2,1fr)", gridTemplateRows: "repeat(4,1fr)", gap: 12, overflow: "auto" }}>
           {cards.map((b, i) => (
             <AdCard key={i} card={b} />
           ))}

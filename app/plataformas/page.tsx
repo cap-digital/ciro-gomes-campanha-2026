@@ -15,8 +15,8 @@ export default async function PlataformasPage({ searchParams }: { searchParams: 
   ];
 
   return (
-    <div style={{ height: "100%", display: "grid", gridTemplateColumns: "minmax(0,1fr)", gridTemplateRows: "auto auto minmax(0,1fr)", gap: 12, minHeight: 0, minWidth: 0 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+    <div className="pag" style={{ height: "100%", display: "grid", gridTemplateColumns: "minmax(0,1fr)", gridTemplateRows: "auto auto minmax(0,1fr)", gap: 12, minHeight: 0, minWidth: 0 }}>
+      <div className="emp" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {data.platCards.map((p, i) => (
           <div key={i} style={{ background: "#0C1734", border: `1px solid ${p.color}44`, borderRadius: 16, padding: "15px 18px", display: "flex", flexDirection: "column", color: "#EAF0FF" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
@@ -36,7 +36,7 @@ export default async function PlataformasPage({ searchParams }: { searchParams: 
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="emp" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {strengthByPlatform.map(({ color, title, strength }, i) => (
           <div key={i} style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 16, boxShadow: "var(--shadow)", padding: "12px 15px", display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -61,7 +61,7 @@ export default async function PlataformasPage({ searchParams }: { searchParams: 
       </div>
 
       <Panel style={{ padding: "14px 18px" }}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 10, gap: 10, flexWrap: "wrap" }}>
           <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>Força por indicador</div>
           <DataSourceBadge source={data.source} />
           <div style={{ marginLeft: "auto", display: "flex", gap: 14, fontSize: 10.5, color: "var(--muted2)" }}>

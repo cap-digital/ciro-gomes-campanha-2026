@@ -35,6 +35,10 @@ export type CreativeCard = {
   permalink?: string;
   /** Valor da métrica pela qual a grade está ordenada. */
   ordemValue?: string;
+  /** Interações com a publicação, exibidas no card. */
+  interacoes?: string;
+  /** Campanha de origem, para o filtro da página. */
+  campanha?: string;
 };
 
 /**
@@ -50,7 +54,7 @@ export const CRIATIVO_ORDENS = [
   { id: "investimento", label: "Investimento" },
   { id: "impressoes", label: "Impressões" },
   { id: "cliques", label: "Cliques" },
-  { id: "cpa", label: "Menor CPA" },
+  { id: "interacoes", label: "Interações" },
 ] as const;
 
 export type CriativoOrdem = (typeof CRIATIVO_ORDENS)[number]["id"];

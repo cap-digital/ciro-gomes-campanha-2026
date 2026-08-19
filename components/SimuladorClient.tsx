@@ -96,7 +96,7 @@ export function SimuladorClient({ dados }: { dados: SimuladorDados }) {
   const noPlano = dados.objetivos.every((o) => Math.abs((pesos[o.id] ?? 0) - (pesosDoPlano[o.id] ?? 0)) < 0.15);
 
   return (
-    <div style={{ height: "100%", display: "grid", gridTemplateColumns: "1fr 1.35fr", gap: 12, minHeight: 0 }}>
+    <div className="pag" style={{ height: "100%", display: "grid", gridTemplateColumns: "1fr 1.35fr", gap: 12, minHeight: 0 }}>
       <div
         style={{
           background: "var(--panel)",
@@ -214,7 +214,7 @@ export function SimuladorClient({ dados }: { dados: SimuladorDados }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateRows: "auto 1fr auto", gap: 12, minHeight: 0 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        <div className="emp" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {[
             { label: "Impressões projetadas", value: compact(calc.impressoes), note: `${fase?.curto ?? ""} · CPM ${brl(calc.cpmMedio)}` },
             { label: "Impressões do plano", value: compact(calc.impressoesPlano), note: `CPM planejado ${brl(fase?.cpmPlanejado ?? 0)}` },
@@ -245,7 +245,7 @@ export function SimuladorClient({ dados }: { dados: SimuladorDados }) {
             {calc.linhas.map((l) => {
               const maxImp = Math.max(...calc.linhas.map((x) => x.impressoes), 1);
               return (
-                <div key={l.id} style={{ display: "grid", gridTemplateColumns: "132px 1fr 92px 84px", gap: 10, alignItems: "center" }}>
+                <div key={l.id} className="linha-tabela" style={{ display: "grid", gridTemplateColumns: "132px 1fr 92px 84px", gap: 10, alignItems: "center" }}>
                   <div style={{ fontSize: 11.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.label}</div>
                   <div style={{ height: 7, borderRadius: 99, background: "var(--track)", overflow: "hidden" }}>
                     <div style={{ width: `${Math.max(1, (l.impressoes / maxImp) * 100)}%`, height: "100%", borderRadius: 99, background: l.color, opacity: l.estimado ? 0.45 : 1 }} />

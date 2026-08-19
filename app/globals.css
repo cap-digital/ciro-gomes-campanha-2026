@@ -18,12 +18,24 @@
   --posFg: #4be08c;
   --negBg: rgba(228, 34, 43, 0.16);
   --negFg: #ff8189;
-  --shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.75), 0 6px 16px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --railShadow: 0 30px 60px -18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow:
+    0 24px 48px -20px rgba(0, 0, 0, 0.75), 0 6px 16px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --railShadow:
+    0 30px 60px -18px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --line1: #35d0ff;
   --fill1: rgba(53, 208, 255, 0.16);
-  --slot12: repeating-linear-gradient(135deg, #132349 0 12px, #182b5e 12px 24px);
-  --slot10: repeating-linear-gradient(135deg, #132349 0 10px, #182b5e 10px 20px);
+  --slot12: repeating-linear-gradient(
+    135deg,
+    #132349 0 12px,
+    #182b5e 12px 24px
+  );
+  --slot10: repeating-linear-gradient(
+    135deg,
+    #132349 0 10px,
+    #182b5e 10px 20px
+  );
   --slot9: repeating-linear-gradient(135deg, #132349 0 9px, #182b5e 9px 18px);
   --slot8: repeating-linear-gradient(135deg, #132349 0 8px, #182b5e 8px 16px);
   --tagBg: rgba(53, 208, 255, 0.14);
@@ -59,12 +71,25 @@
   --posFg: #0e8a4c;
   --negBg: rgba(214, 26, 36, 0.11);
   --negFg: #c41821;
-  --shadow: 0 22px 44px -22px rgba(24, 45, 96, 0.4), 0 10px 22px -14px rgba(24, 45, 96, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  --railShadow: 0 30px 60px -20px rgba(24, 45, 96, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow:
+    0 22px 44px -22px rgba(24, 45, 96, 0.4),
+    0 10px 22px -14px rgba(24, 45, 96, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --railShadow:
+    0 30px 60px -20px rgba(24, 45, 96, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --line1: #1b6fe0;
   --fill1: rgba(46, 143, 255, 0.16);
-  --slot12: repeating-linear-gradient(135deg, #e4ebf8 0 12px, #eff3fb 12px 24px);
-  --slot10: repeating-linear-gradient(135deg, #e4ebf8 0 10px, #eff3fb 10px 20px);
+  --slot12: repeating-linear-gradient(
+    135deg,
+    #e4ebf8 0 12px,
+    #eff3fb 12px 24px
+  );
+  --slot10: repeating-linear-gradient(
+    135deg,
+    #e4ebf8 0 10px,
+    #eff3fb 10px 20px
+  );
   --slot9: repeating-linear-gradient(135deg, #e4ebf8 0 9px, #eff3fb 9px 18px);
   --slot8: repeating-linear-gradient(135deg, #e4ebf8 0 8px, #eff3fb 8px 16px);
   --tagBg: rgba(27, 111, 224, 0.1);
@@ -110,7 +135,11 @@ body {
   white-space: nowrap;
   direction: ltr;
   -webkit-font-feature-settings: "liga";
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 nav::-webkit-scrollbar {
@@ -246,5 +275,194 @@ button {
 @keyframes girar {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Esqueleto de carregamento: brilho percorrendo o painel. */
+.skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: varrer 1.25s ease-in-out infinite;
+}
+@keyframes varrer {
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skel::after {
+    animation: none;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Telas estreitas — uma coluna, cada quadrado abaixo do anterior.
+
+   O painel é escrito com estilo inline, que vence qualquer seletor de folha
+   de estilo. Por isso as sobrescritas daqui levam !important: sem ele o grid
+   de 12 colunas de /campanhas continuaria valendo num aparelho de 390px.
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  html,
+  body {
+    height: auto;
+    min-height: 100%;
+  }
+
+  /* Solta a moldura de altura fixa: no celular quem rola é a página inteira,
+     não cada painel por dentro. */
+  .shell {
+    height: auto !important;
+    min-height: 100vh;
+    overflow: visible !important;
+    flex-direction: column;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+  .pagina {
+    overflow: visible !important;
+    padding: 12px !important;
+  }
+
+  /* O trilho lateral vira barra horizontal no topo. */
+  .rail,
+  .rail-slot {
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    padding: 8px !important;
+  }
+  .rail-caixa {
+    flex-direction: row !important;
+    align-items: center !important;
+    border-radius: 18px !important;
+    padding: 8px 10px !important;
+    gap: 10px !important;
+  }
+  .rail-nav {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    /* min-width:0 é o que permite encolher: sem ele os 13 ícones somam mais
+       de 400px, a barra não cede e a página inteira fica mais larga que a tela. */
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+  }
+  .rail-nav::-webkit-scrollbar {
+    height: 0;
+  }
+  .rail-pe {
+    flex-direction: row !important;
+    gap: 2px !important;
+  }
+  /* Régua de 26px de largura: na horizontal ela viraria um traço vertical
+     solto no meio da barra. */
+  .rail-div {
+    display: none !important;
+  }
+
+  .cabecalho {
+    height: auto !important;
+    flex: 0 0 auto !important;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 10px 12px !important;
+  }
+  /* Linha própria para a identidade: dividindo espaço com os chips e o
+     seletor de datas, o título sobrava em "C…" por cima do nome do candidato. */
+  .cabecalho-id {
+    flex: 1 0 100% !important;
+  }
+
+  /* Coluna única. `.pag` é a raiz de cada página, `.emp` cada bloco de
+     painéis lado a lado. Os filhos perdem o `span N` que valia no grid largo. */
+  .pag,
+  .emp {
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: none !important;
+    grid-auto-rows: auto !important;
+    grid-auto-flow: row !important;
+  }
+  .pag > *,
+  .emp > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Sem altura fixa no painel, um filho `flex: 1` mede o conteúdo — e um
+     gráfico com height:100% mediria zero. Estes dois pisos seguram a altura. */
+  .pagina .painel {
+    min-height: 190px;
+  }
+  .grafico {
+    min-height: 170px !important;
+  }
+  /* A foto do candidato ocupa uma célula que tinha altura do grid; empilhada
+     ela mediria só a faixa do nome. */
+  .hero-foto {
+    min-height: 260px;
+    padding: 0 20px 20px !important;
+  }
+
+  /* O criativo é vertical (1080×1440): em coluna única a peça abriria em ~490px
+     de altura e a lista de 58 anúncios passaria de 30 mil pixels. */
+  .cri-media {
+    flex: 0 0 300px !important;
+    height: 300px;
+  }
+  /* O bloco da direita da barra de filtros perde o empurrão para a margem e
+     ganha a própria linha, em vez de disputar espaço com os chips. */
+  .barra-fim {
+    margin-left: 0 !important;
+    flex: 1 0 100% !important;
+    justify-content: flex-end;
+  }
+
+  /* Comparativo de criativos: a prévia da peça cede altura, mas continua
+     grande o bastante para se reconhecer a arte. */
+  .cmp-previa {
+    height: 180px !important;
+    flex-basis: 180px !important;
+  }
+
+  /* Linha de tabela com rótulo + barra + dois números: as colunas fixas somavam
+     quase a tela inteira e sobravam ~30px para a barra, com o nome cortado em
+     "[ENGAJAME…". O rótulo sobe para a própria linha e o resto respira. */
+  .linha-tabela {
+    grid-template-columns: minmax(0, 1fr) auto auto !important;
+    row-gap: 3px !important;
+  }
+  .linha-tabela > *:first-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Rede de segurança: nada rola para o lado. Se algum bloco ainda medir mais
+     que a tela, ele é cortado em vez de arrastar a página inteira. */
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Celular estreito: os quadrados encostam nas bordas e a fonte encolhe um
+   passo para caber o número inteiro em vez de truncá-lo. */
+@media (max-width: 520px) {
+  .pagina {
+    padding: 10px !important;
+  }
+  .cabecalho {
+    padding: 10px !important;
   }
 }

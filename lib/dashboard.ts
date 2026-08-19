@@ -5,7 +5,7 @@ import {
   getPlatformBreakdown, getSegmentBreakdown, getVideoRetention, getGastoAcumulado, EMPTY_TOTALS,
   type AccountTotals, type DailyPoint,
 } from "@/lib/meta/insights";
-import { getCampaigns, getAdsWithCreatives, type CampaignRow, type AdCreativeRow } from "@/lib/meta/campaigns";
+import { getCampaigns, getAdsWithCreatives, getAdsDailySeries, type CampaignRow, type AdCreativeRow, type AdDia } from "@/lib/meta/campaigns";
 import { getActivities, type ActivityRow } from "@/lib/meta/activities";
 import { getGeoBreakdown, type GeoRow } from "@/lib/meta/geo";
 import { getSeguidores, SEGUIDORES_ZERO, type SeguidoresPeriodo } from "@/lib/meta/instagram";
@@ -197,21 +197,38 @@ export async function getCampanhasData(range: DateRange) {
 }
 
 // ---------- 03 Criativos ----------
-export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = "investimento", status = "todos") {
+export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = "investimento", status = "todos", campanha = "todas") {
   const res = await safe(async () => {
     const totals = await getAccountTotals(range);
     // Sem teto: a campanha sobe anúncios aos poucos, cidade a cidade. Qualquer
     // limite fixo aqui viraria "a conta tem N anúncios" mentindo para o usuário.
-    const ads = await getAdsWithCreatives(range, totals.metric);
-    return { ads, metric: totals.metric };
-  }, { ads: [] as AdCreativeRow[], metric: EMPTY_TOTALS.metric }, "criativos");
+    const [ads, campanhas, series] = await Promise.all([
+      getAdsWithCreatives(range, totals.metric),
+      getCampaigns(range, totals.metric),
+      // Curva dia a dia de cada anúncio, para o gráfico do comparativo.
+      getAdsDailySeries(range),
+    ]);
+    // Objetivo vem da campanha: o comparativo precisa dele para avisar quando
+    // duas peças não são comparáveis (otimizadas para metas diferentes).
+    const objetivoPorCampanha = new Map(campanhas.map((c) => [c.id, c.objective]));
+    return { ads, metric: totals.metric, objetivoPorCampanha, series };
+  }, {
+    ads: [] as AdCreativeRow[],
+    metric: EMPTY_TOTALS.metric,
+    objetivoPorCampanha: new Map<string, string>(),
+    series: new Map<string, AdDia[]>(),
+  }, "criativos");
 
-  const { ads, metric } = res.value;
+  const { ads, metric, objetivoPorCampanha, series } = res.value;
 
   // O filtro é montado a partir dos status que a conta REALMENTE devolveu —
   // nada de listar opções que não existem, nem esconder um status novo.
   const statusDisponiveis = Array.from(new Set(ads.map((a) => a.status))).sort();
-  const filtrados = status === "todos" ? ads : ads.filter((a) => a.status === status);
+  // As campanhas do dropdown saem dos próprios anúncios: só aparece o que existe.
+  const campanhasDisponiveis = Array.from(new Set(ads.map((a) => a.campaignName).filter(Boolean))).sort();
+  const filtrados = ads
+    .filter((a) => status === "todos" || a.status === status)
+    .filter((a) => campanha === "todas" || a.campaignName === campanha);
 
   // "Menor CPA" é o único critério crescente, e anúncios sem CPA vão para o fim
   // em vez de fingirem ser os mais baratos.
@@ -221,12 +238,8 @@ export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = 
         return b.impressions - a.impressions;
       case "cliques":
         return b.clicks - a.clicks;
-      case "cpa": {
-        if (a.cpa <= 0 && b.cpa <= 0) return b.spend - a.spend;
-        if (a.cpa <= 0) return 1;
-        if (b.cpa <= 0) return -1;
-        return a.cpa - b.cpa;
-      }
+      case "interacoes":
+        return b.interacoes - a.interacoes;
       default:
         return b.spend - a.spend;
     }
@@ -238,6 +251,8 @@ export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = 
         return `${compact(a.impressions)} impr.`;
       case "cliques":
         return `${num(a.clicks)} ${a.clicks === 1 ? "clique" : "cliques"}`;
+      case "interacoes":
+        return `${num(a.interacoes)} ${a.interacoes === 1 ? "interação" : "interações"}`;
       default:
         return brl(a.spend, 0);
     }
@@ -253,13 +268,42 @@ export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = 
     thumbnailUrl: a.thumbnailUrl,
     permalink: a.permalink,
     ordemValue: valorDaOrdem(a),
+    interacoes: num(a.interacoes),
+    campanha: a.campaignName,
   }));
   return {
     criativos,
     ordem,
     status,
     statusDisponiveis,
+    campanha,
+    campanhasDisponiveis,
     totalSemFiltro: ads.length,
+    // Dados crus para o comparativo de criativos, sem os filtros aplicados.
+    paraComparar: ads.map((a) => ({
+      id: a.id,
+      nome: a.label,
+      campanha: a.campaignName,
+      objetivo: objetivoPorCampanha.get(a.campaignId) || "—",
+      status: a.status,
+      thumbnailUrl: a.thumbnailUrl,
+      permalink: a.permalink,
+      investimento: a.spend,
+      impressoes: a.impressions,
+      cliques: a.clicks,
+      resultados: a.conversions,
+      interacoes: a.interacoes,
+      reacoes: a.reactions,
+      comentarios: a.comments,
+      compartilhamentos: a.shares,
+      salvos: a.saves,
+      cpa: a.cpa,
+      cpm: a.impressions > 0 ? (a.spend / a.impressions) * 1000 : 0,
+      ctr: a.impressions > 0 ? (a.clicks / a.impressions) * 100 : 0,
+      taxaInteracao: a.engRate,
+      serie: series.get(a.id) ?? [],
+    })),
+    resultLabel: metric.shortLabel,
     source: sourceOf(res.ok),
   };
 }

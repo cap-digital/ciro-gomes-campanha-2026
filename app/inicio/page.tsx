@@ -13,8 +13,9 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
   const data = await getInicioData(range);
 
   return (
-    <div style={{ height: "100%", display: "grid", gridTemplateRows: "1fr auto", gap: 14, minHeight: 0 }}>
+    <div className="pag" style={{ height: "100%", display: "grid", gridTemplateRows: "1fr auto", gap: 14, minHeight: 0 }}>
       <div
+        className="emp"
         style={{
           minHeight: 0,
           borderRadius: 20,
@@ -121,7 +122,7 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
             </Link>
           </div>
         </div>
-        <div style={{ position: "relative", padding: "26px 30px 26px 0", display: "flex", alignItems: "center", justifyContent: "center", minWidth: 0 }}>
+        <div className="hero-foto" style={{ position: "relative", padding: "26px 30px 26px 0", display: "flex", alignItems: "center", justifyContent: "center", minWidth: 0 }}>
           <div style={{ width: "100%", height: "100%", maxHeight: "100%", borderRadius: 22, background: "#fff", padding: 9, display: "flex" }}>
             <div
               style={{

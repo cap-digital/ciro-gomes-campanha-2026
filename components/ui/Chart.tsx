@@ -17,7 +17,7 @@ export function SvgLines({ lines, height = 34 }: { lines: ChartLine[]; height?: 
     );
   }
   return (
-    <svg viewBox={`0 0 100 ${height}`} preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
+    <svg className="grafico" viewBox={`0 0 100 ${height}`} preserveAspectRatio="none" style={{ width: "100%", height: "100%", display: "block" }}>
       {lines.map(
         (l, i) => l.areaFill && <path key={"a" + i} d={svgPath(l.values, 100, height, true)} fill={l.areaFill} />,
       )}

@@ -18,9 +18,9 @@ export default async function LinhaDoTempoPage({ searchParams }: { searchParams:
   const data = await getTimelineData(range);
 
   return (
-    <div style={{ height: "100%", display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12, minHeight: 0 }}>
+    <div className="pag" style={{ height: "100%", display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12, minHeight: 0 }}>
       <Panel style={{ padding: "14px 18px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
           <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase" }}>Diário de alterações</div>
           <DataSourceBadge source={data.source} />
         </div>
@@ -65,7 +65,7 @@ export default async function LinhaDoTempoPage({ searchParams }: { searchParams:
         </div>
       </Panel>
 
-      <div style={{ display: "grid", gridTemplateRows: "1fr auto", gap: 12, minHeight: 0 }}>
+      <div className="emp" style={{ display: "grid", gridTemplateRows: "1fr auto", gap: 12, minHeight: 0 }}>
         <Panel>
           <div style={{ fontSize: 10, letterSpacing: ".16em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 8 }}>Evolução do CPA após cada mudança</div>
           <div style={{ flex: 1, minHeight: 0 }}>
