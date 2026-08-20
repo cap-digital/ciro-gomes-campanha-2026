@@ -21,13 +21,24 @@ export type PlanoObjetivo = {
   color: string;
 };
 
-export const VERBA_TOTAL = 2_000_000;
+/**
+ * Verba prevista, em valores BRUTOS (com imposto) — é assim que o plano é
+ * escrito. A conversão para líquido fica em lib/imposto.ts.
+ *
+ * Agosto/2026: o plano subiu de R$ 2.000.000 para R$ 3.000.000. Os objetivos e
+ * as fases foram multiplicados por 1,5, mantendo exatamente a mesma divisão
+ * percentual de antes. As impressões projetadas subiram na mesma proporção, o
+ * que preserva o CPM que o plano assume (R$ 11,27) — sem isso, só a verba
+ * subiria e o plano passaria a "prever" um CPM 50% pior, fazendo o simulador
+ * declarar um desempenho melhor que o previsto por um motivo inventado.
+ */
+export const VERBA_TOTAL = 3_000_000;
 
 export const PLANO_OBJETIVOS: PlanoObjetivo[] = [
   {
     id: "conversao",
     label: "Conversão",
-    verba: 565_000,
+    verba: 847_500,
     papel: "O que ganha voto",
     descricao:
       "A conversa persuasiva com quem ainda pende para a oposição, feita para mover a decisão. É a prioridade da reta final.",
@@ -36,7 +47,7 @@ export const PLANO_OBJETIVOS: PlanoObjetivo[] = [
   {
     id: "engajamento",
     label: "Engajamento",
-    verba: 446_000,
+    verba: 669_000,
     papel: "Abastece todo o funil",
     descricao:
       "Mantém a página viva e gera curtidas, comentários e compartilhamentos. É o que dá credibilidade ao candidato e forma o público que será convertido depois.",
@@ -45,7 +56,7 @@ export const PLANO_OBJETIVOS: PlanoObjetivo[] = [
   {
     id: "whatsapp",
     label: "Grupos de WhatsApp",
-    verba: 351_000,
+    verba: 526_500,
     papel: "Canal direto até o voto",
     descricao:
       "Traz mais gente para os grupos, um canal de contato direto e recorrente com o eleitor, que não depende do alcance das redes. Ganha peso da fase 2 em diante.",
@@ -54,7 +65,7 @@ export const PLANO_OBJETIVOS: PlanoObjetivo[] = [
   {
     id: "regionalizacao",
     label: "Regionalização",
-    verba: 344_000,
+    verba: 516_000,
     papel: "Precisão por cidade",
     descricao:
       "Leva a mensagem certa para cada cidade do Ceará, falando com a realidade local — mais atenção e menos desperdício de verba.",
@@ -63,7 +74,7 @@ export const PLANO_OBJETIVOS: PlanoObjetivo[] = [
   {
     id: "seguidores",
     label: "Novos seguidores",
-    verba: 294_000,
+    verba: 441_000,
     papel: "Base própria e futura",
     descricao:
       "Cresce a base de seguidores: um canal próprio e gratuito que rende alcance nas fases seguintes e um contato direto até o dia do voto.",
@@ -91,8 +102,8 @@ export const PLANO_FASES: PlanoFase[] = [
     label: "Fase 1 · Início",
     curto: "Início",
     pct: 25,
-    verba: 500_000,
-    impressoesMi: 52.5,
+    verba: 750_000,
+    impressoesMi: 78.75,
     foco: "Base: engajamento + seguidores",
     descricao:
       "Construir base. Peso maior em engajamento e novos seguidores, com a regionalização mapeando as cidades e os grupos de WhatsApp começando a encher. A conversão fica quase zerada: primeiro é preciso formar público.",
@@ -102,8 +113,8 @@ export const PLANO_FASES: PlanoFase[] = [
     label: "Fase 2 · Meio",
     curto: "Meio",
     pct: 35,
-    verba: 700_000,
-    impressoesMi: 65.1,
+    verba: 1_050_000,
+    impressoesMi: 97.65,
     foco: "Consolidação + início da conversão",
     descricao:
       "Consolidar e virar a chave. O engajamento segue forte, os grupos de WhatsApp ganham peso como canal direto e a conversão começa a ligar, conforme os públicos amadurecem.",
@@ -113,8 +124,8 @@ export const PLANO_FASES: PlanoFase[] = [
     label: "Fase 3 · Reta final",
     curto: "Reta final",
     pct: 40,
-    verba: 800_000,
-    impressoesMi: 59.9,
+    verba: 1_200_000,
+    impressoesMi: 89.85,
     foco: "Voto — conversão direta",
     descricao:
       "Vira-voto domina. Metade da verba da fase vai para a conversão, falando com quem ainda pende para a oposição. Os grupos de WhatsApp seguem fortes o canal direto até o dia do voto.",

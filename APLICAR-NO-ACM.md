@@ -441,6 +441,16 @@ Do `/tmp/ref-ciro`. Todos são agnósticos de candidato salvo onde indicado.
 | `components/ComparativoCriativos.tsx` | Comparar 2–3 peças: tabela, leitura e curva diária | nenhuma |
 | `lib/imposto.ts` | Conversão bruto × líquido da mídia | conferir a alíquota com quem cuida da mídia |
 
+**Quando a verba do plano mudar**, dois cuidados que não são óbvios:
+
+- **As impressões projetadas têm de subir junto.** Elas não são enfeite: o painel divide verba por
+  impressões para saber o CPM que o plano assume. Subindo só a verba, o plano passa a "prever" um CPM
+  proporcionalmente pior, e o simulador declara um desempenho melhor que o previsto por um motivo
+  inventado. No Ciro, de R$ 2 mi para R$ 3 mi: sem escalar as impressões, o CPM planejado saltaria de
+  R$ 11,27 para R$ 16,90.
+- **Confira as somas.** A soma dos objetivos e a soma das fases têm de bater com a verba total. Um
+  desvio aqui não gera erro nenhum — só um percentual de plano silenciosamente errado.
+
 Para o botão de atualizar, marque as chamadas com uma tag de cache:
 
 ```ts

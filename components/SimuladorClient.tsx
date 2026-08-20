@@ -60,8 +60,16 @@ const dec = (v: number, d = 2) =>
  */
 export function SimuladorClient({ dados }: { dados: SimuladorDados }) {
   const [faseId, setFaseId] = useState<string>(dados.fases[0]?.id ?? "f1");
+  /**
+   * Peso de cada objetivo no plano, SEM arredondar.
+   *
+   * Arredondar aqui para uma casa fazia a soma começar em 100,1% — 28,25 vira
+   * 28,3, 17,55 vira 17,6 — e o simulador abria acusando estar fora do plano
+   * que ele mesmo carregou. O arredondamento agora acontece só na hora de
+   * escrever na tela; o valor de trabalho continua exato.
+   */
   const pesosDoPlano = useMemo(
-    () => Object.fromEntries(dados.objetivos.map((o) => [o.id, Math.round((o.verbaPlano / dados.verbaTotal) * 1000) / 10])),
+    () => Object.fromEntries(dados.objetivos.map((o) => [o.id, (o.verbaPlano / dados.verbaTotal) * 100])),
     [dados.objetivos, dados.verbaTotal],
   );
   const [pesos, setPesos] = useState<Record<string, number>>(pesosDoPlano);

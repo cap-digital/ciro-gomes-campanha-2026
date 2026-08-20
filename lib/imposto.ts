@@ -1,7 +1,7 @@
 /**
  * Imposto sobre a mídia, e a conversão entre bruto e líquido.
  *
- * O plano de mídia é escrito em valores BRUTOS: os R$ 2.000.000 previstos já
+ * O plano de mídia é escrito em valores BRUTOS: os R$ 3.000.000 previstos já
  * incluem imposto. O que sai do gerenciador de anúncios é LÍQUIDO — é a mídia
  * de fato entregue, sem o imposto.
  *
