@@ -16,6 +16,11 @@ export type CandidatoBiblioteca = {
   truncado: boolean;
   erro?: string;
   cards: BibliotecaCard[];
+  /** Faixas somadas do que a Biblioteca declara. Ver CandidatoGrupo. */
+  gastoMin: number;
+  gastoMax: number;
+  imprMin: number;
+  imprMax: number;
 };
 
 export type ComparativoAtivos = {
@@ -721,6 +726,36 @@ export function BibliotecaClient({
             <span style={{ color: "#4BE08C" }}>{atual?.ativos ?? 0} ativos</span>
             <span style={{ color: "var(--muted2)" }}>{(atual?.total ?? 0) - (atual?.ativos ?? 0)} pausados</span>
           </div>
+
+          {/* Gasto e impressões declarados na Biblioteca — só para concorrente.
+              Ali é o único número de investimento que existe, porque a Marketing
+              API enxerga apenas a conta do próprio candidato.
+
+              No próprio candidato o bloco fica de fora de propósito: a faixa da
+              Biblioteca cobre todo o histórico de anúncios, não a janela
+              selecionada, e apareceria ao lado do gasto exato que o resto do
+              painel mostra — dois números diferentes para a mesma pergunta. */}
+          {atual && !atual.proprio && atual.imprMax > 0 && (
+            <div className="emp" style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 8, marginTop: 4 }}>
+              {[
+                { titulo: "Impressões", min: atual.imprMin, max: atual.imprMax, fmt: (v: number) => compact(v) },
+                { titulo: "Gasto estimado", min: atual.gastoMin, max: atual.gastoMax, fmt: (v: number) => brl(v, 0) },
+              ].map((b) => (
+                <div key={b.titulo} style={{ background: "var(--soft)", border: "1px solid var(--line)", borderRadius: 11, padding: "9px 11px" }}>
+                  <div style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 3 }}>{b.titulo}</div>
+                  <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 15, fontWeight: 600, letterSpacing: "-.01em" }}>
+                    {b.fmt(b.min)}
+                    <span style={{ color: "var(--dim)", fontWeight: 400 }}> – </span>
+                    {b.fmt(b.max)}
+                  </div>
+                  {/* A Meta publica faixas, não valores exatos. Dizer isso na
+                      tela evita que alguém leve o número para uma planilha como
+                      se fosse o gasto declarado do adversário. */}
+                  <div style={{ fontSize: 9.5, color: "var(--dim)", marginTop: 2 }}>faixa declarada</div>
+                </div>
+              ))}
+            </div>
+          )}
         </Panel>
 
         <Panel style={{ padding: "14px 16px", gap: 9 }}>

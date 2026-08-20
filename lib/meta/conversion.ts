@@ -26,7 +26,41 @@ export type ConversionMetric = {
   unitPlural: string;
   /** true quando não é um cadastro de fato, e sim o melhor proxy disponível. */
   isProxy: boolean;
+  /**
+   * Se o custo unitário desta métrica merece espaço na tela.
+   *
+   * "Conversa iniciada" conta uma janela de mensagem aberta, não uma intenção
+   * declarada — dividir a verba por esse número dá um "custo" que ninguém usa
+   * para decidir nada. Onde ele apareceria, o painel mostra CPM, que mede
+   * compra de mídia e é comparável entre campanhas, contas e plataformas.
+   */
+  custoUtil: boolean;
 };
+
+/** Rótulo do custo que vale a pena mostrar para esta métrica. */
+export function rotuloCusto(m: ConversionMetric): string {
+  return m.custoUtil ? m.costLabel : "CPM";
+}
+
+/**
+ * O mesmo rótulo, para uso no meio de uma frase.
+ *
+ * "Custo por cadastro" vira minúsculo naturalmente; "CPM" é sigla e ficaria
+ * "cpm de R$ 4,17", que se lê como erro de digitação.
+ */
+export function rotuloCustoEmFrase(m: ConversionMetric): string {
+  return m.custoUtil ? m.costLabel.toLowerCase() : rotuloCusto(m);
+}
+
+/** O valor que acompanha `rotuloCusto` — os dois andam sempre juntos. */
+export function valorCusto(m: ConversionMetric, cpa: number, cpm: number): number {
+  return m.custoUtil ? cpa : cpm;
+}
+
+/** CPM a partir de gasto e impressões, com guarda de divisão por zero. */
+export function cpmDe(spend: number, impressions: number): number {
+  return impressions > 0 ? (spend / impressions) * 1000 : 0;
+}
 
 /**
  * Ordem de preferência: do resultado mais "fundo de funil" para o mais raso.
@@ -51,6 +85,7 @@ export const CONVERSION_LADDER: ConversionMetric[] = [
     unit: "cadastro",
     unitPlural: "cadastros",
     isProxy: false,
+    custoUtil: true,
   },
   {
     key: "conversa",
@@ -64,6 +99,8 @@ export const CONVERSION_LADDER: ConversionMetric[] = [
     unit: "conversa",
     unitPlural: "conversas",
     isProxy: true,
+    // Único degrau da escada cujo custo não vai para a tela. Ver `custoUtil`.
+    custoUtil: false,
   },
   {
     key: "clique",
@@ -74,6 +111,7 @@ export const CONVERSION_LADDER: ConversionMetric[] = [
     unit: "clique",
     unitPlural: "cliques",
     isProxy: true,
+    custoUtil: true,
   },
   {
     key: "engajamento",
@@ -84,6 +122,7 @@ export const CONVERSION_LADDER: ConversionMetric[] = [
     unit: "engajamento",
     unitPlural: "engajamentos",
     isProxy: true,
+    custoUtil: true,
   },
 ];
 
@@ -97,6 +136,7 @@ export const EMPTY_METRIC: ConversionMetric = {
   unit: "resultado",
   unitPlural: "resultados",
   isProxy: true,
+  custoUtil: true,
 };
 
 /**
@@ -130,6 +170,9 @@ export function resolveFromActions(actions: GraphAction[] | undefined): Conversi
       unit: "conversão",
       unitPlural: "conversões",
       isProxy: false,
+      // Conversão configurada à mão pela equipe: se foi escolhida de propósito,
+      // o custo dela interessa.
+      custoUtil: true,
     };
   }
 

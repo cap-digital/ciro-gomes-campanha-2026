@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Panel } from "@/components/ui/Panel";
 import { DataSourceBadge } from "@/components/ui/Pill";
 import { MapaCeara, populacaoDe, FONTE_POPULACAO, FONTE_POPULACAO_CURTA, type ModoMapa } from "@/components/MapaCeara";
-import { METRICAS_TERRITORIO, pctDe, rotularMetricas, type MetricaId } from "@/lib/metricas";
+import { METRICAS_TERRITORIO, metricasVisiveis, pctDe, rotularMetricas, type MetricaId } from "@/lib/metricas";
 import { brl, num, pct } from "@/lib/format";
 
 export type LinhaGeo = {
@@ -87,7 +87,7 @@ export function TerritorioClient({
           </button>
           <span style={{ width: 1, height: 16, background: "var(--line)" }} />
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-            {METRICAS_TERRITORIO.map((id) => (
+            {metricasVisiveis(METRICAS_TERRITORIO, defs).map((id) => (
               <button
                 key={id}
                 onClick={() => setMetricaId(id)}

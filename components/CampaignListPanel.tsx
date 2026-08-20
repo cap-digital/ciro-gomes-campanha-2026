@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { CampaignRowView } from "@/lib/types";
 import { StatusBadge } from "./ui/Pill";
-import { METRICAS_CAMPANHAS, rotularMetricas, type MetricaId } from "@/lib/metricas";
+import { METRICAS_CAMPANHAS, metricasVisiveis, rotularMetricas, type MetricaId } from "@/lib/metricas";
 
 function CampaignRow({ c, valor, rotulo }: { c: CampaignRowView; valor: string; rotulo: string }) {
   return (
@@ -97,7 +97,7 @@ export function CampaignListPanel({
             cursor: "pointer",
           }}
         >
-          {METRICAS_CAMPANHAS.map((id) => (
+          {metricasVisiveis(METRICAS_CAMPANHAS, defs).map((id) => (
             <option key={id} value={id}>
               {defs[id].curto}
             </option>

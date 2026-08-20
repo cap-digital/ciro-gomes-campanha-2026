@@ -111,6 +111,21 @@ export function rotularMetricas(shortLabel: string, costLabel: string): Record<M
 }
 
 /** Conjuntos usados por página — nem toda métrica faz sentido em todo lugar. */
+/**
+ * A lista de métricas de uma página, já resolvida.
+ *
+ * Quando o custo por resultado foi substituído pelo CPM (ver `custoUtil` em
+ * lib/meta/conversion.ts), os dois chips passariam a exibir o mesmo rótulo —
+ * e o chip antigo leria o campo `cpa`, mostrando o número errado sob o nome
+ * certo. Aqui o próprio id é trocado, então rótulo e valor continuam casados.
+ *
+ * A pista é a igualdade dos rótulos, que só acontece nessa substituição.
+ */
+export function metricasVisiveis(ids: MetricaId[], defs: Record<MetricaId, MetricaDef>): MetricaId[] {
+  if (defs.cpa.label !== defs.cpm.label) return ids;
+  return Array.from(new Set(ids.map((i) => (i === "cpa" ? "cpm" : i))));
+}
+
 export const METRICAS_TERRITORIO: MetricaId[] = ["alcance", "investimento", "impressoes", "cliques", "resultados", "cpa"];
 export const METRICAS_PUBLICO: MetricaId[] = ["impressoes", "investimento", "cliques", "resultados", "cpa"];
 export const METRICAS_CRIATIVOS: MetricaId[] = ["investimento", "impressoes", "cliques", "cpa"];

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/components/ThemeProvider";
-import { AppShell } from "@/components/AppShell";
 import { CANDIDATO } from "@/lib/candidato";
 import "./globals.css";
 
@@ -27,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body>
-        <ThemeProvider>
-          <AppShell>{children}</AppShell>
-        </ThemeProvider>
+        {/* A moldura do painel (barra lateral e cabeçalho) mudou para o layout
+            do grupo (painel): assim a tela de login não a herda. */}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

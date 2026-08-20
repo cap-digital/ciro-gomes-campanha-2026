@@ -31,6 +31,50 @@ export default async function AnalisesPage({ searchParams }: { searchParams: Pro
               <div style={{ fontSize: 12, lineHeight: 1.55, color: "var(--bodyMuted)", textWrap: "pretty" }}>{a.text}</div>
             </div>
           ))}
+
+          {/* Resumo geral: fecha a leitura dos cards acima, que olham uma
+              dimensão cada. Ocupa as duas colunas de propósito — é síntese, não
+              mais um card de mesmo peso. */}
+          {data.resumo && (
+            <div
+              className="resumo-geral"
+              style={{
+                gridColumn: "1 / -1",
+                background: "var(--panelAccent)",
+                border: "1px solid var(--accentLine)",
+                borderRadius: 16,
+                boxShadow: "var(--shadow)",
+                padding: "15px 17px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 11,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".12em", padding: "3px 7px", borderRadius: 5, background: "rgba(255,255,255,.14)", color: "var(--text)" }}>
+                  RESUMO
+                </span>
+                <span style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: 14 }}>{data.resumo.titulo}</span>
+              </div>
+
+              <div className="emp" style={{ display: "grid", gridTemplateColumns: `repeat(${data.resumo.destaques.length},minmax(0,1fr))`, gap: 10 }}>
+                {data.resumo.destaques.map((d) => (
+                  <div key={d.label} style={{ background: "rgba(255,255,255,.05)", border: "1px solid var(--line)", borderRadius: 11, padding: "9px 11px" }}>
+                    <div style={{ fontFamily: "'Inter',sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 16, fontWeight: 600, letterSpacing: "-.01em" }}>{d.valor}</div>
+                    <div style={{ fontSize: 9, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {data.resumo.paragrafos.map((t, i) => (
+                  <div key={i} style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--text2)", textWrap: "pretty" }}>
+                    {t}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateRows: "1fr auto", gap: 12, minHeight: 0 }}>

@@ -15,9 +15,10 @@ export default async function CriativosPage({ searchParams }: { searchParams: Pr
   const range = resolveRange(sp);
   const ordem = (typeof sp.ordem === "string" && ORDEM_IDS.includes(sp.ordem) ? sp.ordem : "investimento") as CriativoOrdem;
   const status = typeof sp.status === "string" ? sp.status : "todos";
-  const campanha = typeof sp.campanha === "string" ? sp.campanha : "todas";
+  // O parâmetro pode vir repetido (várias campanhas) ou uma vez só.
+  const campanhas = Array.isArray(sp.campanha) ? sp.campanha : typeof sp.campanha === "string" ? [sp.campanha] : [];
   const pagina = Number(sp.pagina) || 1;
-  const data = await getCriativosData(range, ordem, status, campanha, pagina);
+  const data = await getCriativosData(range, ordem, status, campanhas, pagina);
 
   return (
     <div className="pag" style={{ height: "100%", display: "flex", flexDirection: "column", gap: 12, minHeight: 0, minWidth: 0 }}>
@@ -37,7 +38,7 @@ export default async function CriativosPage({ searchParams }: { searchParams: Pr
         <span style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
           Campanha
         </span>
-        <FiltroCampanha campanhas={data.campanhasDisponiveis} atual={data.campanha} />
+        <FiltroCampanha campanhas={data.campanhasDisponiveis} atuais={data.campanhas} />
         <span style={{ width: 1, height: 18, background: "var(--line)", margin: "0 2px" }} />
         <span style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
           Ordenar

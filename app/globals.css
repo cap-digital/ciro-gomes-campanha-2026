@@ -333,6 +333,16 @@ button {
     display: none !important;
   }
 
+  /* Tela de login: as duas colunas viram uma, e o bloco da marca encolhe para
+     a senha não ficar abaixo da dobra. */
+  .login-caixa {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .login-marca {
+    min-height: 0 !important;
+    padding: 24px 22px !important;
+  }
+
   /* Calendário: ancorado à direita do botão, ele media 378px e vazava pela
      esquerda da tela — os presets ficavam cortados em "oje", "ntem", " dias".
      Em tela estreita ele deixa de ser suspenso e passa a ocupar a largura toda. */

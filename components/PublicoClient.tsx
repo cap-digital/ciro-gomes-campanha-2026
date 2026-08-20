@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Panel } from "@/components/ui/Panel";
 import { DataSourceBadge } from "@/components/ui/Pill";
-import { METRICAS_PUBLICO, pctDe, rotularMetricas, type MetricaId } from "@/lib/metricas";
+import { METRICAS_PUBLICO, metricasVisiveis, pctDe, rotularMetricas, type MetricaId } from "@/lib/metricas";
 
 type Quebra = {
   investimento: number;
@@ -64,7 +64,7 @@ export function PublicoClient({
         <span style={{ fontSize: 10, letterSpacing: ".14em", color: "var(--muted)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
           Métrica
         </span>
-        {METRICAS_PUBLICO.map((id) => (
+        {metricasVisiveis(METRICAS_PUBLICO, defs).map((id) => (
           <button
             key={id}
             onClick={() => setMetricaId(id)}

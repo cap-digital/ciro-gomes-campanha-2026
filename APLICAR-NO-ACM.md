@@ -479,6 +479,34 @@ Portar conforme o valor para a campanha. Nada aqui é pré-requisito das fases a
   entre peças com entregas muito diferentes; volume não é.
 - **Pacing da verba**: percentual gasto, dias até o 1º turno e média diária necessária.
 - **Filtro de status em Criativos**, montado a partir dos status que a conta realmente devolve.
+- **Custo por resultado que não vale a pena mostrar.** A escada de conversão escolhe a melhor métrica
+  disponível, mas nem todo degrau tem um custo útil: "conversa iniciada" conta uma janela de mensagem
+  aberta, não uma intenção declarada, e dividir a verba por esse número dá um "custo por conversa" que
+  ninguém usa para decidir. A solução foi um campo `custoUtil` na métrica e dois auxiliares
+  (`rotuloCusto` / `valorCusto`) que devolvem **CPM** no lugar. Três armadilhas ao portar:
+  - troque **rótulo e valor juntos**. Mudar só o rótulo deixa o nome "CPM" sobre o número do CPA —
+    uma mentira mais difícil de achar do que o problema original;
+  - onde já existe um card de CPM ao lado, remova a duplicata, senão a tela mostra o mesmo número
+    duas vezes com o mesmo nome;
+  - os **alertas** ("campanha X% acima da média") têm de comparar pelo mesmo custo que a tela exibe,
+    senão apontam campanhas que o usuário não consegue conferir em lugar nenhum;
+  - no meio de frase, sigla não vira minúscula: "cpm de R$ 4,17" se lê como erro de digitação.
+- **Card de resumo geral** abaixo dos cards específicos, em Análises. Os cards de cima olham uma
+  dimensão cada; o resumo junta as pontas e responde o que nenhum deles responde sozinho — onde a
+  verba está concentrada, qual campanha compra mídia mais barata e o que fazer a seguir. Gerado dos
+  números, sem frase pronta. Ocupa as duas colunas de propósito: é síntese, não mais um card de igual
+  peso.
+- **Filtro com seleção múltipla** (campanhas, em Criativos). Use o **parâmetro repetido**
+  (`?campanha=A&campanha=B`) em vez de um valor único com separador: nome de campanha traz colchetes,
+  espaços e traços, e qualquer separador escolhido acaba aparecendo dentro de algum nome. No servidor,
+  `searchParams` entrega `string` quando vem uma vez e `string[]` quando vem repetido — normalize os
+  dois. Lista vazia significa "todas", e aí o parâmetro some da URL em vez de listar tudo.
+- **Gasto e impressões do concorrente** na visão geral da Biblioteca. Para o adversário essa faixa é o
+  **único** número de investimento que existe, porque a Marketing API só enxerga a conta do próprio
+  candidato. Dois cuidados: a Meta publica **intervalos**, não valores exatos — mostre as duas pontas
+  e diga na tela que é faixa declarada, senão alguém leva o número para uma planilha como se fosse o
+  gasto real do adversário; e **não** mostre o bloco no próprio candidato, onde ele apareceria ao lado
+  do gasto exato do painel, cobrindo um período diferente — dois números para a mesma pergunta.
 - **Presets "Hoje" e "Ontem"** no filtro de período. "Ontem" não cabe num modelo de preset que só
   tem "tamanho da janela": precisa também de um deslocamento do fim da janela para trás.
 - **Calendário em tela estreita.** Ancorado à direita do botão, o painel de 378px vazava pela esquerda

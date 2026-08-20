@@ -23,7 +23,7 @@ import {
   PLANO_OBJETIVOS, PLANO_FASES, VERBA_TOTAL, IMPRESSOES_PLANO_MI,
   cpmPlanejado, objetivoDaCampanha, type PlanoObjetivoId,
 } from "@/lib/plano";
-import type { ConversionMetric } from "@/lib/meta/conversion";
+import { rotuloCusto, rotuloCustoEmFrase, valorCusto, cpmDe, type ConversionMetric } from "@/lib/meta/conversion";
 import type {
   Kpi, CampaignRowView, ResultCard, CreativeCard, AnaliseCard, LabeledBar,
   RankRow, RegiaoRow, FaixaRow, SegmentoRow, BibliotecaCard, DiarioDay, PlatCard, ComparativoRow, Series,
@@ -76,11 +76,14 @@ function heroKpisFrom(curr: AccountTotals, prev: AccountTotals): Kpi[] {
       note: curr.metric.isProxy ? "melhor resultado disponível" : "no período",
     },
     {
-      value: curr.cpa > 0 ? brl(curr.cpa) : "—",
-      label: curr.metric.costLabel,
-      delta: deltaFmt(curr.cpa, prev.cpa),
+      value: valorCusto(curr.metric, curr.cpa, curr.cpm) > 0 ? brl(valorCusto(curr.metric, curr.cpa, curr.cpm)) : "—",
+      label: rotuloCusto(curr.metric),
+      delta: deltaFmt(valorCusto(curr.metric, curr.cpa, curr.cpm), valorCusto(prev.metric, prev.cpa, prev.cpm)),
       note: "média da janela",
-      good: curr.cpa > 0 && prev.cpa > 0 ? curr.cpa <= prev.cpa : undefined,
+      good:
+        valorCusto(curr.metric, curr.cpa, curr.cpm) > 0 && valorCusto(prev.metric, prev.cpa, prev.cpm) > 0
+          ? valorCusto(curr.metric, curr.cpa, curr.cpm) <= valorCusto(prev.metric, prev.cpa, prev.cpm)
+          : undefined,
     },
   ];
 }
@@ -184,7 +187,7 @@ export async function getCampanhasData(range: DateRange, imposto: ModoImposto = 
     kwaiCampaigns: kwaiCampaignRows(),
     metaCampaigns,
     resultLabel: totals.metric.shortLabel,
-    costLabel: totals.metric.costLabel,
+    costLabel: rotuloCusto(totals.metric),
     seguidores,
     /**
      * Pacing da verba da campanha. `gasto` é o ACUMULADO da conta (não o da
@@ -216,7 +219,7 @@ export async function getCampanhasData(range: DateRange, imposto: ModoImposto = 
 }
 
 // ---------- 03 Criativos ----------
-export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = "investimento", status = "todos", campanha = "todas", pagina = 1) {
+export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = "investimento", status = "todos", campanhas: string[] = [], pagina = 1) {
   const res = await safe(async () => {
     const totals = await getAccountTotals(range);
     // Sem teto: a campanha sobe anúncios aos poucos, cidade a cidade. Qualquer
@@ -247,7 +250,8 @@ export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = 
   const campanhasDisponiveis = Array.from(new Set(ads.map((a) => a.campaignName).filter(Boolean))).sort();
   const filtrados = ads
     .filter((a) => status === "todos" || a.status === status)
-    .filter((a) => campanha === "todas" || a.campaignName === campanha);
+    // Lista vazia = todas. Assim o filtro some da URL quando nada está marcado.
+    .filter((a) => campanhas.length === 0 || campanhas.includes(a.campaignName));
 
   // "Menor CPA" é o único critério crescente, e anúncios sem CPA vão para o fim
   // em vez de fingirem ser os mais baratos.
@@ -305,7 +309,7 @@ export async function getCriativosData(range: DateRange, ordem: CriativoOrdem = 
     ordem,
     status,
     statusDisponiveis,
-    campanha,
+    campanhas,
     campanhasDisponiveis,
     totalSemFiltro: ads.length,
     // Quantos sobraram depois dos filtros — é o universo que a paginação percorre.
@@ -401,8 +405,12 @@ export async function getAnalisesData(range: DateRange) {
 
   analises.push({
     tag: "EFICIÊNCIA",
-    title: `${m.costLabel} em ${t.cpa > 0 ? brl(t.cpa) : "—"}`,
-    text: `${num(t.conversions)} ${m.unitPlural.toLowerCase()} a partir de ${brl(t.spend, 0)} investidos. CPM de ${brl(t.cpm)} e custo por clique de ${brl(t.cpc)}.`,
+    title: `${rotuloCusto(m)} em ${valorCusto(m, t.cpa, t.cpm) > 0 ? brl(valorCusto(m, t.cpa, t.cpm)) : "—"}`,
+    // Com o CPM no título, a frase não repete o número: cita entrega e alcance,
+    // que é o que dá sentido ao custo de mil impressões.
+    text: m.custoUtil
+      ? `${num(t.conversions)} ${m.unitPlural.toLowerCase()} a partir de ${brl(t.spend, 0)} investidos. CPM de ${brl(t.cpm)} e custo por clique de ${brl(t.cpc)}.`
+      : `${brl(t.spend, 0)} investidos para ${compact(t.impressions)} impressões e ${compact(t.reach)} pessoas alcançadas. Custo por clique de ${brl(t.cpc)}.`,
     src: "Meta Ads",
   });
 
@@ -488,13 +496,93 @@ export async function getAnalisesData(range: DateRange) {
       "Assim que entrarem campanhas de conversão, a métrica troca sozinha.",
     );
   }
-  const caros = campaigns.filter((c) => c.cpa > 0 && t.cpa > 0 && c.cpa > t.cpa * 1.25);
+  // O alerta compara pelo MESMO custo que a tela mostra. Apontar campanha cara
+  // por CPA enquanto o painel exibe CPM daria um aviso impossível de conferir.
+  const custoRef = valorCusto(m, t.cpa, t.cpm);
+  const custoDaCampanha = (c: CampaignRow) => valorCusto(m, c.cpa, cpmDe(c.spend, c.impressions));
+  const caros = campaigns.filter((c) => custoDaCampanha(c) > 0 && custoRef > 0 && custoDaCampanha(c) > custoRef * 1.25);
   for (const c of caros.slice(0, 3)) {
-    atencao.push(`"${c.label}" com ${m.costLabel.toLowerCase()} de ${brl(c.cpa)} — ${Math.round(((c.cpa - t.cpa) / t.cpa) * 100)}% acima da média da conta.`);
+    const cc = custoDaCampanha(c);
+    atencao.push(`"${c.label}" com ${rotuloCustoEmFrase(m)} de ${brl(cc)} — ${Math.round(((cc - custoRef) / custoRef) * 100)}% acima da média da conta.`);
   }
   if (!atencao.length) atencao.push("Nenhum alerta de saturação, custo ou entrega no período.");
 
-  return { headline, analises, sinais, atencao, source: sourceOf(res.ok) };
+  /**
+   * Resumo geral, que fecha a leitura dos cards específicos.
+   *
+   * Os cards acima olham uma dimensão cada — eficiência, alcance, campanha. Este
+   * junta as pontas e responde o que nenhum deles responde sozinho: onde a verba
+   * está concentrada, qual campanha rende mais por real e o que fazer a seguir.
+   * Tudo sai dos números; não há frase pronta escolhida a dedo.
+   */
+  const resumo = (() => {
+    const porGasto = [...campaigns].filter((c) => c.spend > 0).sort((a, b) => b.spend - a.spend);
+    const maior = porGasto[0];
+    const concentracao = maior && t.spend > 0 ? (maior.spend / t.spend) * 100 : 0;
+
+    // "Melhor" é a que entrega mais impressão por real — comparável entre
+    // campanhas de objetivos diferentes, ao contrário de custo por resultado.
+    const comEntrega = porGasto.filter((c) => c.impressions > 0);
+    const eficiente = [...comEntrega].sort((a, b) => b.impressions / b.spend - a.impressions / a.spend)[0];
+    const cara = [...comEntrega].sort((a, b) => a.impressions / a.spend - b.impressions / b.spend)[0];
+
+    const destaques = [
+      { label: "Investido", valor: brl(t.spend, 0) },
+      { label: "Alcance", valor: compact(t.reach) },
+      { label: "CPM", valor: brl(t.cpm) },
+      { label: m.shortLabel, valor: num(t.conversions) },
+    ];
+
+    const paragrafos: string[] = [];
+
+    paragrafos.push(
+      `${brl(t.spend, 0)} entregaram ${compact(t.impressions)} impressões a ${compact(t.reach)} pessoas — ` +
+        `cada uma viu a campanha ${decimal(t.frequency)} vez${t.frequency >= 2 ? "es" : ""}, em média. ` +
+        `O custo de mil impressões ficou em ${brl(t.cpm)}.`,
+    );
+
+    if (maior && porGasto.length > 1) {
+      paragrafos.push(
+        `A verba está concentrada em "${maior.label}", com ${Math.round(concentracao)}% do investimento do período` +
+          (concentracao >= 60
+            ? " — concentração alta: o desempenho geral do painel é, na prática, o desempenho dessa campanha."
+            : `, seguida por ${porGasto.length - 1} outra${porGasto.length > 2 ? "s" : ""}.`),
+      );
+    }
+
+    if (eficiente && cara && eficiente.id !== cara.id) {
+      const cpmE = cpmDe(eficiente.spend, eficiente.impressions);
+      const cpmC = cpmDe(cara.spend, cara.impressions);
+      if (cpmE > 0 && cpmC > 0) {
+        paragrafos.push(
+          `"${eficiente.label}" compra mídia mais barata (CPM ${brl(cpmE)}) e "${cara.label}", mais cara (CPM ${brl(cpmC)}) — ` +
+            `${Math.round((cpmC / cpmE - 1) * 100)}% de diferença. Objetivos diferentes explicam parte disso, então vale comparar ` +
+            "campanhas do mesmo objetivo antes de remanejar verba.",
+        );
+      }
+    }
+
+    // Fecha com o que fazer, e o critério vem do próprio dado.
+    if (t.frequency > 3) {
+      paragrafos.push(
+        `Frequência em ${decimal(t.frequency)} é sinal de saturação: a mesma pessoa já viu demais. ` +
+          "Ampliar público ou trocar criativo tende a render mais que aumentar verba nas peças atuais.",
+      );
+    } else if (t.ctr > 0 && t.ctr < 0.5) {
+      paragrafos.push(
+        `O CTR de ${pctFmt(t.ctr)} está baixo para o volume entregue — o problema está mais na arte que na verba.`,
+      );
+    } else {
+      paragrafos.push(
+        `Com frequência em ${decimal(t.frequency)} e CTR de ${pctFmt(t.ctr)}, ainda há espaço no público atual: ` +
+          "a entrega não dá sinal de saturação no período.",
+      );
+    }
+
+    return { titulo: "Resumo do período", destaques, paragrafos };
+  })();
+
+  return { headline, analises, resumo, sinais, atencao, source: sourceOf(res.ok) };
 }
 
 // ---------- 05 Período ----------
@@ -513,11 +601,14 @@ export async function getPeriodoData(range: DateRange) {
     { label: "Alcance único", value: num(curr.reach), delta: deltaFmt(curr.reach, prev.reach), note: "pessoas distintas" },
     { label: m.label, value: num(curr.conversions), delta: deltaFmt(curr.conversions, prev.conversions), note: "no período" },
     {
-      label: m.costLabel,
-      value: curr.cpa > 0 ? brl(curr.cpa) : "—",
-      delta: deltaFmt(curr.cpa, prev.cpa),
-      note: "custo unitário",
-      good: curr.cpa > 0 && prev.cpa > 0 ? curr.cpa <= prev.cpa : undefined,
+      label: rotuloCusto(m),
+      value: valorCusto(m, curr.cpa, curr.cpm) > 0 ? brl(valorCusto(m, curr.cpa, curr.cpm)) : "—",
+      delta: deltaFmt(valorCusto(m, curr.cpa, curr.cpm), valorCusto(m, prev.cpa, prev.cpm)),
+      note: m.custoUtil ? "custo unitário" : "custo de mil impressões",
+      good:
+        valorCusto(m, curr.cpa, curr.cpm) > 0 && valorCusto(m, prev.cpa, prev.cpm) > 0
+          ? valorCusto(m, curr.cpa, curr.cpm) <= valorCusto(m, prev.cpa, prev.cpm)
+          : undefined,
     },
   ];
 
@@ -653,8 +744,12 @@ export async function getEficienciaData(range: DateRange) {
   const m = t.metric;
 
   const eficKpis: Kpi[] = [
-    { label: `${m.costLabel} médio`, value: t.cpa > 0 ? brl(t.cpa) : "—", delta: "", note: "", good: true },
-    { label: "CPM", value: brl(t.cpm), delta: "", note: "" },
+    // Sem `custoUtil`, o primeiro card já seria o CPM — repetir logo ao lado é
+    // a mesma informação duas vezes.
+    ...(m.custoUtil
+      ? [{ label: `${m.costLabel} médio`, value: t.cpa > 0 ? brl(t.cpa) : "—", delta: "", note: "", good: true }]
+      : []),
+    { label: "CPM", value: brl(t.cpm), delta: "", note: "", good: !m.custoUtil },
     { label: "Custo por clique no link", value: brl(t.cpcLink), delta: "", note: "" },
     { label: "Cliques no link", value: num(t.linkClicks), delta: "", note: "" },
     { label: "CTR do link", value: pctFmt(t.ctrLink), delta: "", note: "" },
@@ -709,7 +804,8 @@ export async function getEficienciaData(range: DateRange) {
   const caras = campaigns.filter((c) => c.cpa > 0 && t.cpa > 0 && c.cpa > t.cpa * 1.25);
   for (const c of caras) {
     desperdicio.push(
-      `"${c.label}": ${m.costLabel.toLowerCase()} de ${brl(c.cpa)} com ${brl(c.spend, 0)} investidos — ${Math.round(((c.cpa - t.cpa) / t.cpa) * 100)}% acima da média da conta.`,
+      `"${c.label}": ${rotuloCustoEmFrase(m)} de ${brl(valorCusto(m, c.cpa, cpmDe(c.spend, c.impressions)))} com ${brl(c.spend, 0)} investidos — ` +
+        `${Math.round(((valorCusto(m, c.cpa, cpmDe(c.spend, c.impressions)) - valorCusto(m, t.cpa, t.cpm)) / Math.max(1e-9, valorCusto(m, t.cpa, t.cpm))) * 100)}% acima da média da conta.`,
     );
   }
   const semResultado = campaigns.filter((c) => c.spend > 0 && c.conversions === 0);
@@ -724,7 +820,7 @@ export async function getEficienciaData(range: DateRange) {
     );
   }
 
-  return { eficKpis, eficRows, eficObjetivo, desperdicio, costLabel: m.costLabel, resultLabel: m.shortLabel, source: sourceOf(res.ok) };
+  return { eficKpis, eficRows, eficObjetivo, desperdicio, costLabel: rotuloCusto(m), resultLabel: m.shortLabel, source: sourceOf(res.ok) };
 }
 
 // ---------- 08 Território ----------
@@ -770,7 +866,7 @@ export async function getTerritorioData(range: DateRange) {
     regioes: regions.map(paraLinha),
     metricLabel: metricRef.label.toLowerCase(),
     resultLabel: metricRef.shortLabel,
-    costLabel: metricRef.costLabel,
+    costLabel: rotuloCusto(metricRef),
     source: sourceOf(res.ok),
   };
 }
@@ -803,7 +899,7 @@ export async function getPublicoData(range: DateRange) {
     horarios: hours.map(({ hour, ...m }) => ({ label: hour, ...m })),
     segmentos: segments,
     resultLabel: t.metric.shortLabel,
-    costLabel: t.metric.costLabel,
+    costLabel: rotuloCusto(t.metric),
     source: sourceOf(res.ok),
   };
 }
@@ -819,6 +915,16 @@ export type CandidatoGrupo = {
   truncado: boolean;
   erro?: string;
   cards: BibliotecaCard[];
+  /**
+   * Faixas somadas do que a Biblioteca declara para os anúncios deste
+   * candidato. A Meta publica intervalos ("R$ 1.000–1.499"), não valores
+   * exatos, então o painel soma as pontas e mostra os dois extremos — inventar
+   * um ponto médio daria a impressão de precisão que o dado não tem.
+   */
+  gastoMin: number;
+  gastoMax: number;
+  imprMin: number;
+  imprMax: number;
 };
 
 function toBibliotecaCard(a: LibraryAd, thumbs: ThumbIndex): BibliotecaCard {
@@ -883,6 +989,10 @@ export async function getBibliotecaData() {
     truncado: g.truncado,
     erro: g.erro,
     cards: g.ads.map((a) => toBibliotecaCard(a, thumbs)),
+    gastoMin: g.ads.reduce((a, x) => a + x.spendMin, 0),
+    gastoMax: g.ads.reduce((a, x) => a + x.spendMax, 0),
+    imprMin: g.ads.reduce((a, x) => a + x.impressionsMin, 0),
+    imprMax: g.ads.reduce((a, x) => a + x.impressionsMax, 0),
   }));
 
   const proprio = porCandidato.find((g) => g.proprio);
@@ -1001,7 +1111,7 @@ export async function getTimelineData(range: DateRange) {
       const diff = ((curr.cpa - prev.cpa) / prev.cpa) * 100;
       if (Math.abs(diff) >= 10) {
         efeitos.push(
-          `${dateBr(curr.date)}: ${t.metric.costLabel.toLowerCase()} ${diff < 0 ? "caiu" : "subiu"} ${decimal(Math.abs(diff), 1)}% ` +
+          `${dateBr(curr.date)}: ${rotuloCustoEmFrase(t.metric)} ${diff < 0 ? "caiu" : "subiu"} ${decimal(Math.abs(diff), 1)}% ` +
           `frente a ${dateBr(prev.date)} (${brl(prev.cpa)} → ${brl(curr.cpa)}).`,
         );
       }
@@ -1094,7 +1204,7 @@ export async function getComparativoData(range: DateRange) {
       color: "#FF7A00",
       stats: [
         { value: total > 0 ? Math.round((kwai.spend / total) * 100) + "%" : "0%", label: "da verba" },
-        { value: "—", label: m.costLabel.replace("Custo por ", "Custo/") },
+        { value: "—", label: rotuloCusto(m).replace("Custo por ", "Custo/") },
         { value: "0", label: m.unitPlural.toLowerCase() },
       ],
     },
@@ -1104,7 +1214,7 @@ export async function getComparativoData(range: DateRange) {
       color: "#2E8FFF",
       stats: [
         { value: total > 0 ? Math.round((t.spend / total) * 100) + "%" : "0%", label: "da verba" },
-        { value: t.cpa > 0 ? brl(t.cpa) : "—", label: m.costLabel.replace("Custo por ", "Custo/") },
+        { value: valorCusto(m, t.cpa, t.cpm) > 0 ? brl(valorCusto(m, t.cpa, t.cpm)) : "—", label: rotuloCusto(m).replace("Custo por ", "Custo/") },
         { value: num(t.conversions), label: m.unitPlural.toLowerCase() },
       ],
     },
@@ -1113,7 +1223,7 @@ export async function getComparativoData(range: DateRange) {
   // Sem Kwai em veiculação, o lado esquerdo fica explicitamente vazio ("—")
   // em vez de receber número estimado.
   const comparativo: ComparativoRow[] = [
-    { label: m.costLabel, kwaiV: "—", metaV: t.cpa > 0 ? brl(t.cpa) : "—", kwaiPct: 0, metaPct: t.cpa > 0 ? 90 : 0, winner: SEM_VENCEDOR },
+    { label: rotuloCusto(m), kwaiV: "—", metaV: valorCusto(m, t.cpa, t.cpm) > 0 ? brl(valorCusto(m, t.cpa, t.cpm)) : "—", kwaiPct: 0, metaPct: valorCusto(m, t.cpa, t.cpm) > 0 ? 90 : 0, winner: SEM_VENCEDOR },
     { label: `Volume de ${m.unitPlural.toLowerCase()}`, kwaiV: "—", metaV: num(t.conversions), kwaiPct: 0, metaPct: t.conversions > 0 ? 90 : 0, winner: SEM_VENCEDOR },
     { label: "Investimento", kwaiV: "—", metaV: brl(t.spend, 0), kwaiPct: 0, metaPct: t.spend > 0 ? 90 : 0, winner: SEM_VENCEDOR },
     { label: "Alcance único", kwaiV: "—", metaV: num(t.reach), kwaiPct: 0, metaPct: t.reach > 0 ? 90 : 0, winner: SEM_VENCEDOR },
@@ -1222,7 +1332,7 @@ export async function getSimuladorData(range: DateRange) {
     /** Métrica de conversão vigente, para os rótulos acompanharem a conta. */
     resultLabel: t.metric.shortLabel,
     unitPlural: t.metric.unitPlural,
-    costLabel: t.metric.costLabel,
+    costLabel: rotuloCusto(t.metric),
     /** CPM médio real da conta — referência quando o objetivo não tem base própria. */
     cpmConta: t.cpm,
     cpaConta: t.cpa,

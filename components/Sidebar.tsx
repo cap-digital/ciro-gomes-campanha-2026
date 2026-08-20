@@ -7,6 +7,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav";
 import { CANDIDATO, FOTO_CANDIDATO } from "@/lib/candidato";
 import { useTheme } from "./ThemeProvider";
+import { sair } from "@/app/login/acoes";
 
 const railIcon = {
   width: 28,
@@ -211,11 +212,15 @@ export function Sidebar() {
             </span>
             <Tooltip show={hover === "__theme"}>{theme === "dark" ? "Tema claro" : "Tema escuro"}</Tooltip>
           </div>
-          <div
+          {/* O ícone já existia, mas não fazia nada. Vira um form porque sair
+              encerra a sessão no servidor — não é navegação. */}
+          <form
+            action={sair}
             onMouseEnter={() => setHover("__exit")}
             onMouseLeave={() => setHover(null)}
             style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center", borderRadius: 99 }}
           >
+          <button type="submit" aria-label="Sair do painel" style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}>
             <span
               className="ms"
               style={{
@@ -227,8 +232,9 @@ export function Sidebar() {
             >
               logout
             </span>
+          </button>
             <Tooltip show={hover === "__exit"}>Sair</Tooltip>
-          </div>
+          </form>
         </div>
       </div>
     </aside>
