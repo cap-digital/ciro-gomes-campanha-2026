@@ -190,14 +190,59 @@ type RawCreative = {
   id?: string;
   thumbnail_url?: string;
   image_url?: string;
+  /** Presente só em anúncio de vídeo — a chave para a miniatura em alta. */
+  video_id?: string;
   instagram_permalink_url?: string;
   effective_object_story_id?: string;
   object_story_spec?: {
     link_data?: { picture?: string };
-    video_data?: { image_url?: string };
+    video_data?: { image_url?: string; video_id?: string };
     photo_data?: { url?: string };
   };
 };
+
+type MiniaturaVideo = { uri?: string; width?: number; height?: number; is_preferred?: boolean };
+
+/**
+ * Miniatura em alta resolução de anúncios de vídeo.
+ *
+ * O criativo de vídeo desta conta não traz `image_url` nenhum, então a imagem
+ * caía no `thumbnail_url` — que é SEMPRE 64x64 e aparecia borrado na grade de
+ * cards, ao lado das artes estáticas em 1080x1440.
+ *
+ * A imagem boa está no próprio vídeo: `/{video_id}?fields=thumbnails` devolve
+ * várias em 1080x1920, uma marcada `is_preferred` — a capa que a Meta escolheu.
+ *
+ * É uma chamada por vídeo: o parâmetro `ids=` para pedir vários de uma vez foi
+ * descontinuado na v26 da Graph API. Vão em lotes para não estourar limite de
+ * requisição, e o cache do fetch segura o resultado entre navegações.
+ */
+async function miniaturasDeVideo(ids: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  const LOTE = 8;
+  for (let i = 0; i < ids.length; i += LOTE) {
+    const fatia = ids.slice(i, i + LOTE);
+    const respostas = await Promise.all(
+      fatia.map((id) =>
+        graphAccount<{ thumbnails?: { data?: MiniaturaVideo[] } }>(id, { fields: "thumbnails" }).catch(() => null),
+      ),
+    );
+    respostas.forEach((r, j) => {
+      const lista = r?.thumbnails?.data ?? [];
+      if (!lista.length) return;
+      const area = (t: MiniaturaVideo) => (t.width ?? 0) * (t.height ?? 0);
+      // A preferida é a capa escolhida pela Meta; sem ela, a de maior área.
+      const escolhida = lista.find((t) => t.is_preferred) ?? lista.reduce((a, b) => (area(a) >= area(b) ? a : b));
+      if (escolhida?.uri) out.set(fatia[j], escolhida.uri);
+    });
+  }
+  return out;
+}
+
+/** video_id do criativo, venha ele do campo direto ou de dentro do spec. */
+function videoDoCriativo(c: RawCreative | undefined): string | undefined {
+  return c?.video_id || c?.object_story_spec?.video_data?.video_id;
+}
 
 /**
  * Imagem do criativo na maior resolução disponível.
@@ -206,14 +251,17 @@ type RawCreative = {
  * deixa tudo pixelado. `image_url` devolve o criativo inteiro (1080x1440 nesta
  * conta), então ele vem primeiro e o thumbnail fica só como último recurso.
  */
-function creativeImage(c: RawCreative | undefined): string | undefined {
+function creativeImage(c: RawCreative | undefined, miniaturas?: Map<string, string>): string | undefined {
   if (!c) return undefined;
   const spec = c.object_story_spec;
+  const video = videoDoCriativo(c);
   return (
     c.image_url ||
     spec?.video_data?.image_url ||
     spec?.photo_data?.url ||
     spec?.link_data?.picture ||
+    // Antes do thumbnail_url de 64x64: para vídeo, esta é a única imagem boa.
+    (video ? miniaturas?.get(video) : undefined) ||
     c.thumbnail_url
   );
 }
@@ -294,8 +342,13 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
   const [ads, insights, extras] = await Promise.all([
     graphAccountAll<{ id: string; name: string; effective_status?: string; creative?: RawCreative }>(`${accountId}/ads`, {
       fields:
-        "id,name,effective_status,creative{id,thumbnail_url,image_url,instagram_permalink_url," +
+        "id,name,effective_status,creative{id,thumbnail_url,image_url,video_id,instagram_permalink_url," +
         "effective_object_story_id,object_story_spec}",
+      // 50 por página, não os 200 do padrão. Com `video_id` somado aos demais
+      // campos do criativo, a Meta passou a recusar a página de 200 com "reduce
+      // the amount of data you're asking for" — e a página inteira caía no
+      // estado de erro. A paginação continua trazendo todos os anúncios.
+      limit: 50,
     }),
     graphAccountAll<GraphInsightRow>(`${accountId}/insights`, {
       fields: "spend,impressions,inline_link_clicks,actions,ad_id,ad_name,campaign_id,campaign_name",
@@ -344,6 +397,21 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
     byAd.set(id, entry);
   }
 
+  /**
+   * Miniatura em alta só para quem precisa: anúncio de vídeo SEM imagem própria.
+   * Buscar para os 141 anúncios seria uma chamada por peça sem ganho nenhum —
+   * a arte estática já vem em 1080x1440 na própria consulta.
+   */
+  const videosSemImagem = Array.from(
+    new Set(
+      ads
+        .filter((ad) => byAd.get(ad.id) && !ad.creative?.image_url && !ad.creative?.object_story_spec?.video_data?.image_url)
+        .map((ad) => videoDoCriativo(ad.creative))
+        .filter((v): v is string => Boolean(v)),
+    ),
+  );
+  const miniaturas = videosSemImagem.length ? await miniaturasDeVideo(videosSemImagem) : new Map<string, string>();
+
   const rows: AdCreativeRow[] = ads.flatMap((ad) => {
     const stats = byAd.get(ad.id);
     if (!stats || stats.spend <= 0) return [];
@@ -370,7 +438,7 @@ export async function getAdsWithCreatives(range: DateRange, metric: ConversionMe
           ? ((stats.reactions + stats.comments + stats.shares + stats.saves) / stats.impressions) * 100
           : 0,
       status: statusLabelAd(ad.effective_status),
-      thumbnailUrl: creativeImage(ad.creative),
+      thumbnailUrl: creativeImage(ad.creative, miniaturas),
       permalink: creativePermalink(ad.creative),
       platform: PLATFORM_LABEL[dominant] || "Meta",
       score: 0,
