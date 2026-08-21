@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider, THEME_INIT_SCRIPT } from "@/components/ThemeProvider";
+import { RAIL_INIT_SCRIPT } from "@/components/Sidebar";
 import { CANDIDATO } from "@/lib/candidato";
 import "./globals.css";
 
@@ -24,6 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script dangerouslySetInnerHTML={{ __html: RAIL_INIT_SCRIPT }} />
       </head>
       <body>
         {/* A moldura do painel (barra lateral e cabeçalho) mudou para o layout

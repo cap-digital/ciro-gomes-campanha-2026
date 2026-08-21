@@ -187,8 +187,10 @@ export default async function CampanhasPage({ searchParams }: { searchParams: Pr
         ))}
       </div>
 
-      <CampaignListPanel title="Campanhas · Kwai Ads" dotColor="#FF7A00" campaigns={data.kwaiCampaigns} resultLabel={data.resultLabel} costLabel={data.costLabel} />
+      {/* Meta à esquerda: é a plataforma que está veiculando. O Kwai fica à
+          direita até a campanha começar por lá. */}
       <CampaignListPanel title="Campanhas · Meta Ads" dotColor="#2E8FFF" campaigns={data.metaCampaigns} resultLabel={data.resultLabel} costLabel={data.costLabel} />
+      <CampaignListPanel title="Campanhas · Kwai Ads" dotColor="#FF7A00" campaigns={data.kwaiCampaigns} resultLabel={data.resultLabel} costLabel={data.costLabel} />
     </div>
   );
 }

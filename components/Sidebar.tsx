@@ -5,9 +5,24 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav";
-import { CANDIDATO, FOTO_CANDIDATO } from "@/lib/candidato";
+import { CANDIDATO, NUMERO, FOTO_CANDIDATO } from "@/lib/candidato";
 import { useTheme } from "./ThemeProvider";
 import { sair } from "@/app/login/acoes";
+
+/**
+ * Aplica a largura da barra ANTES da primeira pintura.
+ *
+ * Sem isto a página abriria com a barra estreita e ela pularia para larga assim
+ * que o React lesse a preferência — o mesmo tipo de piscada que o tema já
+ * evitava. O atributo fica no <html>, e todo o resto é CSS.
+ */
+export const RAIL_INIT_SCRIPT = `
+try {
+  if (localStorage.getItem('rail') === 'aberto') {
+    document.documentElement.setAttribute('data-rail', 'aberto');
+  }
+} catch (e) {}
+`;
 
 const railIcon = {
   width: 28,
@@ -58,12 +73,35 @@ export function Sidebar() {
   const searchParams = useSearchParams();
   const [hover, setHover] = useState<string | null>(null);
   const [menu, setMenu] = useState(false);
+  const [aberta, setAberta] = useState(false);
   const { theme, toggle } = useTheme();
   const qs = searchParams.toString();
 
   // Fecha ao trocar de página: o clique navega, e um menu aberto por cima do
   // conteúdo novo obrigaria um segundo toque só para sair dele.
   useEffect(() => setMenu(false), [pathname]);
+
+  // Lê a preferência já aplicada pelo script de inicialização, para o botão
+  // nascer com o rótulo certo.
+  useEffect(() => {
+    setAberta(document.documentElement.getAttribute("data-rail") === "aberto");
+  }, []);
+
+  /**
+   * A gravação acontece só aqui, no clique — nunca num efeito de render. É a
+   * mesma armadilha que derrubava o tema claro: um efeito que grava a cada
+   * render salva o valor inicial por cima da preferência real.
+   */
+  function alternarBarra() {
+    const proximo = !aberta;
+    setAberta(proximo);
+    const raiz = document.documentElement;
+    if (proximo) raiz.setAttribute("data-rail", "aberto");
+    else raiz.removeAttribute("data-rail");
+    try {
+      localStorage.setItem("rail", proximo ? "aberto" : "fechado");
+    } catch {}
+  }
 
   useEffect(() => {
     if (!menu) return;
@@ -89,27 +127,35 @@ export function Sidebar() {
         }}
         className="rail-caixa"
       >
-        <div
-          style={{
-            width: 38,
-            height: 38,
-            flex: "0 0 38px",
-            borderRadius: 99,
-            background: "var(--slot8)",
-            border: "2px solid rgba(255,255,255,.18)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-          }}
-        >
-          <Image
-            src={FOTO_CANDIDATO}
-            alt={CANDIDATO}
-            width={38}
-            height={38}
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 14%" }}
-          />
+        {/* Foto e nome na mesma linha. Recolhida, a barra mostra só a foto;
+            aberta, o nome entra à direita dela — e não abaixo, onde roubava
+            uma linha inteira de altura da barra. */}
+        <div className="rail-id" style={{ display: "flex", alignItems: "center", gap: 10, flex: "0 0 auto", minWidth: 0 }}>
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              flex: "0 0 38px",
+              borderRadius: 99,
+              background: "var(--slot8)",
+              border: "2px solid rgba(255,255,255,.18)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+            }}
+          >
+            <Image
+              src={FOTO_CANDIDATO}
+              alt={CANDIDATO}
+              width={38}
+              height={38}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 14%" }}
+            />
+          </div>
+          <span className="rail-rotulo rail-nome">
+            {CANDIDATO} {NUMERO}
+          </span>
         </div>
 
         <div className="rail-div" style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
@@ -184,13 +230,44 @@ export function Sidebar() {
                 >
                   {item.icon}
                 </span>
-                <Tooltip show={hover === item.id}>{item.label}</Tooltip>
+                {/* O rótulo está sempre no DOM: quem decide se aparece é o CSS,
+                    conforme a barra esteja recolhida ou aberta. Renderizar
+                    condicionalmente causaria diferença entre servidor e cliente. */}
+                <span className="rail-rotulo">{item.label}</span>
+                {/* Com a barra aberta o nome já está à vista — o balão vira ruído. */}
+                <Tooltip show={hover === item.id && !aberta}>{item.label}</Tooltip>
               </Link>
             );
           })}
         </nav>
 
         <div className="rail-div" style={{ height: 1, width: 26, background: "rgba(255,255,255,.12)", flex: "0 0 1px" }} />
+
+        {/* Expandir/recolher. Fica oculto no celular, onde a barra já virou
+            faixa horizontal com menu próprio. */}
+        <button
+          className="rail-expandir"
+          onClick={alternarBarra}
+          aria-expanded={aberta}
+          aria-label={aberta ? "Recolher a barra lateral" : "Expandir a barra lateral"}
+          onMouseEnter={() => setHover("__expandir")}
+          onMouseLeave={() => setHover(null)}
+          style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center", background: "none", border: "none", padding: 0, fontFamily: "inherit", flex: "0 0 auto" }}
+        >
+          <span
+            className="ms"
+            style={{
+              ...railIcon,
+              background: hover === "__expandir" ? "rgba(255,255,255,.12)" : "transparent",
+              color: hover === "__expandir" ? "#fff" : railIcon.color,
+              transition: "all .18s ease",
+            }}
+          >
+            {aberta ? "chevron_left" : "chevron_right"}
+          </span>
+          <span className="rail-rotulo">{aberta ? "Recolher" : "Expandir"}</span>
+          <Tooltip show={hover === "__expandir" && !aberta}>Expandir a barra</Tooltip>
+        </button>
 
         <div className="rail-pe" style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
           <div
@@ -210,7 +287,8 @@ export function Sidebar() {
             >
               {theme === "dark" ? "light_mode" : "dark_mode"}
             </span>
-            <Tooltip show={hover === "__theme"}>{theme === "dark" ? "Tema claro" : "Tema escuro"}</Tooltip>
+            <span className="rail-rotulo">{theme === "dark" ? "Tema claro" : "Tema escuro"}</span>
+            <Tooltip show={hover === "__theme" && !aberta}>{theme === "dark" ? "Tema claro" : "Tema escuro"}</Tooltip>
           </div>
           {/* O ícone já existia, mas não fazia nada. Vira um form porque sair
               encerra a sessão no servidor — não é navegação. */}
@@ -232,8 +310,9 @@ export function Sidebar() {
             >
               logout
             </span>
+            <span className="rail-rotulo">Sair</span>
           </button>
-            <Tooltip show={hover === "__exit"}>Sair</Tooltip>
+            <Tooltip show={hover === "__exit" && !aberta}>Sair</Tooltip>
           </form>
         </div>
       </div>

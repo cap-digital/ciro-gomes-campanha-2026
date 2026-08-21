@@ -5,6 +5,8 @@
 export const CANDIDATO = process.env.NEXT_PUBLIC_CANDIDATO || "Ciro Gomes";
 export const CARGO = process.env.NEXT_PUBLIC_CARGO || "Governador · Ceará";
 export const PARTIDO = process.env.NEXT_PUBLIC_PARTIDO || "PSDB";
+/** Número de urna. Aparece ao lado do nome na barra lateral. */
+export const NUMERO = process.env.NEXT_PUBLIC_NUMERO || "45";
 export const ANO = (process.env.NEXT_PUBLIC_DATA_ELEICAO || "2026").slice(0, 4);
 
 /** Data do 1º turno (ISO). Base para a contagem regressiva e o pacing. */

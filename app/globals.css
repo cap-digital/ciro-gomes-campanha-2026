@@ -275,6 +275,92 @@ button {
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
+   Barra lateral expansível.
+
+   A largura é a única coisa que muda: como a `.rail` é item de um flex em
+   linha, alargá-la EMPURRA o conteúdo em vez de cobri-lo — nada de position
+   absolute, nada de sobreposição. O rótulo está sempre no DOM e é o CSS que
+   decide se aparece, para não haver diferença entre servidor e cliente.
+
+   As larguras vêm com !important porque a `.rail` traz `width` e `flex` no
+   estilo inline, que vence qualquer seletor.
+   ────────────────────────────────────────────────────────────────────────── */
+.rail {
+  transition: width 0.18s ease, flex-basis 0.18s ease;
+}
+.rail-rotulo {
+  display: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+:root[data-rail="aberto"] .rail {
+  width: 212px !important;
+  flex: 0 0 212px !important;
+}
+:root[data-rail="aberto"] .rail-caixa {
+  align-items: stretch !important;
+  padding: 10px 10px !important;
+}
+:root[data-rail="aberto"] .rail-rotulo {
+  display: block;
+}
+/* Itens viram linhas: ícone à esquerda, nome ao lado.
+
+   Em tela baixa os 13 itens de 38px passam da altura da barra — a lista rola
+   em vez de empurrar tema e sair para fora da caixa. `min-height: 0` é o que
+   deixa um item flex encolher abaixo do conteúdo; sem ele o overflow não
+   acontece. Só vale com a barra aberta: recolhida, os balões de dica saem
+   pela lateral e qualquer overflow cortaria eles. */
+:root[data-rail="aberto"] .rail-nav {
+  justify-content: flex-start !important;
+  gap: 2px !important;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+/* `padding` leva !important por causa do botão Expandir, que traz `padding: 0`
+   inline — sem isso o ícone dele ficava 6px à esquerda dos demais. */
+:root[data-rail="aberto"] .rail-nav a,
+:root[data-rail="aberto"] .rail-pe > div,
+:root[data-rail="aberto"] .rail-pe form,
+:root[data-rail="aberto"] .rail-expandir {
+  width: 100%;
+  gap: 10px;
+  padding: 5px 6px !important;
+  border-radius: 11px;
+}
+:root[data-rail="aberto"] .rail-pe {
+  align-items: stretch !important;
+}
+:root[data-rail="aberto"] .rail-pe form button {
+  width: 100%;
+  gap: 10px;
+}
+/* Foto à esquerda, nome e número à direita, na mesma linha. */
+:root[data-rail="aberto"] .rail-id {
+  width: 100%;
+  padding: 0 1px;
+}
+:root[data-rail="aberto"] .rail-nome {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+  min-width: 0;
+}
+/* Régua de 26px vira linha cheia quando há largura para isso. */
+:root[data-rail="aberto"] .rail-div {
+  width: 100% !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
    Telas estreitas — uma coluna, cada quadrado abaixo do anterior.
 
    O painel é escrito com estilo inline, que vence qualquer seletor de folha
@@ -395,6 +481,29 @@ button {
   .rail-menu-botao {
     display: flex !important;
     flex: 0 0 auto;
+  }
+  /* A barra já é uma faixa horizontal aqui; expandir não faz sentido. */
+  .rail-expandir,
+  .rail-rotulo {
+    display: none !important;
+  }
+  :root[data-rail="aberto"] .rail {
+    width: 100% !important;
+    flex: 0 0 auto !important;
+  }
+  /* Quem abriu a barra no desktop e estreitou a janela ainda carrega o
+     atributo; as regras de "linha com rótulo" não valem na faixa horizontal. */
+  :root[data-rail="aberto"] .rail-caixa,
+  :root[data-rail="aberto"] .rail-pe {
+    align-items: center !important;
+  }
+  :root[data-rail="aberto"] .rail-pe > div,
+  :root[data-rail="aberto"] .rail-pe form,
+  :root[data-rail="aberto"] .rail-pe form button,
+  :root[data-rail="aberto"] .rail-id {
+    width: auto;
+    gap: 0;
+    padding: 0 !important;
   }
   /* A caixa da barra é o contêiner do menu suspenso. */
   .rail-caixa {
